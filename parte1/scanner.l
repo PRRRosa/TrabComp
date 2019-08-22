@@ -1,12 +1,9 @@
 
 %{
-  #define KW_INT 256
-  #define KW_INTEGER 257
-  #define IDENTIFIER 258
-  #define LIT_INT 259
-  #define LIT_REAL 270
+  #include "tokens.h"
   int lineNumber = 1;
-}%
+  #include "hash.c"
+%}
 
 %x COMMENT
 DIGIT [0-9]
@@ -14,11 +11,10 @@ DIGIT [0-9]
 %%
 
 "int" {return KW_INT;}
-"integer" {return KW_INTEGER;}
-[A-Za-z_][A-Za-z_0-9]* {fprintf(stderr, "lexema=%s\n",yytext );return IDENTIFIER;}
-{DIGIT}+ {return LIT_INT;}
-{DIGIT}+"."{DIGIT}+ {return LIT_REAL;}
-[-+*/]
+[A-Za-z_][A-Za-z_0-9]* {hashInsert(yytext);return TK_IDENTIFIER;}
+{DIGIT}+ {return LIT_INTEGER;}
+{DIGIT}+"."{DIGIT}+ {return LIT_FLOAT;}
+[-+*/] return yytext[0];
 "("
 ")"
 ";"
@@ -39,32 +35,8 @@ int yywrap(){
   running = 0;
   return 1;
 }
-
-int main() {
-  int tok;
-  while (running) {
-    tok = yylex();
-    if(!running){
-      break;
-    }
-    switch (tok) {
-      case KW_INT:
-        fprintf(stderr, "Found KW int\n");
-        break;
-      case KW_INTEGER:
-        fprintf(stderr, "Found KW integer\n");
-        break;
-      case IDENTIFIER:
-        fprintf(stderr, "Identifier\n");
-        break;
-      case LIT_INT:
-        fprintf(stderr, "Literal Integer\n");
-        break;
-      case LIT_REAL:
-        fprintf(stderr, "Literal Real\n");
-        break;
-      default:
-        break;
-    }
-  }
+void initMe(){
+  hashInit();
 }
+
+#include "main.c"

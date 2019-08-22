@@ -20,12 +20,21 @@ int hashAddress(char *text){
 
 HASH_NODE *hashInsert(char *text){
   HASH_NODE *newNode;
-  address = hashAddress(text);
+  int address = hashAddress(text);
   newNode =(HASH_NODE*) calloc(1,sizeof(HASH_NODE));
   newNode->type = 1;
   newNode->text = (char*)calloc(strlen(text)+1,sizeof(char));
-  strcpy(newNode->next,text);
+  strcpy(newNode->text,text);
   newNode->next = Table[address];
   Table[address] = newNode;
   return newNode;
+}
+void hashPrint(){
+  int i;
+  HASH_NODE *node;
+  for(i=0;i<HASH_SIZE;++i){
+    for(node=Table[i];node;node=node->next){
+      printf("table[%d] has %s\n", i,node->text);
+    }
+  }
 }
