@@ -7,7 +7,7 @@
 
 %x COMMENT
 DIGIT [0-9]
-
+%x STRING
 %%
 
 "int" {return KW_INT;}
@@ -21,13 +21,20 @@ DIGIT [0-9]
 [ \t]
 "\n" {++lineNumber;}
 "//".*
-.
 
-"/*" BEGIN(COMMENT);
-<COMMENT>"*/" BEGIN(INITIAL);
+
+"###" BEGIN(COMMENT);
+<COMMENT>"###" {BEGIN(INITIAL);}
 <COMMENT>"\n" ++lineNumber;
 <COMMENT>.
 
+"\"" BEGIN(STRING);
+<STRING>"\\\""
+<STRING>"\"" {return LIT_STRING;}
+<STRING>"\n" ++lineNumber;
+<STRING>.
+
+.
 
 %%
 int running = 1;

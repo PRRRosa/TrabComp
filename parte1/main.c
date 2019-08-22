@@ -19,6 +19,9 @@ int main() {
       case LIT_FLOAT:
         fprintf(stderr, "Literal Float\n");
         break;
+      case LIT_STRING:
+        fprintf(stderr, "Literal String\n");
+        break;
       default:
         fprintf(stderr, "ascii token %c\n", tok);
         break;
