@@ -10,6 +10,18 @@ int main() {
       case KW_INT:
         fprintf(stderr, "Found KW int\n");
         break;
+      case KW_BOOL:
+        fprintf(stderr, "Found KW bool\n");
+        break;
+      case KW_FLOAT:
+        fprintf(stderr, "Found KW float\n");
+        break;
+      case KW_LONG:
+        fprintf(stderr, "Found KW long\n");
+        break;
+      case KW_BYTE:
+        fprintf(stderr, "Found KW byte\n");
+        break;
       case TK_IDENTIFIER:
         fprintf(stderr, "Identifier\n");
         break;

@@ -1,4 +1,5 @@
 #include "hash.h"
+#include <stdio.h>
 
 HASH_NODE *Table[HASH_SIZE];
 
@@ -18,11 +19,12 @@ int hashAddress(char *text){
   return address - 1;
 }
 
-HASH_NODE *hashInsert(char *text){
+HASH_NODE *hashInsert(char *text, int type){
+  printf("inserindo em hash texto %s de tipo %d\n",text,type);
   HASH_NODE *newNode;
   int address = hashAddress(text);
   newNode =(HASH_NODE*) calloc(1,sizeof(HASH_NODE));
-  newNode->type = 1;
+  newNode->type = type;
   newNode->text = (char*)calloc(strlen(text)+1,sizeof(char));
   strcpy(newNode->text,text);
   newNode->next = Table[address];
