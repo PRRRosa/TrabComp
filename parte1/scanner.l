@@ -18,14 +18,22 @@ DIGIT [0-9]
 "float" {BEGIN(IDENTIFY); varType=KW_FLOAT; return KW_FLOAT;}
 "bool" {BEGIN(IDENTIFY); varType=KW_BOOL; return KW_BOOL;}
 
+
+
+{DIGIT}+ {hashInsert(yytext,LIT_INTEGER);return KW_INT;}
+(({DIGIT}+"."{DIGIT}+)|("."{DIGIT}+)|({DIGIT}+".")) {hashInsert(yytext,LIT_FLOAT);return KW_FLOAT;}
+"TRUE"	{hashInsert(yytext,KW_BOOL);return KW_BOOL;}
+"FALSE"	{hashInsert(yytext,KW_BOOL);return KW_BOOL;}
+['.']	{hashInsert(yytext,LIT_CHAR);return LIT_CHAR;}
+["]([^"]|\\\")*["]	{hashInsert(yytext,LIT_STRING);return LIT_STRING;}
+
+
 <IDENTIFY>[A-Za-z_][A-Za-z_0-9]* {hashInsert(yytext,varType); BEGIN(INITIAL); return TK_IDENTIFIER;}
 <IDENTIFY>[^ A-Za-z0-9]	{BEGIN(INITIAL);}
 
 [A-Za-z_][A-Za-z_0-9]* {return TK_IDENTIFIER;}
 
 
-{DIGIT}+ {return LIT_INTEGER;}
-{DIGIT}+"."{DIGIT}+ {return LIT_FLOAT;}
 [-+*/] return yytext[0];
 "("
 ")"
@@ -40,11 +48,6 @@ DIGIT [0-9]
 <COMMENT>"\n" ++lineNumber;
 <COMMENT>.
 
-"\"" BEGIN(STRING);
-<STRING>"\\\""
-<STRING>"\"" {BEGIN(INITIAL);return LIT_STRING;}
-<STRING>"\n" ++lineNumber;
-<STRING>.
 
 .
 
