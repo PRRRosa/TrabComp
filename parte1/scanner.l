@@ -30,7 +30,7 @@ DIGIT [0-9]
 
 "\"" BEGIN(STRING);
 <STRING>"\\\""
-<STRING>"\"" {return LIT_STRING;}
+<STRING>"\"" {BEGIN(INITIAL);return LIT_STRING;}
 <STRING>"\n" ++lineNumber;
 <STRING>.
 
