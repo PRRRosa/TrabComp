@@ -40,4 +40,5 @@ int main() {
     }
   }
   hashPrint();
+  fprintf(stderr, "%i\n", getLineNumber());
 }

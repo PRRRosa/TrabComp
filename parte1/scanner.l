@@ -4,6 +4,7 @@
   int lineNumber = 1;
   #include "hash.c"
   int varType=1;
+  int running = 1;
 
   void countLinesInString(char* stringToTest,int lengthOfString);
 %}
@@ -54,7 +55,7 @@ DIGIT [0-9]
 .	{return yytext[0];}
 
 %%
-int running = 1;
+
 int yywrap(){
   running = 0;
   return 1;
@@ -69,6 +70,15 @@ void countLinesInString(char* stringToTest,int lengthOfString){
 		}
 	}
 	return;
+}
+
+int getLineNumber(){
+  return lineNumber;
+}
+
+int isRunning(){
+  return running;
+  
 }
 
 #include "main.c"
