@@ -1,9 +1,9 @@
 int main() {
   initMe();
   int tok;
-  while (running) {
+  while (isRunning()) {
     tok = yylex();
-    if(!running){
+    if(!isRunning()){
       break;
     }
     switch (tok) {
