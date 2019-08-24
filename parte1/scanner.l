@@ -4,6 +4,8 @@
   int lineNumber = 1;
   #include "hash.c"
   int varType=1;
+
+  void countLinesInString(char* stringToTest,int lengthOfString);
 %}
 
 %x COMMENT
@@ -24,8 +26,8 @@ DIGIT [0-9]
 (({DIGIT}+"."{DIGIT}+)|("."{DIGIT}+)|({DIGIT}+".")) {hashInsert(yytext,LIT_FLOAT);return KW_FLOAT;}
 "TRUE"	{hashInsert(yytext,KW_BOOL);return KW_BOOL;}
 "FALSE"	{hashInsert(yytext,KW_BOOL);return KW_BOOL;}
-['.']	{hashInsert(yytext,LIT_CHAR);return LIT_CHAR;}
-["]([^"]|\\\")*["]	{hashInsert(yytext,LIT_STRING);return LIT_STRING;}
+"'"."'"	{hashInsert(yytext,LIT_CHAR);return LIT_CHAR;}
+["]([^"]|\\\")*["]	{hashInsert(yytext,LIT_STRING);countLinesInString(yytext,yyleng);return LIT_STRING;}
 
 
 <IDENTIFY>[A-Za-z_][A-Za-z_0-9]* {hashInsert(yytext,varType); BEGIN(INITIAL); return TK_IDENTIFIER;}
@@ -49,7 +51,7 @@ DIGIT [0-9]
 <COMMENT>.
 
 
-.
+.	{return yytext[0];}
 
 %%
 int running = 1;
@@ -59,6 +61,14 @@ int yywrap(){
 }
 void initMe(){
   hashInit();
+}
+void countLinesInString(char* stringToTest,int lengthOfString){
+	for(int currentChar=0;currentChar<lengthOfString;currentChar++){
+		if(stringToTest[currentChar]=='\n'){
+			lineNumber++;
+		}
+	}
+	return;
 }
 
 #include "main.c"
