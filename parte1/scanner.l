@@ -22,6 +22,13 @@ DIGIT [0-9]
 "bool" {BEGIN(IDENTIFY); varType=KW_BOOL; return KW_BOOL;}
 "if" {BEGIN(IDENTIFY); varType=KW_IF; return KW_IF;}
 "then" {BEGIN(IDENTIFY); varType=KW_THEN; return KW_THEN;}
+"else" {BEGIN(IDENTIFY); varType=KW_ELSE; return KW_ELSE;}
+"while" {BEGIN(IDENTIFY); varType=KW_WHILE; return KW_WHILE;}
+"for" {BEGIN(IDENTIFY); varType=KW_FOR; return KW_FOR;}
+"read" {BEGIN(IDENTIFY); varType=KW_READ; return KW_READ;}
+"print" {BEGIN(IDENTIFY); varType=KW_PRINT; return KW_PRINT;}
+"return" {BEGIN(IDENTIFY); varType=KW_RETURN; return KW_RETURN;}
+"break" {BEGIN(IDENTIFY); varType=KW_BREAK; return KW_BREAK;}
 
 
 
