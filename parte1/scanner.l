@@ -20,6 +20,8 @@ DIGIT [0-9]
 "long" {BEGIN(IDENTIFY); varType= KW_LONG; return KW_LONG;}
 "float" {BEGIN(IDENTIFY); varType=KW_FLOAT; return KW_FLOAT;}
 "bool" {BEGIN(IDENTIFY); varType=KW_BOOL; return KW_BOOL;}
+"if" {BEGIN(IDENTIFY); varType=KW_IF; return KW_IF;}
+"then" {BEGIN(IDENTIFY); varType=KW_THEN; return KW_THEN;}
 
 
 
@@ -30,7 +32,7 @@ DIGIT [0-9]
 "'"."'"	{hashInsert(yytext,LIT_CHAR);return LIT_CHAR;}
 ["]([^"]|\\\")*["]	{hashInsert(yytext,LIT_STRING);countLinesInString(yytext,yyleng);return LIT_STRING;}
 
-
+[\-+*/,;:()\[\]{}*<>=v.~&$#] return (int)yytext[0];
 <IDENTIFY>[A-Za-z_][A-Za-z_0-9]* {hashInsert(yytext,varType); BEGIN(INITIAL); return TK_IDENTIFIER;}
 <IDENTIFY>[^ A-Za-z0-9]	{BEGIN(INITIAL);}
 
@@ -41,7 +43,7 @@ DIGIT [0-9]
 "=="	{return OPERATOR_EQ;}
 "!="	{return OPERATOR_DIF;}
 
-[\-+*/,;:()\[\]{}*<>=v.~&$#] return yytext[0];
+
 
 [ \t]
 "\n" {++lineNumber;}
@@ -78,7 +80,7 @@ int getLineNumber(){
 
 int isRunning(){
   return running;
-  
+
 }
 
 #include "main.c"

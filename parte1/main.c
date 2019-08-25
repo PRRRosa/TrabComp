@@ -35,7 +35,7 @@ int main() {
         fprintf(stderr, "Literal String\n");
         break;
       default:
-        fprintf(stderr, "ascii token %c\n", tok);
+        fprintf(stderr, "ascii token %i\n", tok);
         break;
     }
   }
