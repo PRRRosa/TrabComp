@@ -51,8 +51,6 @@ DIGIT [0-9]
 "!="	{return OPERATOR_DIF;}
 
 
-
-[ \t]
 "\n" {++lineNumber;}
 "//".*
 
