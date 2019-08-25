@@ -36,11 +36,13 @@ DIGIT [0-9]
 
 [A-Za-z_][A-Za-z_0-9]* {return TK_IDENTIFIER;}
 
+"<="	{return OPERATOR_LE;}
+">="	{return OPERATOR_GE;}
+"=="	{return OPERATOR_EQ;}
+"!="	{return OPERATOR_DIF;}
 
-[-+*/] return yytext[0];
-"("
-")"
-";"
+[\-+*/,;:()\[\]{}*<>=v.~&$#] return yytext[0];
+
 [ \t]
 "\n" {++lineNumber;}
 "//".*
@@ -51,8 +53,6 @@ DIGIT [0-9]
 <COMMENT>"\n" ++lineNumber;
 <COMMENT>.
 
-
-.	{return yytext[0];}
 
 %%
 
