@@ -34,16 +34,16 @@ DIGIT [0-9]
 
 {DIGIT}+ {hashInsert(yytext,LIT_INTEGER);return KW_INT;}
 (({DIGIT}+"."{DIGIT}+)|("."{DIGIT}+)|({DIGIT}+".")) {hashInsert(yytext,LIT_FLOAT);return KW_FLOAT;}
-"TRUE"	{hashInsert(yytext,KW_BOOL);return KW_BOOL;}
-"FALSE"	{hashInsert(yytext,KW_BOOL);return KW_BOOL;}
+"TRUE"	{hashInsert(yytext,LIT_TRUE);return LIT_TRUE;}
+"FALSE"	{hashInsert(yytext,LIT_FALSE);return LIT_FALSE;}
 "'"."'"	{hashInsert(yytext,LIT_CHAR);return LIT_CHAR;}
 ["]([^"]|\\\")*["]	{hashInsert(yytext,LIT_STRING);countLinesInString(yytext,yyleng);return LIT_STRING;}
 
 [\-+*/,;:()\[\]{}*<>=v.~&$#] return (int)yytext[0];
-<IDENTIFY>[A-Za-z_][A-Za-z_0-9]* {hashInsert(yytext,varType); BEGIN(INITIAL); return TK_IDENTIFIER;}
-<IDENTIFY>[^ A-Za-z0-9]	{BEGIN(INITIAL);}
+<IDENTIFY>[A-Za-z_][A-Za-z_0-9]* {hashInsert(yytext,varType); BEGIN(INITIAL);return TK_IDENTIFIER;}
+<IDENTIFY>[^ A-Za-z0-9]	{++lineNumber;BEGIN(INITIAL);}
 
-[A-Za-z_][A-Za-z_0-9]* {return TK_IDENTIFIER;}
+[A-Za-z_][A-Za-z_0-9]* {hashInsert(yytext,TK_IDENTIFIER);return TK_IDENTIFIER;}
 
 "<="	{return OPERATOR_LE;}
 ">="	{return OPERATOR_GE;}
