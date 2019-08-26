@@ -20,15 +20,15 @@ DIGIT [0-9]
 "long" {BEGIN(IDENTIFY); varType= KW_LONG; return KW_LONG;}
 "float" {BEGIN(IDENTIFY); varType=KW_FLOAT; return KW_FLOAT;}
 "bool" {BEGIN(IDENTIFY); varType=KW_BOOL; return KW_BOOL;}
-"if" {BEGIN(IDENTIFY); varType=KW_IF; return KW_IF;}
-"then" {BEGIN(IDENTIFY); varType=KW_THEN; return KW_THEN;}
-"else" {BEGIN(IDENTIFY); varType=KW_ELSE; return KW_ELSE;}
-"while" {BEGIN(IDENTIFY); varType=KW_WHILE; return KW_WHILE;}
-"for" {BEGIN(IDENTIFY); varType=KW_FOR; return KW_FOR;}
-"read" {BEGIN(IDENTIFY); varType=KW_READ; return KW_READ;}
-"print" {BEGIN(IDENTIFY); varType=KW_PRINT; return KW_PRINT;}
-"return" {BEGIN(IDENTIFY); varType=KW_RETURN; return KW_RETURN;}
-"break" {BEGIN(IDENTIFY); varType=KW_BREAK; return KW_BREAK;}
+"if" {return KW_IF;}
+"then" {return KW_THEN;}
+"else" {return KW_ELSE;}
+"while" {return KW_WHILE;}
+"for" {return KW_FOR;}
+"read" {return KW_READ;}
+"print" {KW_PRINT;}
+"return" {KW_RETURN;}
+"break" {KW_BREAK;}
 
 
 
@@ -41,7 +41,8 @@ DIGIT [0-9]
 
 [\-+*/,;:()\[\]{}*<>=v.~&$#] return (int)yytext[0];
 <IDENTIFY>[A-Za-z_][A-Za-z_0-9]* {hashInsert(yytext,varType); BEGIN(INITIAL);return TK_IDENTIFIER;}
-<IDENTIFY>[^ A-Za-z0-9]	{++lineNumber;BEGIN(INITIAL);}
+<IDENTIFY>"\n"	{printf("linha\n");++lineNumber;BEGIN(INITIAL);}
+<IDENTIFY>[^ A-Za-z0-9\n]	{BEGIN(INITIAL);}
 
 [A-Za-z_][A-Za-z_0-9]* {hashInsert(yytext,TK_IDENTIFIER);return TK_IDENTIFIER;}
 
