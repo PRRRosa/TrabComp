@@ -42,6 +42,7 @@ DIGIT [0-9]
 ["]([^"]|\\\")*["]	{hashInsert(yytext,LIT_STRING);countLinesInString(yytext,yyleng);return LIT_STRING;}
 
 [\-+*/,;:()\[\]{}*<>=v.~&$#] return (int)yytext[0];
+
 [A-Za-z_][A-Za-z_0-9]* {hashInsert(yytext,TK_IDENTIFIER);return TK_IDENTIFIER;}
 
 
@@ -54,7 +55,7 @@ DIGIT [0-9]
 <COMMENT>"\n" ++lineNumber;
 <COMMENT>.
 
-. {return TOKEN_ERROR;}
+[^ \t] {return TOKEN_ERROR;}
 %%
 
 int yywrap(){
