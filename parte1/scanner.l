@@ -61,7 +61,7 @@ DIGIT [0-9]
 <COMMENT>"\n" ++lineNumber;
 <COMMENT>.
 
-. {return TOKEN_ERROR;}
+[^ \t] {return TOKEN_ERROR;}
 %%
 
 int yywrap(){
