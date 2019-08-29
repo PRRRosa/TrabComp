@@ -41,11 +41,13 @@
 
 %%
 
-programa: programa def |
-        ;
+programa: programa decl | ;
+decl: vardec | fundec ;
 
-def: KW_INT TK_IDENTIFIER '=' LIT_INTEGER
-        ;
+vardec: KW_INT TK_IDENTIFIER '=' LIT_INTEGER ;
+fundec: KW_INT TK_IDENTIFIER '(' ')' body ;
+body: cmd body |  ;
+cmd: TK_IDENTIFIER '=' LIT_FLOAT ;
 
 %%
 int yyerror(char *msg){
