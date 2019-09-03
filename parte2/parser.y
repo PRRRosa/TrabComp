@@ -44,11 +44,12 @@
 programa: programa decl | ;
 decl: vardec | fundec ;
 
-vardec: KW_INT TK_IDENTIFIER '=' LIT_INTEGER ;
-fundec: KW_INT TK_IDENTIFIER '(' ')' body ;
-body: cmd body |  ;
-cmd: TK_IDENTIFIER '=' LIT_FLOAT ;
-
+vardec: KW_INT TK_IDENTIFIER '=' init ';';
+init: LIT_INTEGER ;
+fundec: KW_INT TK_IDENTIFIER '(' ')' cmd ;
+cmd: TK_IDENTIFIER '=' LIT_FLOAT | block;
+block: '{' lcmd '}' ;
+lcmd: lcmd cmd ';' | ;
 %%
 int yyerror(char *msg){
   fprintf(stderr, "Deu erro de sintaxe\n");
