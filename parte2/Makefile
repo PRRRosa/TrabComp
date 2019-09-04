@@ -8,7 +8,7 @@
 #
 
 
-etapa2: lex.yy.c
+etapa2: lex.yy.c scanner.l
 	gcc -o etapa2 lex.yy.c
 lex.yy.c: scanner.l
 	lex scanner.l
@@ -16,4 +16,4 @@ scanner.l: parser.y
 	yacc parser.y -d
 
 clean:
-	rm lex.yy.c etapa2
+	rm lex.yy.c etapa2 y.tab.c y.tab.h
