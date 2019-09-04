@@ -42,12 +42,29 @@
 %%
 
 programa: programa decl | ;
-decl: vardec | fundec ;
-
-vardec: KW_INT TK_IDENTIFIER '=' init ';';
-init: LIT_INTEGER ;
-fundec: KW_INT TK_IDENTIFIER '(' ')' cmd ;
-cmd: TK_IDENTIFIER '=' LIT_FLOAT | block;
+decl: vardec | fundec 
+	;
+arrayIndex: LIT_INTEGER| TK_IDENTIFIER
+	;
+vardec: singleVarDec | arrayDec
+	;
+singleVar : TK_IDENTIFIER | TK_IDENTIFIER '[' arrayIndex ']'
+	;
+vartype:KW_BYTE | KW_INT | KW_LONG | KW_FLOAT | KW_BOOL
+	;
+singleVarDec: vartype TK_IDENTIFIER '=' init ';'
+	;
+arrayDec: vartype TK_IDENTIFIER '[' LIT_INTEGER ']' ':' listInit ';'| 
+		vartype TK_IDENTIFIER '[' LIT_INTEGER ']' ';'
+	;
+listInit: init| init listInit
+	;
+init: LIT_INTEGER | LIT_FLOAT | LIT_TRUE | LIT_FALSE | LIT_CHAR
+	;
+fundec: vartype TK_IDENTIFIER '(' ')' cmd 
+	;
+cmd: singleVar '=' init | KW_PRINT singleVar | KW_PRINT LIT_STRING | block
+	;
 block: '{' lcmd '}' ;
 lcmd: lcmd cmd ';' | ;
 %%
