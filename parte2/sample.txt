@@ -6,14 +6,14 @@ int a = 0;
 int i = 0;
 long l = 0;
 float f = 0.0;
-int v[10]: 0 0 0 0 0 0 0 0 0 0;
+int vetor[10]: 0 0 0 0 0 0 0 0 0 0;
 int mat [ 10];
 
 int main ()
   {
   a = 5;
-  v[a] = 55;
-  print v[55];
+  vetor[a] = 55;
+  print vetor[55];
 
   print "Digite um numero: \n";
   read a;
@@ -28,7 +28,7 @@ int main ()
 
   for (l:1,10,1)
     print ".";
-  printf "\n";
+  print "\n";
 
   if (a==15) then
     print "A=15\n";

@@ -41,16 +41,52 @@
 
 %%
 
-programa: programa decl | ;
-decl: vardec | fundec ;
+programa: programa decl | cmd|;
+decl: vardec | fundec
+	;
+arrayIndex: LIT_INTEGER| TK_IDENTIFIER
+	;
+vardec: singleVarDec | arrayDec
+	;
+singleVar : TK_IDENTIFIER | TK_IDENTIFIER '[' arrayIndex ']'
+	;
+vartype:KW_BYTE | KW_INT | KW_LONG | KW_FLOAT | KW_BOOL
+	;
+singleVarDec: vartype TK_IDENTIFIER '=' init ';'
+	;
+arrayDec: vartype TK_IDENTIFIER '[' LIT_INTEGER ']' ':' listInit ';'|
+		vartype TK_IDENTIFIER '[' LIT_INTEGER ']' ';'
+	;
+listInit: init| init listInit
+	;
+init: LIT_INTEGER | LIT_FLOAT | LIT_TRUE | LIT_FALSE | LIT_CHAR
+	;
+fundec: vartype TK_IDENTIFIER '(' varDeclFunc ')' cmd
+	;
+cmd: singleVar '=' init | singleVar '=' funCall | KW_PRINT printString | ifCommand | KW_READ singleVar | whileCommand  | funCall | forCommand | KW_BREAK | block
+	;
+printString: LIT_STRING | singleVar| LIT_STRING printString | singleVar printString
+	;
+ifCommand: KW_IF '(' boolExp ')' KW_THEN cmd KW_ELSE cmd | KW_IF '(' boolExp ')' KW_THEN cmd
+	;
+boolExp: singleBool operator singleBool |  boolExp operator singleBool | singleBool operator boolExp | boolExp operator boolExp
+	;
+singleBool: init|TK_IDENTIFIER
+	;
+operator: OPERATOR_LE | OPERATOR_GE | OPERATOR_EQ | OPERATOR_DIF | '<' | '>' | 'v' | '+' | '-' | '*' | '/'
+	;
+whileCommand: KW_WHILE '(' boolExp ')' '{' lcmd '}'
+	;
+funCall: TK_IDENTIFIER '('argList')'|TK_IDENTIFIER '('')'
+	;
+argList: init ',' argList| TK_IDENTIFIER ',' argList| init | TK_IDENTIFIER
+	;
+forCommand: KW_FOR '('TK_IDENTIFIER ':' LIT_INTEGER ',' LIT_INTEGER ',' LIT_INTEGER  ')' cmd |
+			KW_FOR '('TK_IDENTIFIER ':' LIT_INTEGER ',' LIT_INTEGER ',' LIT_INTEGER  ')' cmd KW_ELSE cmd
+	;
+varDeclFunc: vartype TK_IDENTIFIER| vartype TK_IDENTIFIER ',' varDeclFunc|
+	;
 
-vardec: KW_INT TK_IDENTIFIER '=' init ';';
-init: LIT_INTEGER ;
-fundec: KW_INT TK_IDENTIFIER '(' parList ')' cmd ;
-parList: par resto ;
-resto: ',' par resto | ;
-par: KW_INT;
-cmd: TK_IDENTIFIER '=' LIT_FLOAT | block;
 block: '{' lcmd '}' ;
 lcmd: lcmd cmd ';' | ;
 %%
