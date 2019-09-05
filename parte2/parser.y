@@ -46,12 +46,15 @@ decl: vardec | fundec ;
 
 vardec: KW_INT TK_IDENTIFIER '=' init ';';
 init: LIT_INTEGER ;
-fundec: KW_INT TK_IDENTIFIER '(' ')' cmd ;
+fundec: KW_INT TK_IDENTIFIER '(' parList ')' cmd ;
+parList: par resto ;
+resto: ',' par resto | ;
+par: KW_INT;
 cmd: TK_IDENTIFIER '=' LIT_FLOAT | block;
 block: '{' lcmd '}' ;
 lcmd: lcmd cmd ';' | ;
 %%
 int yyerror(char *msg){
-  fprintf(stderr, "Deu erro de sintaxe\n");
+  fprintf(stderr, "Deu erro de sintaxe na linha %d\n", getLineNumber());
   exit(3);
 }
