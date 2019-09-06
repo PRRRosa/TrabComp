@@ -7,12 +7,13 @@
 # and #include "main.c" in the last part of the scanner.l
 #
 
-
-etapa2: lex.yy.c
+exe: lexScan
 	gcc -o etapa2 lex.yy.c
-lex.yy.c: scanner.l
+
+lexScan: yaccAnalysis
 	lex scanner.l
-scanner.l: parser.y
+
+yaccAnalysis:
 	yacc parser.y -d
 
 clean:

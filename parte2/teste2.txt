@@ -1,6 +1,7 @@
 int x = 10;
 int y = 20;
 int k = 6667;
+int a [2];
 
 int funct (int a,int b)
 {
@@ -8,5 +9,5 @@ x = 5.6;
 y = 7.8;
 }
 int funct2 (int c){
-k = 6.66
+k = 6.66;
 }
