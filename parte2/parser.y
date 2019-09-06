@@ -55,14 +55,14 @@ vartype:KW_BYTE | KW_INT | KW_LONG | KW_FLOAT | KW_BOOL
 	;
 singleVarDec: vartype TK_IDENTIFIER '=' init ';'
 	;
-arrayDec: vartype TK_IDENTIFIER '[' LIT_INTEGER ']' ':' listInit ';'| 
+arrayDec: vartype TK_IDENTIFIER '[' LIT_INTEGER ']' ':' listInit ';'|
 		vartype TK_IDENTIFIER '[' LIT_INTEGER ']' ';'
 	;
 listInit: init| init listInit
 	;
 init: LIT_INTEGER | LIT_FLOAT | LIT_TRUE | LIT_FALSE | LIT_CHAR
 	;
-fundec: vartype TK_IDENTIFIER '(' varDeclFunc ')' cmd 
+fundec: vartype TK_IDENTIFIER '(' varDeclFunc ')' cmd
 	;
 cmd: singleVar '=' expression | KW_PRINT printString | ifCommand | KW_READ singleVar | whileCommand  | funCall | forCommand | KW_BREAK | KW_RETURN expression | block
 	;
@@ -74,7 +74,7 @@ binExp: expression operator expression
 	;
 expUnit: init | TK_IDENTIFIER | funCall
 	;
-operator: OPERATOR_LE | OPERATOR_GE | OPERATOR_EQ | OPERATOR_DIF | '<' | '>' | 'v' | '+' | '-' | '*' | '/' 
+operator: OPERATOR_LE | OPERATOR_GE | OPERATOR_EQ | OPERATOR_DIF | '<' | '>' | 'v' | '+' | '-' | '*' | '/'
 	;
 whileCommand: KW_WHILE '(' expression ')' '{' lcmd '}'
 	;

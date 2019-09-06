@@ -8,7 +8,7 @@
 #
 
 
-etapa2: lex.yy.c scanner.l
+etapa2: lex.yy.c
 	gcc -o etapa2 lex.yy.c
 lex.yy.c: scanner.l
 	lex scanner.l
