@@ -41,7 +41,8 @@
 
 %%
 
-programa: programa decl | cmd|;
+programa: programa decl |
+	;
 decl: vardec | fundec 
 	;
 arrayIndex: LIT_INTEGER| TK_IDENTIFIER
@@ -63,36 +64,47 @@ init: LIT_INTEGER | LIT_FLOAT | LIT_TRUE | LIT_FALSE | LIT_CHAR
 	;
 fundec: vartype TK_IDENTIFIER '(' varDeclFunc ')' cmd 
 	;
-cmd: singleVar '=' init | singleVar '=' funCall | KW_PRINT printString | ifCommand | KW_READ singleVar | whileCommand  | funCall | forCommand | KW_BREAK | block
+cmd: singleVar '=' expression | KW_PRINT printString | ifCommand | KW_READ singleVar | whileCommand  | funCall | forCommand | KW_BREAK | KW_RETURN expression | block
 	;
 printString: LIT_STRING | singleVar| LIT_STRING printString | singleVar printString
 	;
-ifCommand: KW_IF boolExp KW_THEN cmd KW_ELSE cmd
+expression: binExp | expUnit
 	;
-boolExp: singleBool operator singleBool |  boolExp operator singleBool | singleBool operator boolExp | boolExp operator boolExp
+binExp: expression operator expression 
 	;
-singleBool: init|TK_IDENTIFIER
+expUnit: init | TK_IDENTIFIER | funCall
 	;
 operator: OPERATOR_LE | OPERATOR_GE | OPERATOR_EQ | OPERATOR_DIF | '<' | '>' | 'v' | '+' | '-' | '*' | '/' 
 	;
-whileCommand: KW_WHILE '(' boolExp ')' '{' lcmd '}'
+whileCommand: KW_WHILE '(' expression ')' '{' lcmd '}'
 	;
 funCall: TK_IDENTIFIER '('argList')'|TK_IDENTIFIER '('')'
 	;
 argList: init ',' argList| TK_IDENTIFIER ',' argList| init | TK_IDENTIFIER
 	;
-ifCommand: KW_IF '(' boolExp ')' KW_THEN cmd
+ifCommand: KW_IF '(' binExp ')' KW_THEN cmd ||  KW_IF '(' binExp ')' KW_THEN cmd KW_ELSE cmd
 	;
 forCommand: KW_FOR '('TK_IDENTIFIER ':' LIT_INTEGER ',' LIT_INTEGER ',' LIT_INTEGER  ')' cmd |
 			KW_FOR '('TK_IDENTIFIER ':' LIT_INTEGER ',' LIT_INTEGER ',' LIT_INTEGER  ')' cmd KW_ELSE cmd
 	;
-varDeclFunc: vartype TK_IDENTIFIER| vartype TK_IDENTIFIER ',' varDeclFunc|
+varDeclFunc: declParam| declParam varDeclFuncMeio|
+	;
+varDeclFuncMeio:',' declParam varDeclFuncMeio| ',' declParam
+	;
+declParam: vartype TK_IDENTIFIER
 	;
 
-block: '{' lcmd '}' ;
-lcmd: lcmd cmd ';' | ;
+
+block: '{' lcmd '}' 
+	;
+lcmd: cmd | lcmd lcmdMeio|
+	;
+lcmdMeio: ';' cmd lcmdMeio| ';' cmd
+	;
+
+
 %%
 int yyerror(char *msg){
-  fprintf(stderr, "Deu erro de sintaxe\n");
+  fprintf(stderr, "Deu erro de sintaxe na linha %d\n",getLineNumber());
   exit(3);
 }
