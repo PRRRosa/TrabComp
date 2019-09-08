@@ -43,7 +43,7 @@
 
 programa: programa decl |
 	;
-decl: vardec | fundec 
+decl: vardec | fundec
 	;
 arrayIndex: LIT_INTEGER| TK_IDENTIFIER
 	;
@@ -70,7 +70,7 @@ printString: LIT_STRING | singleVar| LIT_STRING printString | singleVar printStr
 	;
 expression: binExp | expUnit
 	;
-binExp: expression operator expression 
+binExp: expression operator expression
 	;
 expUnit: init | TK_IDENTIFIER | funCall
 	;
@@ -95,9 +95,9 @@ declParam: vartype TK_IDENTIFIER
 	;
 
 
-block: '{' lcmd '}' 
+block: '{' lcmd '}'
 	;
-lcmd: cmd | lcmd lcmdMeio|
+lcmd: cmd | cmd lcmdMeio |
 	;
 lcmdMeio: ';' cmd lcmdMeio| ';' cmd
 	;
