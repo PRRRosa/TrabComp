@@ -64,7 +64,7 @@ init: LIT_INTEGER | LIT_FLOAT | LIT_TRUE | LIT_FALSE | LIT_CHAR
 	;
 fundec: vartype TK_IDENTIFIER '(' varDeclFunc ')' cmd
 	;
-cmd: singleVar '=' expression | KW_PRINT printString | ifCommand | KW_READ singleVar | whileCommand  | funCall | forCommand | KW_BREAK | KW_RETURN expression | block
+cmd: singleVar '=' expression | KW_PRINT printString | ifCommand | KW_READ singleVar | whileCommand  | funCall | forCommand | KW_BREAK | KW_RETURN expression | block|
 	;
 printString: LIT_STRING | singleVar| LIT_STRING printString | singleVar printString
 	;
@@ -82,7 +82,7 @@ funCall: TK_IDENTIFIER '('argList')'|TK_IDENTIFIER '('')'
 	;
 argList: init ',' argList| TK_IDENTIFIER ',' argList| init | TK_IDENTIFIER
 	;
-ifCommand: KW_IF '(' binExp ')' KW_THEN cmd ||  KW_IF '(' binExp ')' KW_THEN cmd KW_ELSE cmd
+ifCommand: KW_IF '(' binExp ')' KW_THEN cmd |  KW_IF '(' binExp ')' KW_THEN cmd KW_ELSE cmd
 	;
 forCommand: KW_FOR '('TK_IDENTIFIER ':' LIT_INTEGER ',' LIT_INTEGER ',' LIT_INTEGER  ')' cmd |
 			KW_FOR '('TK_IDENTIFIER ':' LIT_INTEGER ',' LIT_INTEGER ',' LIT_INTEGER  ')' cmd KW_ELSE cmd
@@ -97,7 +97,7 @@ declParam: vartype TK_IDENTIFIER
 
 block: '{' lcmd '}' 
 	;
-lcmd: cmd | lcmd lcmdMeio|
+lcmd: cmd | cmd lcmdMeio
 	;
 lcmdMeio: ';' cmd lcmdMeio| ';' cmd
 	;
