@@ -37,6 +37,9 @@
 
 %token LIT_STRING
 
+%nonassoc IFX
+%nonassoc KW_ELSE
+
 
 %left  '*' '/' '+' '-' OPERATOR_LE OPERATOR_GE OPERATOR_EQ OPERATOR_DIF '<' '>' 'v'
 
@@ -82,7 +85,8 @@ funCall: TK_IDENTIFIER '('argList')'|TK_IDENTIFIER '('')'
 	;
 argList: init ',' argList| TK_IDENTIFIER ',' argList| init | TK_IDENTIFIER
 	;
-ifCommand: KW_IF '(' binExp ')' KW_THEN cmd |  KW_IF '(' binExp ')' KW_THEN cmd KW_ELSE cmd
+ifCommand: KW_IF '(' binExp ')' KW_THEN cmd %prec IFX|
+		  KW_IF '(' binExp ')' KW_THEN cmd KW_ELSE cmd
 	;
 forCommand: KW_FOR '('TK_IDENTIFIER ':' LIT_INTEGER ',' LIT_INTEGER ',' LIT_INTEGER  ')' cmd
 	;
