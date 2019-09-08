@@ -38,6 +38,7 @@
 %token LIT_STRING
 
 
+%left  '*' '/' '+' '-' OPERATOR_LE OPERATOR_GE OPERATOR_EQ OPERATOR_DIF '<' '>' 'v'
 
 %%
 
@@ -70,12 +71,11 @@ printString: LIT_STRING | singleVar| LIT_STRING printString | singleVar printStr
 	;
 expression: binExp | expUnit
 	;
-binExp: expression operator expression
+binExp: expression OPERATOR_LE expression |expression OPERATOR_GE expression |expression OPERATOR_EQ expression |expression OPERATOR_DIF expression |expression '<' expression |expression '>' expression |expression 'v' expression |expression '+' expression |expression '-' expression |expression '*' expression |expression '/' expression
 	;
 expUnit: init | TK_IDENTIFIER | funCall
 	;
-operator: OPERATOR_LE | OPERATOR_GE | OPERATOR_EQ | OPERATOR_DIF | '<' | '>' | 'v' | '+' | '-' | '*' | '/'
-	;
+
 whileCommand: KW_WHILE '(' expression ')' '{' lcmd '}'
 	;
 funCall: TK_IDENTIFIER '('argList')'|TK_IDENTIFIER '('')'
@@ -84,8 +84,7 @@ argList: init ',' argList| TK_IDENTIFIER ',' argList| init | TK_IDENTIFIER
 	;
 ifCommand: KW_IF '(' binExp ')' KW_THEN cmd |  KW_IF '(' binExp ')' KW_THEN cmd KW_ELSE cmd
 	;
-forCommand: KW_FOR '('TK_IDENTIFIER ':' LIT_INTEGER ',' LIT_INTEGER ',' LIT_INTEGER  ')' cmd |
-			KW_FOR '('TK_IDENTIFIER ':' LIT_INTEGER ',' LIT_INTEGER ',' LIT_INTEGER  ')' cmd KW_ELSE cmd
+forCommand: KW_FOR '('TK_IDENTIFIER ':' LIT_INTEGER ',' LIT_INTEGER ',' LIT_INTEGER  ')' cmd
 	;
 varDeclFunc: declParam| declParam varDeclFuncMeio|
 	;
