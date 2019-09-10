@@ -69,9 +69,9 @@ init: LIT_INTEGER | LIT_FLOAT | LIT_TRUE | LIT_FALSE | LIT_CHAR
 	;
 fundec: vartype TK_IDENTIFIER '(' varDeclFunc ')' cmd
 	;
-cmd: singleVar '=' expression | KW_PRINT printString | ifCommand | KW_READ singleVar | whileCommand  | funCall | forCommand | KW_BREAK | KW_RETURN expression | block|
+cmd: singleVar '=' expression | KW_PRINT printString | ifCommand | KW_READ init | KW_READ TK_IDENTIFIER| whileCommand  | funCall | forCommand | KW_BREAK | KW_RETURN expression | block|
 	;
-printString: LIT_STRING | singleVar| LIT_STRING printString | singleVar printString
+printString: LIT_STRING | '(' expression ')'| LIT_STRING printString | singleVar printString|
 	;
 expression: binExp | expUnit
 	;
