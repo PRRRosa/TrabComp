@@ -69,18 +69,18 @@ init: LIT_INTEGER | LIT_FLOAT | LIT_TRUE | LIT_FALSE | LIT_CHAR
 	;
 fundec: vartype TK_IDENTIFIER '(' varDeclFunc ')' cmd
 	;
-cmd: singleVar '=' expression | KW_PRINT printString | ifCommand | KW_READ init | KW_READ TK_IDENTIFIER| whileCommand  | funCall | forCommand | KW_BREAK | KW_RETURN expression | block|
+cmd: singleVar '=' expression | KW_PRINT printString | ifCommand | KW_READ TK_IDENTIFIER| whileCommand  | funCall | forCommand | KW_BREAK | KW_RETURN expression | block|
 	;
-printString: LIT_STRING | '(' expression ')'| LIT_STRING printString | singleVar printString|
+printString: LIT_STRING | expression | LIT_STRING printString | expression printString
 	;
-expression: binExp | expUnit
+expression: binExp | expUnit | '(' expression ')'
 	;
 binExp: expression OPERATOR_LE expression |expression OPERATOR_GE expression |expression OPERATOR_EQ expression |expression OPERATOR_DIF expression |expression '<' expression |expression '>' expression |expression 'v' expression |expression '+' expression |expression '-' expression |expression '*' expression |expression '/' expression
 	;
-expUnit: init | TK_IDENTIFIER | funCall
+expUnit: init | singleVar | funCall 
 	;
 
-whileCommand: KW_WHILE '(' expression ')' '{' lcmd '}'
+whileCommand: KW_WHILE '(' expression ')' cmd
 	;
 funCall: TK_IDENTIFIER '('argList')'|TK_IDENTIFIER '('')'
 	;
@@ -89,7 +89,7 @@ argList: init ',' argList| TK_IDENTIFIER ',' argList| init | TK_IDENTIFIER
 ifCommand: KW_IF '(' binExp ')' KW_THEN cmd %prec IFX|
 		  KW_IF '(' binExp ')' KW_THEN cmd KW_ELSE cmd
 	;
-forCommand: KW_FOR '('TK_IDENTIFIER ':' LIT_INTEGER ',' LIT_INTEGER ',' LIT_INTEGER  ')' cmd
+forCommand: KW_FOR '('TK_IDENTIFIER ':' expression ',' expression ',' expression  ')' cmd
 	;
 varDeclFunc: declParam| declParam varDeclFuncMeio|
 	;
