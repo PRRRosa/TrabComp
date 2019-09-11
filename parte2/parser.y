@@ -54,8 +54,6 @@ arrayIndex: LIT_INTEGER| TK_IDENTIFIER
 	;
 vardec: singleVarDec | arrayDec
 	;
-singleVar : TK_IDENTIFIER | TK_IDENTIFIER '[' arrayIndex ']'
-	;
 vartype:KW_BYTE | KW_INT | KW_LONG | KW_FLOAT | KW_BOOL
 	;
 singleVarDec: vartype TK_IDENTIFIER '=' init ';'
@@ -69,15 +67,17 @@ init: LIT_INTEGER | LIT_FLOAT | LIT_TRUE | LIT_FALSE | LIT_CHAR
 	;
 fundec: vartype TK_IDENTIFIER '(' varDeclFunc ')' cmd
 	;
-cmd: singleVar '=' expression | KW_PRINT printString | ifCommand | KW_READ TK_IDENTIFIER| whileCommand  | funCall | forCommand | KW_BREAK | KW_RETURN expression | block|
+cmd: assignmentCommand | KW_PRINT printString | ifCommand | KW_READ TK_IDENTIFIER| whileCommand  | funCall | forCommand | KW_BREAK | KW_RETURN expression | block|
+	;
+assignmentCommand: TK_IDENTIFIER '=' expression | TK_IDENTIFIER '[' arrayIndex ']' '=' expression
 	;
 printString: LIT_STRING | expression | LIT_STRING printString | expression printString
 	;
-expression: binExp | expUnit | '(' expression ')'
-	;
-binExp: expression OPERATOR_LE expression |expression OPERATOR_GE expression |expression OPERATOR_EQ expression |expression OPERATOR_DIF expression |expression '<' expression |expression '>' expression |expression 'v' expression |expression '+' expression |expression '-' expression |expression '*' expression |expression '/' expression
-	;
-expUnit: init | singleVar | funCall 
+expression: '(' expression ')' | expression OPERATOR_LE expression |expression OPERATOR_GE expression |
+expression OPERATOR_EQ expression |expression OPERATOR_DIF expression |
+expression '<' expression |expression '>' expression |expression 'v' expression |
+expression '+' expression |expression '-' expression |expression '*' expression |expression '/' expression |
+ init | funCall |TK_IDENTIFIER | TK_IDENTIFIER '[' arrayIndex ']'
 	;
 
 whileCommand: KW_WHILE '(' expression ')' cmd
@@ -86,8 +86,8 @@ funCall: TK_IDENTIFIER '('argList')'|TK_IDENTIFIER '('')'
 	;
 argList: init ',' argList| TK_IDENTIFIER ',' argList| init | TK_IDENTIFIER
 	;
-ifCommand: KW_IF '(' binExp ')' KW_THEN cmd %prec IFX|
-		  KW_IF '(' binExp ')' KW_THEN cmd KW_ELSE cmd
+ifCommand: KW_IF '(' expression ')' KW_THEN cmd %prec IFX|
+		  KW_IF '(' expression ')' KW_THEN cmd KW_ELSE cmd
 	;
 forCommand: KW_FOR '('TK_IDENTIFIER ':' expression ',' expression ',' expression  ')' cmd
 	;
