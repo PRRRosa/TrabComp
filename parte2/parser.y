@@ -7,13 +7,10 @@
 
 %token KW_BYTE
 %token KW_INT
-
 %token KW_LONG
 %token KW_FLOAT
 %token KW_BOOL
-
 %token KW_IF
-
 %token KW_THEN
 %token KW_ELSE
 %token KW_WHILE
@@ -35,7 +32,6 @@
 %token LIT_TRUE
 %token LIT_FALSE
 %token LIT_CHAR
-
 %token LIT_STRING
 
 %nonassoc IFX
