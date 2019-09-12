@@ -37,7 +37,7 @@ DIGIT [0-9]
 "!="	{return OPERATOR_DIF;}
 
 
-{DIGIT}+ {hashInsert(yytext,LIT_INTEGER);yylval.symbol = hashInsert(yytext);return LIT_INTEGER;}
+{DIGIT}+ {yylval.symbol = hashInsert(yytext, LIT_INTEGER);return LIT_INTEGER;}
 (({DIGIT}+"."{DIGIT}+)|("."{DIGIT}+)|({DIGIT}+".")) {hashInsert(yytext,LIT_FLOAT);return LIT_FLOAT;}
 "TRUE"	{hashInsert(yytext,LIT_TRUE);return LIT_TRUE;}
 "FALSE"	{hashInsert(yytext,LIT_FALSE);return LIT_FALSE;}

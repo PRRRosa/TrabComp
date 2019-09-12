@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include "hash.h"
 #define MAX_SONS 4
-
+#define AST_SYMBOL 1
+#define AST_ADD 2
 typedef struct astree_node{
   int type;
   char *text;

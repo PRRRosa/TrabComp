@@ -12,19 +12,21 @@ AST *astreeCreate(int type,HASH_NODE *symbol, AST *s0,AST *s1,AST *s2,AST *s3){
 return newNode;
 
 }
-void astreePrint(AST *s0, int level){
-  if(!newNode)return;
+void astreePrint(AST *node, int level){
+  if(!node)
+    return;
   fprintf(stderr,"AST(");
   switch(node->type){
     case AST_SYMBOL:
-    fprintf(stderr, "AST_SYMBOL,");
-    break;
+      fprintf(stderr, "AST_SYMBOL,");
+      break;
     case AST_ADD:
-    fprintf(stderr,"AST_ADD, ");
-    break;
-    default:break;
+      fprintf(stderr,"AST_ADD, ");
+      break;
+    default:
+      break;
   }
-  for(i=0;i<MAX_SONS;++i){
+  for(int i=0;i<MAX_SONS;++i){
     astreePrint(node->son[i], level+1);
   }
 }

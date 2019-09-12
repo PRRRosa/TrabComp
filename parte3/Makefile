@@ -28,8 +28,8 @@ asTreeObject: astree.c
 lexScan: scanner.l
 	lex --header-file=lex.yy.h scanner.l
 
-yaccAnalysis: parser.y
+yaccAnalysis: lexScan
 	yacc parser.y -d
 
 clean:
-	rm lex.yy.c etapa2 y.tab.c y.tab.h *.o
+	rm lex.yy.c lex.yy.h etapa3 y.tab.c y.tab.h *.o

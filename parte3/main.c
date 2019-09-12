@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "hash.h"
 int yyparse();
+void initMe();
 extern FILE* yyin;
 int main(int argc, char **argv) {
   initMe();
