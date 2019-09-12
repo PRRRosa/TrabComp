@@ -1,0 +1,21 @@
+//
+//
+// nama
+//
+//
+// nama
+//
+//
+// nama
+//
+//
+//
+int a =0 ;
+int n =0;
+int vector [ 15 ] ;
+int x[10];
+int function ( )
+{
+  a=10;
+  vector [ a + 1 ]  = 5 * n;
+}
