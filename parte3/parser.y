@@ -34,7 +34,7 @@
 %token OPERATOR_EQ
 %token OPERATOR_DIF
 
-%token TK_IDENTIFIER
+%token<symbol> TK_IDENTIFIER
 
 %token<symbol> LIT_INTEGER
 %token LIT_FLOAT
@@ -47,6 +47,7 @@
 %nonassoc KW_ELSE
 
 %type<ast> expression
+%type<ast> init
 %left  '*' '/' '+' '-' OPERATOR_LE OPERATOR_GE OPERATOR_EQ OPERATOR_DIF '<' '>' 'v'
 
 %%
@@ -82,7 +83,7 @@ listInit:
   | init listInit
 ;
 init:
-    LIT_INTEGER {fprintf(stderr, "exp=%s\n", $1->text);}
+    LIT_INTEGER {$$=astreeCreate(AST_SYMBOL,$1,0,0,0,0);}
   | LIT_FLOAT
   | LIT_TRUE
   | LIT_FALSE
@@ -105,7 +106,7 @@ cmd:
   |
 ;
 assignmentCommand:
-    TK_IDENTIFIER '=' expression {}
+    TK_IDENTIFIER '=' expression {astreePrint($3,0);}
   | TK_IDENTIFIER '[' expression ']' '=' expression
 ;
 printString:
@@ -123,13 +124,13 @@ expression:
   | expression '<' expression
   | expression '>' expression
   | expression 'v' expression
-  | expression '+' expression {$$ = 0;}
+  | expression '+' expression {$$=astreeCreate(AST_ADD,0,$1,$3,0,0);}
   | expression '-' expression
   | expression '*' expression
   | expression '/' expression
   | init
   | funCall
-  | TK_IDENTIFIER {$$ = 0;}
+  | TK_IDENTIFIER {$$=astreeCreate(AST_SYMBOL,$1,0,0,0,0);}
   | TK_IDENTIFIER '[' expression ']'
 ;
 whileCommand:
@@ -140,10 +141,9 @@ funCall:
   | TK_IDENTIFIER '('')'
 ;
 argList:
-    init ',' argList
+    expression ',' argList
   | TK_IDENTIFIER ',' argList
-  | init
-  | TK_IDENTIFIER
+  | expression
 ;
 ifCommand:
     KW_IF '(' expression ')' KW_THEN cmd %prec IFX

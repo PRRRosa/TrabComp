@@ -131,10 +131,9 @@ funCall:
   | TK_IDENTIFIER '('')'
 ;
 argList:
-    init ',' argList
+    expression ',' argList
   | TK_IDENTIFIER ',' argList
-  | init
-  | TK_IDENTIFIER
+  | expression
 ;
 ifCommand:
     KW_IF '(' expression ')' KW_THEN cmd %prec IFX

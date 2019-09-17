@@ -47,7 +47,7 @@ DIGIT [0-9]
 
 [\-+*/,;:()\[\]{}*<>=v.~&$#] return (int)yytext[0];
 
-[A-Za-z_][A-Za-z_0-9]* {hashInsert(yytext,TK_IDENTIFIER);return TK_IDENTIFIER;}
+[A-Za-z_][A-Za-z_0-9]* {yylval.symbol = hashInsert(yytext,TK_IDENTIFIER);return TK_IDENTIFIER;}
 
 
 "\n" {++lineNumber;}

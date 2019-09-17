@@ -13,20 +13,29 @@ return newNode;
 
 }
 void astreePrint(AST *node, int level){
+  int i;
   if(!node)
     return;
+  for(i=0;i<level;++i){
+      fprintf(stderr,"  ");
+  }
   fprintf(stderr,"AST(");
   switch(node->type){
     case AST_SYMBOL:
       fprintf(stderr, "AST_SYMBOL,");
       break;
     case AST_ADD:
-      fprintf(stderr,"AST_ADD, ");
+      fprintf(stderr,"AST_ADD,");
       break;
     default:
       break;
   }
-  for(int i=0;i<MAX_SONS;++i){
+  if(node->symbol){
+    fprintf(stderr,"%s, ", node->symbol->text);
+  }else{
+    fprintf(stderr," \n");
+  }
+  for(i=0;i<MAX_SONS;++i){
     astreePrint(node->son[i], level+1);
   }
 }
