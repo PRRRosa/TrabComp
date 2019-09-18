@@ -37,11 +37,11 @@
 %token<symbol> TK_IDENTIFIER
 
 %token<symbol> LIT_INTEGER
-%token LIT_FLOAT
-%token LIT_TRUE
-%token LIT_FALSE
-%token LIT_CHAR
-%token LIT_STRING
+%token<symbol> LIT_FLOAT
+%token<symbol> LIT_TRUE
+%token<symbol> LIT_FALSE
+%token<symbol> LIT_CHAR
+%token<symbol> LIT_STRING
 
 %nonassoc IFX
 %nonassoc KW_ELSE
@@ -84,10 +84,10 @@ listInit:
 ;
 init:
     LIT_INTEGER {$$=astreeCreate(AST_SYMBOL,$1,0,0,0,0);}
-  | LIT_FLOAT
-  | LIT_TRUE
-  | LIT_FALSE
-  | LIT_CHAR
+  | LIT_FLOAT {$$=astreeCreate(AST_SYMBOL,$1,0,0,0,0);}
+  | LIT_TRUE {$$=astreeCreate(AST_SYMBOL,$1,0,0,0,0);}
+  | LIT_FALSE {$$=astreeCreate(AST_SYMBOL,$1,0,0,0,0);}
+  | LIT_CHAR {$$=astreeCreate(AST_SYMBOL,$1,0,0,0,0);}
 ;
 fundec:
     vartype TK_IDENTIFIER '(' varDeclFunc ')' cmd
