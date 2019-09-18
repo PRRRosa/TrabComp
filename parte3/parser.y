@@ -117,17 +117,17 @@ printString:
 ;
 expression:
     '(' expression ')'
-  | expression OPERATOR_LE expression
-  | expression OPERATOR_GE expression
-  | expression OPERATOR_EQ expression
-  | expression OPERATOR_DIF expression
-  | expression '<' expression
-  | expression '>' expression
-  | expression 'v' expression
-  | expression '+' expression {$$=astreeCreate(AST_ADD,0,$1,$3,0,0);}
-  | expression '-' expression
-  | expression '*' expression
-  | expression '/' expression
+  | expression OPERATOR_LE expression {$$=astreeCreate(AST_LE,0,$1,$3,0,0);}
+  | expression OPERATOR_GE expression {$$=astreeCreate(AST_GE,0,$1,$3,0,0);}
+  | expression OPERATOR_EQ expression {$$=astreeCreate(AST_EQ,0,$1,$3,0,0);}
+  | expression OPERATOR_DIF expression {$$=astreeCreate(AST_DIF,0,$1,$3,0,0);}
+  | expression '<' expression {$$=astreeCreate(AST_LESS,0,$1,$3,0,0);}
+  | expression '>' expression {$$=astreeCreate(AST_GRE,0,$1,$3,0,0);}
+  | expression 'v' expression {$$=astreeCreate(AST_OR,0,$1,$3,0,0);}
+  | expression '+' expression {$$=astreeCreate(AST_ADD,0,$1,$3,0,0);/*astreePrint(astreeCreate(AST_ADD,0,$1,$3,0,0),0);*/}  
+  | expression '-' expression {$$=astreeCreate(AST_SUB,0,$1,$3,0,0);}
+  | expression '*' expression {$$=astreeCreate(AST_MUL,0,$1,$3,0,0);}
+  | expression '/' expression {$$=astreeCreate(AST_DIV,0,$1,$3,0,0);}
   | init
   | funCall
   | TK_IDENTIFIER {$$=astreeCreate(AST_SYMBOL,$1,0,0,0,0);}

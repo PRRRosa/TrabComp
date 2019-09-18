@@ -37,6 +37,8 @@ void astreePrint(AST *node, int level){
   }
   for(i=0;i<MAX_SONS;++i){
     astreePrint(node->son[i], level+1);
+    
   }
+  fprintf(stderr,")");
 }
 //END
