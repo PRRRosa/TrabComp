@@ -21,7 +21,7 @@ int hashAddress(char *text){
 }
 
 HASH_NODE *hashInsert(char *text, int type){
-  printf("inserindo em hash texto %s de tipo %d\n",text,type);
+  //printf("Inserindo em hash texto %s de tipo %d\n",text,type);
   HASH_NODE *newNode;
   int address = hashAddress(text);
   newNode =(HASH_NODE*) calloc(1,sizeof(HASH_NODE));
@@ -37,7 +37,7 @@ void hashPrint(){
   HASH_NODE *node;
   for(i=0;i<HASH_SIZE;i++){
     for(node=Table[i];node;node=node->next){
-      printf("table[%d] has %s, type is %i\n", i,node->text,node->type);
+      printf("table[%d] has %s, type is %d\n", i,node->text,node->type);
     }
   }
 }

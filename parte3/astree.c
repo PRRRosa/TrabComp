@@ -14,10 +14,11 @@ return newNode;
 }
 void astreePrint(AST *node, int level){
   int i;
-  if(!node)
+  if(!node){
     return;
+  }
   for(i=0;i<level;++i){
-      fprintf(stderr,"  ");
+      fprintf(stderr," ");
   }
   fprintf(stderr,"AST(");
   switch(node->type){
@@ -26,6 +27,36 @@ void astreePrint(AST *node, int level){
       break;
     case AST_ADD:
       fprintf(stderr,"AST_ADD,");
+      break;
+    case AST_SUB:
+      fprintf(stderr,"AST_SUB,");
+      break;
+    case AST_MUL:
+      fprintf(stderr,"AST_MUL,");
+      break;
+    case AST_DIV:
+      fprintf(stderr,"AST_DIV,");
+      break;
+    case AST_LE:
+      fprintf(stderr,"AST_LE,");
+      break;
+    case AST_GE:
+      fprintf(stderr,"AST_GE,");
+      break;
+    case AST_EQ:
+      fprintf(stderr,"AST_EQ,");
+      break;
+    case AST_DIF:
+      fprintf(stderr,"AST_DIF,");
+      break;
+    case AST_LESS:
+      fprintf(stderr,"AST_LESS,");
+      break;
+    case AST_GRE:
+      fprintf(stderr,"AST_GRE,");
+      break;
+    case AST_OR:
+      fprintf(stderr,"AST_OR,");
       break;
     default:
       break;
@@ -37,7 +68,7 @@ void astreePrint(AST *node, int level){
   }
   for(i=0;i<MAX_SONS;++i){
     astreePrint(node->son[i], level+1);
-    
+
   }
   fprintf(stderr,")");
 }

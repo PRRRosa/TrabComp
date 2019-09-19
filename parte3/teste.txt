@@ -5,9 +5,6 @@ int k = 6667;
 
 int funct (int a,int b)
 {
-x = 5.6;
-y = 7.8+x+y;
-}
-int funct2 (int c){
-k = 6.66;
+
+y = 78+2*5;
 }

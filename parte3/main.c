@@ -16,7 +16,7 @@ int main(int argc, char **argv) {
 
   yyparse();
 
-  hashPrint();
-  fprintf(stderr, "NOICE\n");
+  //hashPrint();
+  printf("FINISHED\n");
   exit(0);
 }

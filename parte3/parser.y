@@ -106,7 +106,7 @@ cmd:
   |
 ;
 assignmentCommand:
-    TK_IDENTIFIER '=' expression {astreePrint($3,0);}
+    TK_IDENTIFIER '=' expression {astreePrint($3,0);printf("\n");}
   | TK_IDENTIFIER '[' expression ']' '=' expression
 ;
 printString:
@@ -124,7 +124,7 @@ expression:
   | expression '<' expression {$$=astreeCreate(AST_LESS,0,$1,$3,0,0);}
   | expression '>' expression {$$=astreeCreate(AST_GRE,0,$1,$3,0,0);}
   | expression 'v' expression {$$=astreeCreate(AST_OR,0,$1,$3,0,0);}
-  | expression '+' expression {$$=astreeCreate(AST_ADD,0,$1,$3,0,0);/*astreePrint(astreeCreate(AST_ADD,0,$1,$3,0,0),0);*/}  
+  | expression '+' expression {$$=astreeCreate(AST_ADD,0,$1,$3,0,0);/*astreePrint(astreeCreate(AST_ADD,0,$1,$3,0,0),0);*/}
   | expression '-' expression {$$=astreeCreate(AST_SUB,0,$1,$3,0,0);}
   | expression '*' expression {$$=astreeCreate(AST_MUL,0,$1,$3,0,0);}
   | expression '/' expression {$$=astreeCreate(AST_DIV,0,$1,$3,0,0);}
