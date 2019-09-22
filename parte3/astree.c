@@ -58,6 +58,15 @@ void astreePrint(AST *node, int level){
     case AST_OR:
       fprintf(stderr,"AST_OR,");
       break;
+    case AST_FUNCALL:
+      fprintf(stderr,"AST_FUNCALL,");
+      break;
+    case AST_ARGLIST:
+      fprintf(stderr,"AST_ARGLIST,");
+      break;
+    case AST_ARRELEMENT:
+      fprintf(stderr,"AST_ARRELEMENT,");
+      break;
     default:
       break;
   }

@@ -48,6 +48,8 @@
 
 %type<ast> expression
 %type<ast> init
+%type<ast> funCall
+%type<ast> argList
 %left  '*' '/' '+' '-' OPERATOR_LE OPERATOR_GE OPERATOR_EQ OPERATOR_DIF '<' '>' 'v'
 
 %%
@@ -116,7 +118,7 @@ printString:
   | expression printString
 ;
 expression:
-    '(' expression ')'
+    '(' expression ')'  {$$=$2;}
   | expression OPERATOR_LE expression {$$=astreeCreate(AST_LE,0,$1,$3,0,0);}
   | expression OPERATOR_GE expression {$$=astreeCreate(AST_GE,0,$1,$3,0,0);}
   | expression OPERATOR_EQ expression {$$=astreeCreate(AST_EQ,0,$1,$3,0,0);}
@@ -131,19 +133,18 @@ expression:
   | init
   | funCall
   | TK_IDENTIFIER {$$=astreeCreate(AST_SYMBOL,$1,0,0,0,0);}
-  | TK_IDENTIFIER '[' expression ']'
+  | TK_IDENTIFIER '[' expression ']'  {$$=astreeCreate(AST_ARRELEMENT,$1,$3,0,0,0);}
 ;
 whileCommand:
     KW_WHILE '(' expression ')' cmd
 ;
 funCall:
-    TK_IDENTIFIER '('argList')'
-  | TK_IDENTIFIER '('')'
+    TK_IDENTIFIER '('argList')' {$$=astreeCreate(AST_FUNCALL,0,$3,0,0,0);}
+  | TK_IDENTIFIER '('')'  {$$=astreeCreate(AST_FUNCALL,0,0,0,0,0);}
 ;
 argList:
-    expression ',' argList
-  | TK_IDENTIFIER ',' argList
-  | expression
+    expression ',' argList  {$$=astreeCreate(AST_ARGLIST,0,$1,$3,0,0);}
+  | expression  {$$=astreeCreate(AST_ARGLIST,0,$1,0,0,0);}
 ;
 ifCommand:
     KW_IF '(' expression ')' KW_THEN cmd %prec IFX

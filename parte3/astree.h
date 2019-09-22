@@ -14,6 +14,9 @@
 #define AST_LESS 10
 #define AST_GRE 11
 #define AST_OR 12
+#define AST_FUNCALL 13
+#define AST_ARGLIST 14
+#define AST_ARRELEMENT 15
 typedef struct astree_node{
   int type;
   char *text;
