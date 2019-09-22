@@ -18,6 +18,12 @@
 #define AST_ARGLIST 14
 #define AST_ARRELEMENT 15
 #define AST_ASSIGNCMD 16
+#define AST_PRINT 17
+#define AST_PRINTSTR 18
+
+
+#define AST_UNIMPL 99
+
 typedef struct astree_node{
   int type;
   char *text;

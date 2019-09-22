@@ -50,7 +50,10 @@
 %type<ast> init
 %type<ast> funCall
 %type<ast> argList
+%type<ast> cmd
 %type<ast> assignmentCommand
+%type<ast> printString
+
 %left  '*' '/' '+' '-' OPERATOR_LE OPERATOR_GE OPERATOR_EQ OPERATOR_DIF '<' '>' 'v'
 
 %%
@@ -97,32 +100,30 @@ fundec:
 ;
 cmd:
     assignmentCommand
-  | KW_PRINT printString
-  | ifCommand
-  | KW_READ TK_IDENTIFIER
-  | whileCommand
-  | funCall
-  | forCommand
-  | KW_BREAK
-  | KW_RETURN expression
-  | block
-  |
+  | KW_PRINT printString  {$$=astreeCreate(AST_PRINT,0,$2,0,0,0);}
+  | ifCommand {$$=astreeCreate(AST_UNIMPL,0,0,0,0,0);}
+  | KW_READ TK_IDENTIFIER {$$=astreeCreate(AST_UNIMPL,0,0,0,0,0);}
+  | whileCommand {$$=astreeCreate(AST_UNIMPL,0,0,0,0,0);}
+  | funCall {$$=astreeCreate(AST_UNIMPL,0,0,0,0,0);}
+  | forCommand {$$=astreeCreate(AST_UNIMPL,0,0,0,0,0);}
+  | KW_BREAK {$$=astreeCreate(AST_UNIMPL,0,0,0,0,0);}
+  | KW_RETURN expression {$$=astreeCreate(AST_UNIMPL,0,0,0,0,0);}
+  | block {$$=astreeCreate(AST_UNIMPL,0,0,0,0,0);}
+  | {$$=astreeCreate(AST_UNIMPL,0,0,0,0,0);}
 ;
 assignmentCommand:
     TK_IDENTIFIER '=' expression {$$=astreeCreate(AST_ASSIGNCMD,0,
           astreeCreate(AST_SYMBOL,$1,0,0,0,0),
-          $3,0,0);astreePrint(astreeCreate(AST_ASSIGNCMD,0,
-          astreeCreate(AST_SYMBOL,$1,0,0,0,0),
-          $3,0,0),0);}
+          $3,0,0);}
   | TK_IDENTIFIER '[' expression ']' '=' expression  {$$=astreeCreate(AST_ASSIGNCMD,0,
           astreeCreate(AST_ARRELEMENT,$1,$3,0,0,0),
           $6,0,0);}
 ;
 printString:
-    LIT_STRING
-  | expression
-  | LIT_STRING printString
-  | expression printString
+    LIT_STRING  {$$=astreeCreate(AST_PRINTSTR,0,astreeCreate(AST_SYMBOL,$1,0,0,0,0),0,0,0);}
+  | expression  {$$=astreeCreate(AST_PRINTSTR,0,$1,0,0,0);}
+  | LIT_STRING printString  {$$=astreeCreate(AST_PRINTSTR,0,astreeCreate(AST_SYMBOL,$1,0,0,0,0),$2,0,0);}
+  | expression printString  {$$=astreeCreate(AST_PRINTSTR,0,$1,$2,0,0);}
 ;
 expression:
     '(' expression ')'  {$$=$2;}
@@ -176,12 +177,12 @@ block:
     '{' lcmd '}'
 ;
 lcmd:
-    cmd
-  | cmd lcmdMeio
+    cmd {astreePrint($1,0);}
+  | cmd lcmdMeio  {astreePrint($1,0);}
 ;
 lcmdMeio:
-    ';' cmd lcmdMeio
-  | ';' cmd
+    ';' cmd lcmdMeio  {astreePrint($2,0);}
+  | ';' cmd {astreePrint($2,0);}
 ;
 
 %%

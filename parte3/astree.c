@@ -71,6 +71,15 @@ void astreePrint(AST *node, int level){
     case AST_ASSIGNCMD:
       fprintf(stderr,"AST_ASSIGNCMD,");
       break;
+    case AST_PRINT:
+      fprintf(stderr,"AST_PRINT,");
+      break;
+    case AST_PRINTSTR:
+      fprintf(stderr,"AST_PRINTSTR,");
+      break;
+    case AST_UNIMPL:
+      fprintf(stderr,"AST_UNIMPL,");
+      break;
     default:
       break;
   }

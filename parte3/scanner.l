@@ -43,7 +43,7 @@ DIGIT [0-9]
 "FALSE"	{hashInsert(yytext,LIT_FALSE);return LIT_FALSE;}
 "'"."'"	{hashInsert(yytext,LIT_CHAR);return LIT_CHAR;}
 
-["]([^"]|\\\")*["]	{hashInsert(yytext,LIT_STRING);countLinesInString(yytext,yyleng);return LIT_STRING;}
+["]([^"]|\\\")*["]	{yylval.symbol = hashInsert(yytext,LIT_STRING);countLinesInString(yytext,yyleng);return LIT_STRING;}
 
 [\-+*/,;:()\[\]{}*<>=v.~&$#] return (int)yytext[0];
 
