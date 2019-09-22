@@ -20,6 +20,7 @@
 #define AST_ASSIGNCMD 16
 #define AST_PRINT 17
 #define AST_PRINTSTR 18
+#define AST_IFCMD 19
 
 
 #define AST_UNIMPL 99

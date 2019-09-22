@@ -53,6 +53,7 @@
 %type<ast> cmd
 %type<ast> assignmentCommand
 %type<ast> printString
+%type<ast> ifCommand
 
 %left  '*' '/' '+' '-' OPERATOR_LE OPERATOR_GE OPERATOR_EQ OPERATOR_DIF '<' '>' 'v'
 
@@ -101,7 +102,7 @@ fundec:
 cmd:
     assignmentCommand
   | KW_PRINT printString  {$$=astreeCreate(AST_PRINT,0,$2,0,0,0);}
-  | ifCommand {$$=astreeCreate(AST_UNIMPL,0,0,0,0,0);}
+  | ifCommand
   | KW_READ TK_IDENTIFIER {$$=astreeCreate(AST_UNIMPL,0,0,0,0,0);}
   | whileCommand {$$=astreeCreate(AST_UNIMPL,0,0,0,0,0);}
   | funCall {$$=astreeCreate(AST_UNIMPL,0,0,0,0,0);}
@@ -155,8 +156,8 @@ argList:
   | expression  {$$=astreeCreate(AST_ARGLIST,0,$1,0,0,0);}
 ;
 ifCommand:
-    KW_IF '(' expression ')' KW_THEN cmd %prec IFX
-  | KW_IF '(' expression ')' KW_THEN cmd KW_ELSE cmd
+    KW_IF '(' expression ')' KW_THEN cmd %prec IFX  {$$=astreeCreate(AST_IFCMD,0,$3,$6,0,0);}
+  | KW_IF '(' expression ')' KW_THEN cmd KW_ELSE cmd  {$$=astreeCreate(AST_IFCMD,0,$3,$6,$8,0);}
 ;
 forCommand:
     KW_FOR '('TK_IDENTIFIER ':' expression ',' expression ',' expression  ')' cmd

@@ -80,6 +80,9 @@ void astreePrint(AST *node, int level){
     case AST_UNIMPL:
       fprintf(stderr,"AST_UNIMPL,");
       break;
+    case AST_IFCMD:
+      fprintf(stderr,"AST_IFCMD,");
+      break;
     default:
       break;
   }
