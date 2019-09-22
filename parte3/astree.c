@@ -17,6 +17,7 @@ void astreePrint(AST *node, int level){
   if(!node){
     return;
   }
+  fprintf(stderr,"\n");
   for(i=0;i<level;++i){
       fprintf(stderr," ");
   }
@@ -67,13 +68,16 @@ void astreePrint(AST *node, int level){
     case AST_ARRELEMENT:
       fprintf(stderr,"AST_ARRELEMENT,");
       break;
+    case AST_ASSIGNCMD:
+      fprintf(stderr,"AST_ASSIGNCMD,");
+      break;
     default:
       break;
   }
   if(node->symbol){
     fprintf(stderr,"%s, ", node->symbol->text);
   }else{
-    fprintf(stderr," \n");
+    //fprintf(stderr," \n");
   }
   for(i=0;i<MAX_SONS;++i){
     astreePrint(node->son[i], level+1);

@@ -17,6 +17,7 @@
 #define AST_FUNCALL 13
 #define AST_ARGLIST 14
 #define AST_ARRELEMENT 15
+#define AST_ASSIGNCMD 16
 typedef struct astree_node{
   int type;
   char *text;

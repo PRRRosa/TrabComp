@@ -50,6 +50,7 @@
 %type<ast> init
 %type<ast> funCall
 %type<ast> argList
+%type<ast> assignmentCommand
 %left  '*' '/' '+' '-' OPERATOR_LE OPERATOR_GE OPERATOR_EQ OPERATOR_DIF '<' '>' 'v'
 
 %%
@@ -108,8 +109,14 @@ cmd:
   |
 ;
 assignmentCommand:
-    TK_IDENTIFIER '=' expression {astreePrint($3,0);printf("\n");}
-  | TK_IDENTIFIER '[' expression ']' '=' expression
+    TK_IDENTIFIER '=' expression {$$=astreeCreate(AST_ASSIGNCMD,0,
+          astreeCreate(AST_SYMBOL,$1,0,0,0,0),
+          $3,0,0);astreePrint(astreeCreate(AST_ASSIGNCMD,0,
+          astreeCreate(AST_SYMBOL,$1,0,0,0,0),
+          $3,0,0),0);}
+  | TK_IDENTIFIER '[' expression ']' '=' expression  {$$=astreeCreate(AST_ASSIGNCMD,0,
+          astreeCreate(AST_ARRELEMENT,$1,$3,0,0,0),
+          $6,0,0);}
 ;
 printString:
     LIT_STRING
