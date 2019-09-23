@@ -98,6 +98,9 @@ void astreePrint(AST *node, int level){
     case AST_RETURN:
       fprintf(stderr,"AST_RETURN,");
       break;
+    case AST_BLOCK:
+      fprintf(stderr,"AST_BLOCK,");
+      break;
     default:
       break;
   }

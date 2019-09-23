@@ -56,6 +56,9 @@
 %type<ast> ifCommand
 %type<ast> whileCommand
 %type<ast> forCommand
+%type<ast> lcmd
+%type<ast> lcmdMeio
+%type<ast> block
 
 %left  '*' '/' '+' '-' OPERATOR_LE OPERATOR_GE OPERATOR_EQ OPERATOR_DIF '<' '>' 'v'
 
@@ -177,15 +180,15 @@ declParam:
     vartype TK_IDENTIFIER
 ;
 block:
-    '{' lcmd '}'
+    '{' lcmd '}'  {$$=$2; astreePrint($2,0);}
 ;
 lcmd:
-    cmd {astreePrint($1,0);}
-  | cmd lcmdMeio  {astreePrint($1,0);}
+    cmd {$$=astreeCreate(AST_BLOCK,0,$1,0,0,0);}
+  | cmd lcmdMeio  {$$=astreeCreate(AST_BLOCK,0,$1,$2,0,0);}
 ;
 lcmdMeio:
-    ';' cmd lcmdMeio  {astreePrint($2,0);}
-  | ';' cmd {astreePrint($2,0);}
+    ';' cmd lcmdMeio  {$$=astreeCreate(AST_BLOCK,0,$2,$3,0,0);}
+  | ';' cmd {$$=astreeCreate(AST_BLOCK,0,$2,0,0,0);}
 ;
 
 %%

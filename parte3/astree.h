@@ -26,6 +26,7 @@
 #define AST_FOR 22
 #define AST_BREAK 23
 #define AST_RETURN 24
+#define AST_BLOCK 25
 
 
 #define AST_UNIMPL 99
