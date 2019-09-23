@@ -82,6 +82,21 @@ void astreePrint(AST *node, int level){
       break;
     case AST_IFCMD:
       fprintf(stderr,"AST_IFCMD,");
+      break;    
+    case AST_READ:
+      fprintf(stderr,"AST_READ,");
+      break;
+    case AST_WHILE:
+      fprintf(stderr,"AST_WHILE,");
+      break;
+    case AST_FOR:
+      fprintf(stderr,"AST_FOR,");
+      break;
+    case AST_BREAK:
+      fprintf(stderr,"AST_BREAK,");
+      break;
+    case AST_RETURN:
+      fprintf(stderr,"AST_RETURN,");
       break;
     default:
       break;

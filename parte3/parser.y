@@ -54,6 +54,8 @@
 %type<ast> assignmentCommand
 %type<ast> printString
 %type<ast> ifCommand
+%type<ast> whileCommand
+%type<ast> forCommand
 
 %left  '*' '/' '+' '-' OPERATOR_LE OPERATOR_GE OPERATOR_EQ OPERATOR_DIF '<' '>' 'v'
 
@@ -103,14 +105,14 @@ cmd:
     assignmentCommand
   | KW_PRINT printString  {$$=astreeCreate(AST_PRINT,0,$2,0,0,0);}
   | ifCommand
-  | KW_READ TK_IDENTIFIER {$$=astreeCreate(AST_UNIMPL,0,0,0,0,0);}
-  | whileCommand {$$=astreeCreate(AST_UNIMPL,0,0,0,0,0);}
-  | funCall {$$=astreeCreate(AST_UNIMPL,0,0,0,0,0);}
-  | forCommand {$$=astreeCreate(AST_UNIMPL,0,0,0,0,0);}
-  | KW_BREAK {$$=astreeCreate(AST_UNIMPL,0,0,0,0,0);}
-  | KW_RETURN expression {$$=astreeCreate(AST_UNIMPL,0,0,0,0,0);}
+  | KW_READ TK_IDENTIFIER {$$=astreeCreate(AST_READ,0,astreeCreate(AST_SYMBOL,$2,0,0,0,0),0,0,0);}
+  | whileCommand
+  | funCall
+  | forCommand
+  | KW_BREAK {$$=astreeCreate(AST_BREAK,0,0,0,0,0);}
+  | KW_RETURN expression {$$=astreeCreate(AST_RETURN,0,$2,0,0,0);}
   | block {$$=astreeCreate(AST_UNIMPL,0,0,0,0,0);}
-  | {$$=astreeCreate(AST_UNIMPL,0,0,0,0,0);}
+  | {$$=0;}
 ;
 assignmentCommand:
     TK_IDENTIFIER '=' expression {$$=astreeCreate(AST_ASSIGNCMD,0,
@@ -145,7 +147,7 @@ expression:
   | TK_IDENTIFIER '[' expression ']'  {$$=astreeCreate(AST_ARRELEMENT,$1,$3,0,0,0);}
 ;
 whileCommand:
-    KW_WHILE '(' expression ')' cmd
+    KW_WHILE '(' expression ')' cmd {$$=astreeCreate(AST_WHILE,0,$3,$5,0,0);}
 ;
 funCall:
     TK_IDENTIFIER '('argList')' {$$=astreeCreate(AST_FUNCALL,0,$3,0,0,0);}
@@ -160,7 +162,7 @@ ifCommand:
   | KW_IF '(' expression ')' KW_THEN cmd KW_ELSE cmd  {$$=astreeCreate(AST_IFCMD,0,$3,$6,$8,0);}
 ;
 forCommand:
-    KW_FOR '('TK_IDENTIFIER ':' expression ',' expression ',' expression  ')' cmd
+    KW_FOR '('TK_IDENTIFIER ':' expression ',' expression ',' expression  ')' cmd {$$=astreeCreate(AST_FOR,$3,$5,$7,$9,$11);}
 ;
 varDeclFunc:
     declParam

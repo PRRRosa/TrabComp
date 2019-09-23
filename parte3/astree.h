@@ -21,6 +21,11 @@
 #define AST_PRINT 17
 #define AST_PRINTSTR 18
 #define AST_IFCMD 19
+#define AST_READ 20
+#define AST_WHILE 21
+#define AST_FOR 22
+#define AST_BREAK 23
+#define AST_RETURN 24
 
 
 #define AST_UNIMPL 99
