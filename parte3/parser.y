@@ -65,6 +65,11 @@
 %type<ast> fundec
 %type<ast> decl
 %type<ast> varDeclFunc
+%type<ast> vardec
+%type<ast> arrayDec
+%type<ast> listInit
+%type<ast> declParam
+%type<ast> varDeclFuncMeio
 
 %left OPERATOR_LE OPERATOR_GE OPERATOR_EQ OPERATOR_DIF '<' '>' 'v'
 %left  '+' '-'
@@ -99,12 +104,14 @@ singleVarDec:
     vartype TK_IDENTIFIER '=' init ';' {$$=astreeCreate(AST_VARDEC,$2,$1,$4,0,0);}
 ;
 arrayDec:
-    vartype TK_IDENTIFIER '[' LIT_INTEGER ']' ':' listInit ';'
-  | vartype TK_IDENTIFIER '[' LIT_INTEGER ']' ';'
+    vartype TK_IDENTIFIER '[' LIT_INTEGER ']' ':' listInit ';'  {$$=astreeCreate(AST_ARRDEC,$2,$1,
+    astreeCreate(AST_SYMBOL,$4,0,0,0,0),$7,0);}
+  | vartype TK_IDENTIFIER '[' LIT_INTEGER ']' ';' {$$=astreeCreate(AST_ARRDEC,$2,$1,
+    astreeCreate(AST_SYMBOL,$4,0,0,0,0),0,0);}
 ;
 listInit:
-    init
-  | init listInit
+    init  {$$=astreeCreate(AST_LISTINIT,0,$1,0,0,0);}
+  | init listInit   {$$=astreeCreate(AST_LISTINIT,0,$1,$2,0,0);}
 ;
 init:
     LIT_INTEGER {$$=astreeCreate(AST_SYMBOL,$1,0,0,0,0);}
@@ -176,19 +183,19 @@ forCommand:
     KW_FOR '('TK_IDENTIFIER ':' expression ',' expression ',' expression  ')' cmd {$$=astreeCreate(AST_FOR,$3,$5,$7,$9,$11);}
 ;
 varDeclFunc:
-    declParam
-  | declParam varDeclFuncMeio
-  |
+    declParam {$$=astreeCreate(AST_VARDECLST,0,$1,0,0,0);}
+  | declParam varDeclFuncMeio {$$=astreeCreate(AST_VARDECLST,0,$1,$2,0,0);}
+  | {$$=0;}
 ;
 varDeclFuncMeio:
-    ',' declParam varDeclFuncMeio
-  | ',' declParam
+    ',' declParam varDeclFuncMeio {$$=astreeCreate(AST_VARDECLST,0,$2,$3,0,0);}
+  | ',' declParam {$$=astreeCreate(AST_VARDECLST,0,$2,0,0,0);}
 ;
 declParam:
-    vartype TK_IDENTIFIER
+    vartype TK_IDENTIFIER {$$=astreeCreate(AST_DECPARAM,$2,$1,0,0,0);}
 ;
 block:
-    '{' lcmd '}'  {$$=$2; astreePrint($2,0);}
+    '{' lcmd '}'  {$$=$2;}
 ;
 lcmd:
     cmd {$$=astreeCreate(AST_BLOCK,0,$1,0,0,0);}

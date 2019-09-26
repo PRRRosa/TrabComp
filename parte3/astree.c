@@ -125,6 +125,18 @@ void astreePrint(AST *node, int level){
     case AST_LDEC:
       fprintf(stderr,"AST_LDEC,");
       break;
+    case AST_ARRDEC:
+      fprintf(stderr,"AST_ARRDEC,");
+      break;
+    case AST_LISTINIT:
+      fprintf(stderr,"AST_LISTINIT,");
+      break;
+    case AST_VARDECLST:
+      fprintf(stderr,"AST_VARDECLST,");
+      break;
+    case AST_DECPARAM:
+      fprintf(stderr,"AST_DECPARAM,");
+      break;
     default:
       break;
   }
