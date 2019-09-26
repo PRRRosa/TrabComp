@@ -14,11 +14,11 @@
 
 }
 
-%token KW_BYTE
-%token KW_INT
-%token KW_LONG
-%token KW_FLOAT
-%token KW_BOOL
+%token<symbol>  KW_BYTE
+%token<symbol>  KW_INT
+%token<symbol>  KW_LONG
+%token<symbol>  KW_FLOAT
+%token<symbol>  KW_BOOL
 %token KW_IF
 %token KW_THEN
 %token KW_ELSE
@@ -59,14 +59,26 @@
 %type<ast> lcmd
 %type<ast> lcmdMeio
 %type<ast> block
+%type<ast> programa
+%type<ast> vartype
+%type<ast> singleVarDec
+%type<ast> fundec
+%type<ast> decl
+%type<ast> varDeclFunc
 
-%left  '*' '/' '+' '-' OPERATOR_LE OPERATOR_GE OPERATOR_EQ OPERATOR_DIF '<' '>' 'v'
+%left OPERATOR_LE OPERATOR_GE OPERATOR_EQ OPERATOR_DIF '<' '>' 'v'
+%left  '+' '-'
+%left  '*' '/'
 
 %%
 
+begin:
+  programa {astreePrint($1,0);}
+;
+
 programa:
-    programa decl
-  |
+    programa decl {$$=astreeCreate(AST_LDEC,0,$1,$2,0,0);}
+  | {$$=0;}
 ;
 decl:
     vardec
@@ -77,14 +89,14 @@ vardec:
   | arrayDec
 ;
 vartype:
-    KW_BYTE
-  | KW_INT
-  | KW_LONG
-  | KW_FLOAT
-  | KW_BOOL
+    KW_BYTE {$$=astreeCreate(AST_TYPEBYTE,0,0,0,0,0);}
+  | KW_INT {$$=astreeCreate(AST_TYPEINT,0,0,0,0,0);}
+  | KW_LONG {$$=astreeCreate(AST_TYPELONG,0,0,0,0,0);}
+  | KW_FLOAT {$$=astreeCreate(AST_TYPEFLOAT,0,0,0,0,0);}
+  | KW_BOOL {$$=astreeCreate(AST_TYPEBOOL,0,0,0,0,0);}
 ;
 singleVarDec:
-    vartype TK_IDENTIFIER '=' init ';'
+    vartype TK_IDENTIFIER '=' init ';' {$$=astreeCreate(AST_VARDEC,$2,$1,$4,0,0);}
 ;
 arrayDec:
     vartype TK_IDENTIFIER '[' LIT_INTEGER ']' ':' listInit ';'
@@ -102,7 +114,7 @@ init:
   | LIT_CHAR {$$=astreeCreate(AST_SYMBOL,$1,0,0,0,0);}
 ;
 fundec:
-    vartype TK_IDENTIFIER '(' varDeclFunc ')' cmd
+    vartype TK_IDENTIFIER '(' varDeclFunc ')' cmd {$$=astreeCreate(AST_FUNDEC,$2,$4,$6,0,0);}
 ;
 cmd:
     assignmentCommand
@@ -118,12 +130,8 @@ cmd:
   | {$$=0;}
 ;
 assignmentCommand:
-    TK_IDENTIFIER '=' expression {$$=astreeCreate(AST_ASSIGNCMD,0,
-          astreeCreate(AST_SYMBOL,$1,0,0,0,0),
-          $3,0,0);}
-  | TK_IDENTIFIER '[' expression ']' '=' expression  {$$=astreeCreate(AST_ASSIGNCMD,0,
-          astreeCreate(AST_ARRELEMENT,$1,$3,0,0,0),
-          $6,0,0);}
+    TK_IDENTIFIER '=' expression {$$=astreeCreate(AST_ASSIGNCMD,0, astreeCreate(AST_SYMBOL,$1,0,0,0,0), $3,0,0);}
+  | TK_IDENTIFIER '[' expression ']' '=' expression  {$$=astreeCreate(AST_ASSIGNCMD,0, astreeCreate(AST_ARRELEMENT,$1,$3,0,0,0), $6,0,0);}
 ;
 printString:
     LIT_STRING  {$$=astreeCreate(AST_PRINTSTR,0,astreeCreate(AST_SYMBOL,$1,0,0,0,0),0,0,0);}

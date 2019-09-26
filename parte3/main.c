@@ -17,6 +17,6 @@ int main(int argc, char **argv) {
   yyparse();
 
   //hashPrint();
-  printf("FINISHED\n");
+  printf("\nFINISHED\n");
   exit(0);
 }

@@ -27,7 +27,14 @@
 #define AST_BREAK 23
 #define AST_RETURN 24
 #define AST_BLOCK 25
-
+#define AST_VARDEC 26
+#define AST_FUNDEC 27
+#define AST_TYPEBYTE 28
+#define AST_TYPEINT 29
+#define AST_TYPELONG 30
+#define AST_TYPEFLOAT 31
+#define AST_TYPEBOOL 32
+#define AST_LDEC 33
 
 #define AST_UNIMPL 99
 

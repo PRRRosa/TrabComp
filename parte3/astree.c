@@ -82,7 +82,7 @@ void astreePrint(AST *node, int level){
       break;
     case AST_IFCMD:
       fprintf(stderr,"AST_IFCMD,");
-      break;    
+      break;
     case AST_READ:
       fprintf(stderr,"AST_READ,");
       break;
@@ -100,6 +100,30 @@ void astreePrint(AST *node, int level){
       break;
     case AST_BLOCK:
       fprintf(stderr,"AST_BLOCK,");
+      break;
+    case AST_VARDEC:
+      fprintf(stderr,"AST_VARDEC,");
+      break;
+    case AST_FUNDEC:
+      fprintf(stderr,"AST_FUNDEC,");
+      break;
+    case AST_TYPEBYTE:
+      fprintf(stderr,"AST_TYPEBYTE,");
+      break;
+    case AST_TYPEINT:
+      fprintf(stderr,"AST_TYPEINT,");
+      break;
+    case AST_TYPELONG:
+      fprintf(stderr,"AST_TYPELONG,");
+      break;
+    case AST_TYPEFLOAT:
+      fprintf(stderr,"AST_TYPEFLOAT,");
+      break;
+    case AST_TYPEBOOL:
+      fprintf(stderr,"AST_FUNDEC,");
+      break;
+    case AST_LDEC:
+      fprintf(stderr,"AST_LDEC,");
       break;
     default:
       break;
