@@ -78,7 +78,7 @@
 %%
 
 begin:
-  programa {astreePrint($1,0);}
+  programa {FILE * fp; fp = fopen ("output.txt","w");astreeWrite($1,fp);astreePrint($1,0);}
 ;
 
 programa:

@@ -39,8 +39,8 @@ DIGIT [0-9]
 
 {DIGIT}+ {yylval.symbol = hashInsert(yytext, LIT_INTEGER);return LIT_INTEGER;}
 (({DIGIT}+"."{DIGIT}+)|("."{DIGIT}+)|({DIGIT}+".")) {hashInsert(yytext,LIT_FLOAT);return LIT_FLOAT;}
-"TRUE"	{hashInsert(yytext,LIT_TRUE);return LIT_TRUE;}
-"FALSE"	{hashInsert(yytext,LIT_FALSE);return LIT_FALSE;}
+"TRUE"	{yylval.symbol = hashInsert(yytext,LIT_TRUE);return LIT_TRUE;}
+"FALSE"	{yylval.symbol = hashInsert(yytext,LIT_FALSE);return LIT_FALSE;}
 "'"."'"	{hashInsert(yytext,LIT_CHAR);return LIT_CHAR;}
 
 ["]([^"]|\\\")*["]	{yylval.symbol = hashInsert(yytext,LIT_STRING);countLinesInString(yytext,yyleng);return LIT_STRING;}

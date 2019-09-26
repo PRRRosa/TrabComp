@@ -52,4 +52,5 @@ typedef struct astree_node{
 
 AST *astreeCreate(int type,HASH_NODE *symbol, AST *s0,AST *s1,AST *s2,AST *s3);
 void astreePrint(AST *s0, int level);
+void astreeWrite(AST *node,FILE *fileToWrite);
 //END
