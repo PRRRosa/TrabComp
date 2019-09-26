@@ -133,7 +133,7 @@ cmd:
   | forCommand
   | KW_BREAK {$$=astreeCreate(AST_BREAK,0,0,0,0,0);}
   | KW_RETURN expression {$$=astreeCreate(AST_RETURN,0,$2,0,0,0);}
-  | block {$$=astreeCreate(AST_UNIMPL,0,0,0,0,0);}
+  | block 
   | {$$=0;}
 ;
 assignmentCommand:
@@ -195,15 +195,15 @@ declParam:
     vartype TK_IDENTIFIER {$$=astreeCreate(AST_DECPARAM,$2,$1,0,0,0);}
 ;
 block:
-    '{' lcmd '}'  {$$=$2;}
+    '{' lcmd '}'  {$$=astreeCreate(AST_BLOCK,0,$2,0,0,0);}
 ;
 lcmd:
-    cmd {$$=astreeCreate(AST_BLOCK,0,$1,0,0,0);}
-  | cmd lcmdMeio  {$$=astreeCreate(AST_BLOCK,0,$1,$2,0,0);}
+    cmd {$$=astreeCreate(AST_LCMD,0,$1,0,0,0);}
+  | cmd lcmdMeio  {$$=astreeCreate(AST_LCMD,0,$1,$2,0,0);}
 ;
 lcmdMeio:
-    ';' cmd lcmdMeio  {$$=astreeCreate(AST_BLOCK,0,$2,$3,0,0);}
-  | ';' cmd {$$=astreeCreate(AST_BLOCK,0,$2,0,0,0);}
+    ';' cmd lcmdMeio  {$$=astreeCreate(AST_LCMD,0,$2,$3,0,0);}
+  | ';' cmd {$$=astreeCreate(AST_LCMD,0,$2,0,0,0);}
 ;
 
 %%

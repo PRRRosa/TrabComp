@@ -39,6 +39,7 @@
 #define AST_LISTINIT 35
 #define AST_VARDECLST 36
 #define AST_DECPARAM 37
+#define AST_LCMD 38
 
 #define AST_UNIMPL 99
 

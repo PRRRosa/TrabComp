@@ -137,6 +137,9 @@ void astreePrint(AST *node, int level){
     case AST_DECPARAM:
       fprintf(stderr,"AST_DECPARAM,");
       break;
+    case AST_LCMD:
+      fprintf(stderr,"AST_LCMD,");
+      break;
     default:
       break;
   }
