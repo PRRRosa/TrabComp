@@ -121,7 +121,7 @@ init:
   | LIT_CHAR {$$=astreeCreate(AST_SYMBOL,$1,0,0,0,0);}
 ;
 fundec:
-    vartype TK_IDENTIFIER '(' varDeclFunc ')' cmd {$$=astreeCreate(AST_FUNDEC,$2,$4,$6,0,0);}
+    vartype TK_IDENTIFIER '(' varDeclFunc ')' cmd {$$=astreeCreate(AST_FUNDEC,$2,$1,$4,$6,0);}
 ;
 cmd:
     assignmentCommand
@@ -168,8 +168,8 @@ whileCommand:
     KW_WHILE '(' expression ')' cmd {$$=astreeCreate(AST_WHILE,0,$3,$5,0,0);}
 ;
 funCall:
-    TK_IDENTIFIER '('argList')' {$$=astreeCreate(AST_FUNCALL,0,$3,0,0,0);}
-  | TK_IDENTIFIER '('')'  {$$=astreeCreate(AST_FUNCALL,0,0,0,0,0);}
+    TK_IDENTIFIER '('argList')' {$$=astreeCreate(AST_FUNCALL,$1,$3,0,0,0);}
+  | TK_IDENTIFIER '('')'  {$$=astreeCreate(AST_FUNCALL,$1,0,0,0,0);}
 ;
 argList:
     expression ',' argList  {$$=astreeCreate(AST_ARGLIST,0,$1,$3,0,0);}

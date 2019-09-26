@@ -175,76 +175,130 @@ void astreeWrite(AST *node,FILE *fileToWrite){
       astreeWrite(node->son[1],fileToWrite);
       break;
     case AST_SUB:
-      fprintf(fileToWrite,"AST_SUB,");
+      astreeWrite(node->son[0],fileToWrite);
+      fprintf(fileToWrite," - ");
+      astreeWrite(node->son[1],fileToWrite);
       break;
     case AST_MUL:
-      fprintf(fileToWrite,"AST_MUL,");
+      astreeWrite(node->son[0],fileToWrite);
+      fprintf(fileToWrite," * ");
+      astreeWrite(node->son[1],fileToWrite);
       break;
     case AST_DIV:
-      fprintf(fileToWrite,"AST_DIV,");
+      astreeWrite(node->son[0],fileToWrite);
+      fprintf(fileToWrite," / ");
+      astreeWrite(node->son[1],fileToWrite);
       break;
     case AST_LE:
-      fprintf(fileToWrite,"AST_LE,");
+      astreeWrite(node->son[0],fileToWrite);
+      fprintf(fileToWrite," <= ");
+      astreeWrite(node->son[1],fileToWrite);
       break;
     case AST_GE:
-      fprintf(fileToWrite,"AST_GE,");
+      astreeWrite(node->son[0],fileToWrite);
+      fprintf(fileToWrite," >= ");
+      astreeWrite(node->son[1],fileToWrite);
       break;
     case AST_EQ:
-      fprintf(fileToWrite,"AST_EQ,");
+      astreeWrite(node->son[0],fileToWrite);
+      fprintf(fileToWrite," == ");
+      astreeWrite(node->son[1],fileToWrite);
       break;
     case AST_DIF:
-      fprintf(fileToWrite,"AST_DIF,");
+      astreeWrite(node->son[0],fileToWrite);
+      fprintf(fileToWrite," != ");
+      astreeWrite(node->son[1],fileToWrite);
       break;
     case AST_LESS:
-      fprintf(fileToWrite,"AST_LESS,");
+      astreeWrite(node->son[0],fileToWrite);
+      fprintf(fileToWrite," < ");
+      astreeWrite(node->son[1],fileToWrite);
       break;
     case AST_GRE:
-      fprintf(fileToWrite,"AST_GRE,");
+      astreeWrite(node->son[0],fileToWrite);
+      fprintf(fileToWrite," > ");
+      astreeWrite(node->son[1],fileToWrite);
       break;
     case AST_OR:
-      fprintf(fileToWrite,"AST_OR,");
+      astreeWrite(node->son[0],fileToWrite);
+      fprintf(fileToWrite," v ");
+      astreeWrite(node->son[1],fileToWrite);
       break;
-    case AST_FUNCALL:
-      fprintf(fileToWrite,"AST_FUNCALL,");
+    case AST_FUNCALL://TK_IDENTIFIER '('argList')' {$$=astreeCreate(AST_FUNCALL,0,$3,0,0,0);}
+      fprintf(fileToWrite,"%s (",node->symbol->text);
+      astreeWrite(node->son[0],fileToWrite);
+      fprintf(fileToWrite,")");
       break;
     case AST_ARGLIST:
       fprintf(fileToWrite,"AST_ARGLIST,");
       break;
     case AST_ARRELEMENT:
-      fprintf(fileToWrite,"AST_ARRELEMENT,");
+      fprintf(fileToWrite,"%s [",node->symbol->text);
+      astreeWrite(node->son[0],fileToWrite);
+      fprintf(fileToWrite,"]");
       break;
     case AST_ASSIGNCMD:
-      fprintf(fileToWrite,"AST_ASSIGNCMD,");
+//TK_IDENTIFIER '[' expression ']' '=' expression  {$$=astreeCreate(AST_ASSIGNCMD,0, astreeCreate(AST_ARRELEMENT,$1,$3,0,0,0), $6,0,0);}
+      astreeWrite(node->son[0],fileToWrite);
+      fprintf(fileToWrite," = ");
+      astreeWrite(node->son[1],fileToWrite);
       break;
-    case AST_PRINT:
-      fprintf(fileToWrite,"AST_PRINT,");
+    case AST_PRINT://{$$=astreeCreate(AST_PRINT,0,$2,0,0,0);}
+      fprintf(fileToWrite,"print ");
+      astreeWrite(node->son[0],fileToWrite);
       break;
     case AST_PRINTSTR:
-      fprintf(fileToWrite,"AST_PRINTSTR,");
+      astreeWrite(node->son[0],fileToWrite);
+      fprintf(fileToWrite," ");
+      astreeWrite(node->son[1],fileToWrite);
       break;
     case AST_UNIMPL:
       fprintf(fileToWrite,"AST_UNIMPL,");
       break;
     case AST_IFCMD:
-      fprintf(fileToWrite,"AST_IFCMD,");
+    //KW_IF '(' expression ')' KW_THEN cmd KW_ELSE cmd  {$$=astreeCreate(AST_IFCMD,0,$3,$6,$8,0);}
+      fprintf(fileToWrite,"if (");
+      astreeWrite(node->son[0],fileToWrite);
+      fprintf(fileToWrite,") then ");
+      astreeWrite(node->son[1],fileToWrite);
+      if(node->son[2]!=0){
+        fprintf(fileToWrite,"else ");
+        astreeWrite(node->son[2],fileToWrite);
+      }
+
       break;
-    case AST_READ:
-      fprintf(fileToWrite,"AST_READ,");
+    case AST_READ://KW_READ TK_IDENTIFIER {$$=astreeCreate(AST_READ,0,astreeCreate(AST_SYMBOL,$2,0,0,0,0),0,0,0);}
+      fprintf(fileToWrite,"read ");
+      astreeWrite(node->son[0],fileToWrite);
       break;
-    case AST_WHILE:
-      fprintf(fileToWrite,"AST_WHILE,");
+    case AST_WHILE://KW_WHILE '(' expression ')' cmd {$$=astreeCreate(AST_WHILE,0,$3,$5,0,0);}
+      fprintf(fileToWrite,"while (");
+      astreeWrite(node->son[0],fileToWrite);
+      fprintf(fileToWrite,")");
+      astreeWrite(node->son[1],fileToWrite);
       break;
     case AST_FOR:
-      fprintf(fileToWrite,"AST_FOR,");
+    //KW_FOR '('TK_IDENTIFIER ':' expression ',' expression ',' expression  ')' cmd {$$=astreeCreate(AST_FOR,$3,$5,$7,$9,$11);}
+      fprintf(fileToWrite,"for (%s : ", node->symbol->text);
+      astreeWrite(node->son[0],fileToWrite);
+      fprintf(fileToWrite,", ");
+      astreeWrite(node->son[1],fileToWrite);
+      fprintf(fileToWrite,", ");
+      astreeWrite(node->son[2],fileToWrite);
+      fprintf(fileToWrite,") ");
+      astreeWrite(node->son[3],fileToWrite);
       break;
     case AST_BREAK:
-      fprintf(fileToWrite,"AST_BREAK,");
+      fprintf(fileToWrite,"break");
       break;
     case AST_RETURN:
-      fprintf(fileToWrite,"AST_RETURN,");
+      fprintf(fileToWrite,"return ");
+      astreeWrite(node->son[0],fileToWrite);
       break;
-    case AST_BLOCK:
-      fprintf(fileToWrite,"AST_BLOCK,");
+    case AST_BLOCK://'{' lcmd '}'  {$$=astreeCreate(AST_BLOCK,0,$2,0,0,0);}
+      fprintf(fileToWrite,"{\n");
+      astreeWrite(node->son[0],fileToWrite);
+      fprintf(fileToWrite,"}\n");
       break;
     case AST_VARDEC://vartype TK_IDENTIFIER '=' init ';' 
       astreeWrite(node->son[0],fileToWrite);
@@ -268,23 +322,28 @@ void astreeWrite(AST *node,FILE *fileToWrite){
       
       fprintf(fileToWrite,";\n");
       break;
-    case AST_FUNDEC:
-      fprintf(fileToWrite,"AST_FUNDEC,");
+    case AST_FUNDEC://vartype TK_IDENTIFIER '(' varDeclFunc ')' cmd {$$=astreeCreate(AST_FUNDEC,$2,$1,$4,$6,0);}
+      astreeWrite(node->son[0],fileToWrite);
+      fprintf(fileToWrite," %s (", node->symbol->text);
+      astreeWrite(node->son[1],fileToWrite);
+      fprintf(fileToWrite,") ");
+      astreeWrite(node->son[2],fileToWrite);
+      fprintf(fileToWrite,"\n");
       break;
     case AST_TYPEBYTE:
-      fprintf(fileToWrite,"AST_TYPEBYTE,");
+      fprintf(fileToWrite,"byte");
       break;
     case AST_TYPEINT:
-      fprintf(fileToWrite,"AST_TYPEINT,");
+      fprintf(fileToWrite,"int");
       break;
     case AST_TYPELONG:
-      fprintf(fileToWrite,"AST_TYPELONG,");
+      fprintf(fileToWrite,"long");
       break;
     case AST_TYPEFLOAT:
-      fprintf(fileToWrite,"AST_TYPEFLOAT,");
+      fprintf(fileToWrite,"float");
       break;
     case AST_TYPEBOOL:
-      fprintf(fileToWrite,"AST_TYPEBOOL,");
+      fprintf(fileToWrite,"bool");
       break;
     case AST_LDEC:
       astreeWrite(node->son[0],fileToWrite);
@@ -296,13 +355,23 @@ void astreeWrite(AST *node,FILE *fileToWrite){
       astreeWrite(node->son[1],fileToWrite);
       break;
     case AST_VARDECLST:
-      fprintf(fileToWrite,"AST_VARDECLST,");
+      astreeWrite(node->son[0],fileToWrite);
+      if(node->son[1]!=0){
+        fprintf(fileToWrite,", ");
+        astreeWrite(node->son[1],fileToWrite);
+      }
       break;
     case AST_DECPARAM:
-      fprintf(fileToWrite,"AST_DECPARAM,");
+      astreeWrite(node->son[0],fileToWrite);
+      fprintf(fileToWrite," %s", node->symbol->text);
       break;
-    case AST_LCMD:
-      fprintf(fileToWrite,"AST_LCMD,");
+    case AST_LCMD://cmd lcmdMeio  {$$=astreeCreate(AST_LCMD,0,$1,$2,0,0);}
+
+      astreeWrite(node->son[0],fileToWrite);
+      if(node->son[1]!=0){
+        fprintf(fileToWrite,";\n");
+        astreeWrite(node->son[1],fileToWrite);
+      }
       break;
     default:
       break;
