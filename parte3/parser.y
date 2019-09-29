@@ -6,6 +6,7 @@
   #include "lex.yy.h"
   #include "hash.h"
   #include "astree.h"
+  #include "main.h"
 %}
 
 %union{
@@ -78,7 +79,7 @@
 %%
 
 begin:
-  programa {FILE * fp; fp = fopen ("output.txt","w");astreeWrite($1,fp);astreePrint($1,0);}
+  programa {astreeWrite($1,yyout);astreePrint($1,0);}
 ;
 
 programa:
@@ -104,10 +105,8 @@ singleVarDec:
     vartype TK_IDENTIFIER '=' init ';' {$$=astreeCreate(AST_VARDEC,$2,$1,$4,0,0);}
 ;
 arrayDec:
-    vartype TK_IDENTIFIER '[' LIT_INTEGER ']' ':' listInit ';'  {$$=astreeCreate(AST_ARRDEC,$2,$1,
-    astreeCreate(AST_SYMBOL,$4,0,0,0,0),$7,0);}
-  | vartype TK_IDENTIFIER '[' LIT_INTEGER ']' ';' {$$=astreeCreate(AST_ARRDEC,$2,$1,
-    astreeCreate(AST_SYMBOL,$4,0,0,0,0),0,0);}
+    vartype TK_IDENTIFIER '[' LIT_INTEGER ']' ':' listInit ';'  {$$=astreeCreate(AST_ARRDEC,$2,$1,astreeCreate(AST_SYMBOL,$4,0,0,0,0),$7,0);}
+  | vartype TK_IDENTIFIER '[' LIT_INTEGER ']' ';' {$$=astreeCreate(AST_ARRDEC,$2,$1,astreeCreate(AST_SYMBOL,$4,0,0,0,0),0,0);}
 ;
 listInit:
     init  {$$=astreeCreate(AST_LISTINIT,0,$1,0,0,0);}
@@ -133,7 +132,7 @@ cmd:
   | forCommand
   | KW_BREAK {$$=astreeCreate(AST_BREAK,0,0,0,0,0);}
   | KW_RETURN expression {$$=astreeCreate(AST_RETURN,0,$2,0,0,0);}
-  | block 
+  | block
   | {$$=0;}
 ;
 assignmentCommand:

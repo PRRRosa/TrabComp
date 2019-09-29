@@ -300,7 +300,7 @@ void astreeWrite(AST *node,FILE *fileToWrite){
       astreeWrite(node->son[0],fileToWrite);
       fprintf(fileToWrite,"}\n");
       break;
-    case AST_VARDEC://vartype TK_IDENTIFIER '=' init ';' 
+    case AST_VARDEC://vartype TK_IDENTIFIER '=' init ';'
       astreeWrite(node->son[0],fileToWrite);
       fprintf(fileToWrite," %s = ", node->symbol->text);
       astreeWrite(node->son[1],fileToWrite);
@@ -319,7 +319,7 @@ void astreeWrite(AST *node,FILE *fileToWrite){
         fprintf(fileToWrite," : ");
         astreeWrite(node->son[2],fileToWrite);//imprime a lista da inicialização do array
       }
-      
+
       fprintf(fileToWrite,";\n");
       break;
     case AST_FUNDEC://vartype TK_IDENTIFIER '(' varDeclFunc ')' cmd {$$=astreeCreate(AST_FUNDEC,$2,$1,$4,$6,0);}
