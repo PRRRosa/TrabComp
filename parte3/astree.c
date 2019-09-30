@@ -140,6 +140,9 @@ void astreePrint(AST *node, int level){
     case AST_LCMD:
       fprintf(stderr,"AST_LCMD,");
       break;
+    case BOOL_EXP:
+      fprintf(stderr,"BOOL_EXP,");
+      break;
     default:
       break;
   }
@@ -230,7 +233,11 @@ void astreeWrite(AST *node,FILE *fileToWrite){
       fprintf(fileToWrite,")");
       break;
     case AST_ARGLIST:
-      fprintf(fileToWrite,"AST_ARGLIST,");
+      astreeWrite(node->son[0],fileToWrite);
+      if(node->son[1]!=0){
+        fprintf(fileToWrite,", ");
+        astreeWrite(node->son[1],fileToWrite);
+      }
       break;
     case AST_ARRELEMENT:
       fprintf(fileToWrite,"%s [",node->symbol->text);
@@ -373,6 +380,13 @@ void astreeWrite(AST *node,FILE *fileToWrite){
         astreeWrite(node->son[1],fileToWrite);
       }
       break;
+
+    case BOOL_EXP:
+      fprintf(fileToWrite,"(");
+      astreeWrite(node->son[0],fileToWrite);
+      fprintf(fileToWrite,")");
+      break;
+
     default:
       break;
   }
