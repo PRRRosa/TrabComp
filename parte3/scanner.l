@@ -60,6 +60,7 @@ DIGIT [0-9]
 <COMMENT>.
 
 [^ \t]
+[ \t\r\n]      ;
 %%
 
 int yywrap(){
