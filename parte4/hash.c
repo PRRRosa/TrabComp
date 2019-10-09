@@ -55,3 +55,15 @@ HASH_NODE *hashFind(char *text){
     }
     return 0;
 }
+
+void hashCheckUndeclared(){
+  int i;
+  HASH_NODE *node;
+  for(i=0;i<HASH_SIZE;i++){
+    for(node=Table[i];node;node=node->next){
+      if(node->type == SYMBOL_IDENTIFIER){
+        fprintf(stderr,"Semantic error : Symbol %s undeclared\n", node->text);
+      }
+    }
+  }
+}
