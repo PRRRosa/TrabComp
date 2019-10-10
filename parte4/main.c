@@ -17,7 +17,7 @@ int main(int argc, char **argv) {
   yyout = fopen(argv[2],"w");
   yyparse();
 
-  //hashPrint();
+  hashPrint();
 
   printf("\nFINISHED\n");
   exit(0);

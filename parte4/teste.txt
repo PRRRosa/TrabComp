@@ -1,15 +1,11 @@
 int x = 10;
-int x = 10;
 int y = 20;
 int k = 6667;
-
+bool z = TRUE;
+int x = 20;
 
 int funct (int a,int b)
 {
 
-y = 78+2*5-2/s[5+7];
-}
-
-int k(){
-z=2;
+y = 78+TRUE;
 }
