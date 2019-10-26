@@ -23,6 +23,7 @@ typedef struct hash_node{
   int datatype;
   char *text;
   struct hash_node *next;
+  struct astree_node *funDeclNode;
 }HASH_NODE;
 
 void hashInit();
