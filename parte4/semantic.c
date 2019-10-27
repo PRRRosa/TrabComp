@@ -36,6 +36,12 @@ void checkAndSetTypes(AST*node){
           if(node->son[0]->type == AST_TYPEFLOAT){
             node->symbol->datatype = DATATYPE_FLOAT;
           }
+          if(node->son[0]->type == AST_TYPEBYTE){
+            node->symbol->datatype = DATATYPE_BYTE;
+          }
+          if(node->son[0]->type == AST_TYPELONG){
+            node->symbol->datatype = DATATYPE_LONG;
+          }
         }
       }
     }
@@ -94,7 +100,7 @@ void checkOperands(AST*node){
       }
       break;
     case AST_FUNCALL:
-      if(checkFuncParameters(node)==-1){
+      if(checkFuncParameters(node)==0){
         fprintf(stderr, "Semantic Error: function parameters not compatible\n");
         ++semanticError;
       }
@@ -114,24 +120,46 @@ int getSemanticError(){
 
 int checkFuncParameters(AST* funcCallNode){
   AST* funDecNode = funcCallNode->symbol->funDeclNode;
-  if(!funcCallNode){
-    printf("Ponteiro de chamada de função nula\n");
-    return -1;
+  if(!funcCallNode || !funDecNode){
+    printf("Ponteiro de função nula\n");
+    return 0;
   }else {
+    if(funDecNode->son[1]->type != AST_VARDECLST)
+      return 0;
+    if(funcCallNode->son[0]->type != AST_ARGLIST)
+      return 0;
     printf("Funcao de nome %s\n",funDecNode->symbol->text);
-    return 1;
+    return checkFuncParameter(funDecNode->son[1],funcCallNode->son[0]);
   }
 
 }
 
 int checkFuncParameter(AST* funDefParameter, AST* funCallParameter){
-  switch(funDefParameter->symbol->datatype){
+  if(!funDefParameter){ 
+    if(!funCallParameter){
+      printf("parâmetros de mesmo tipo\n");
+      return 1;
+    }else {printf("um param nulo\n");return 0;
+      }
+  }else if(!funCallParameter){
+    printf("um param nulo\n");
+    return 0;
+  }
+  //printf("Comparando param %s com %s\n",funDefParameter->son[0]->symbol->text,funCallParameter->son[0]->symbol->text);
+  switch(funDefParameter->son[0]->symbol->datatype){
     case DATATYPE_INT:
     case DATATYPE_FLOAT:
-      if(isNodeTypeNumber(funDefParameter)){}
+    case DATATYPE_BYTE:
+    case DATATYPE_LONG:
+      if(isNodeTypeNumber(funCallParameter->son[0])){
+        return checkFuncParameter(funDefParameter->son[1], funCallParameter->son[1]);
+      }else {printf("parametro de tipo int diferente\n");return 0;}
       break;
     case DATATYPE_BOOL:
-      if(isNodeTypeBool(funDefParameter)){}
+      if(isNodeTypeBool(funCallParameter->son[0])){
+        return checkFuncParameter(funDefParameter->son[1], funCallParameter->son[1]);
+      } else{printf("parametro de tipo bool diferente\n"); return 0;}
+      break;
   }
 }
 
@@ -141,31 +169,56 @@ int isNodeTypeNumber(AST* node){
     case AST_SUB:
     case AST_MUL:
     case AST_DIV:
-    case AST_FUNCALL:
-      return 1;//TODO: Teste de tipo de função
+    
+      return 1;
       break;
+    /*
     case AST_SYMBOL:
       if( node->son[i]->symbol->type == SYMBOL_SCALAR &&
             node->son[i]->symbol->datatype != DATATYPE_BOOL){
         return 1;
       }else return 0;
-      break;
-
+      break;*/
+    case AST_SYMBOL:
+    case AST_FUNCALL:
     case AST_ARRELEMENT:
-    case SYMBOL_SCALAR:
+    
       if((node->symbol->datatype==DATATYPE_INT)||(node->symbol->datatype==DATATYPE_FLOAT)||
-        (node->symbol->datatype==DATATYPE_SHORT)||(node->symbol->datatype==DATATYPE_LONG)){
+        (node->symbol->datatype==DATATYPE_BYTE)||(node->symbol->datatype==DATATYPE_LONG)){
         return 1;
       }else return 0;
       break;
 
     default:
+      printf("parametro de tipo não tratado %d\n",node->type);
       return 0;
+    }
 
 }
 
 int isNodeTypeBool(AST* node){
   switch(node->type){
+    case AST_LE:
+    case AST_GE:
+    case AST_EQ:
+    case AST_DIF:
+    case AST_LESS:
+    case AST_GRE:
+    case AST_OR:
+    case AST_SYMBOL:
+      return 1;
+      break;
+    case AST_FUNCALL:
+    case AST_ARRELEMENT:
     
+      if(node->symbol->datatype==DATATYPE_BOOL){
+        return 1;
+      }else return 0;
+      break;
+
+    default:
+    printf("parametro de tipo não tratado\n");
+    return 0;
+    break;
   }
 }
