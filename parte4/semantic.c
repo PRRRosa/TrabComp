@@ -169,17 +169,12 @@ int isNodeTypeNumber(AST* node){
     case AST_SUB:
     case AST_MUL:
     case AST_DIV:
-    
       return 1;
       break;
-    /*
     case AST_SYMBOL:
-      if( node->son[i]->symbol->type == SYMBOL_SCALAR &&
-            node->son[i]->symbol->datatype != DATATYPE_BOOL){
-        return 1;
-      }else return 0;
-      break;*/
-    case AST_SYMBOL:
+      if((node->symbol->type==SYMBOL_LITINT)||(node->symbol->type==SYMBOL_LITREAL)||(node->symbol->type==SYMBOL_LITCHAR)){
+        return 1;//Se for um literal real, inteiro ou um char, pode ser considerado como um número
+      }//Se não for um literal, continua para o teste de variável.
     case AST_FUNCALL:
     case AST_ARRELEMENT:
     
@@ -205,9 +200,13 @@ int isNodeTypeBool(AST* node){
     case AST_LESS:
     case AST_GRE:
     case AST_OR:
-    case AST_SYMBOL:
       return 1;
       break;
+
+    case AST_SYMBOL:
+      if((node->symbol->type==SYMBOL_LITTRUE)||(node->symbol->type==SYMBOL_LITFALSE)){
+        return 1;//Se for um literal true ou false, é um valor booleano
+      }//Se não for um literal, continua para o teste de variável.
     case AST_FUNCALL:
     case AST_ARRELEMENT:
     
