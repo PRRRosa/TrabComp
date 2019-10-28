@@ -229,14 +229,14 @@ int getSemanticError(){
 int checkFuncParameters(AST* funcCallNode){
   AST* funDecNode = funcCallNode->symbol->funDeclNode;
   if(!funcCallNode || !funDecNode){
-    printf("Ponteiro de função nula\n");
+    //printf("Ponteiro de função nula\n");
     return 0;
   }else {
     if(funDecNode->son[1]->type != AST_VARDECLST)
       return 0;
     if(funcCallNode->son[0]->type != AST_ARGLIST)
       return 0;
-    printf("Funcao de nome %s\n",funDecNode->symbol->text);
+    //printf("Funcao de nome %s\n",funDecNode->symbol->text);
     return checkFuncParameter(funDecNode->son[1],funcCallNode->son[0]);
   }
 
@@ -245,12 +245,14 @@ int checkFuncParameters(AST* funcCallNode){
 int checkFuncParameter(AST* funDefParameter, AST* funCallParameter){
   if(!funDefParameter){
     if(!funCallParameter){
-      printf("parâmetros de mesmo tipo\n");
+      //printf("parâmetros de mesmo tipo\n");
       return 1;
-    }else {printf("um param nulo\n");return 0;
+    }else {
+      //printf("um param nulo\n");
+      return 0;
       }
   }else if(!funCallParameter){
-    printf("um param nulo\n");
+    //printf("um param nulo\n");
     return 0;
   }
   //printf("Comparando param %s com %s\n",funDefParameter->son[0]->symbol->text,funCallParameter->son[0]->symbol->text);
@@ -261,12 +263,16 @@ int checkFuncParameter(AST* funDefParameter, AST* funCallParameter){
     case DATATYPE_LONG:
       if(isNodeTypeNumber(funCallParameter->son[0])){
         return checkFuncParameter(funDefParameter->son[1], funCallParameter->son[1]);
-      }else {printf("parametro de tipo int diferente\n");return 0;}
+      }else {
+        //printf("parametro de tipo int diferente\n");
+      return 0;}
       break;
     case DATATYPE_BOOL:
       if(isNodeTypeBool(funCallParameter->son[0])){
         return checkFuncParameter(funDefParameter->son[1], funCallParameter->son[1]);
-      } else{printf("parametro de tipo bool diferente\n"); return 0;}
+      } else{
+        //printf("parametro de tipo bool diferente\n");
+        return 0;}
       break;
 
   }
@@ -300,7 +306,7 @@ int isNodeTypeNumber(AST* node){
       break;
 
     default:
-      printf("parametro de tipo não tratado %d\n",node->type);
+      //printf("parametro de tipo não tratado %d\n",node->type);
       return 0;
     }
 
@@ -334,7 +340,7 @@ int isNodeTypeBool(AST* node){
       break;
 
     default:
-    printf("parametro de tipo não tratado\n");
+    //printf("parametro de tipo não tratado\n");
     return 0;
     break;
   }
