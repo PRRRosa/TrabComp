@@ -73,7 +73,8 @@
 %type<ast> declParam
 %type<ast> varDeclFuncMeio
 
-%left OPERATOR_LE OPERATOR_GE OPERATOR_EQ OPERATOR_DIF '<' '>' 'v'
+%left 'v'
+%left OPERATOR_LE OPERATOR_GE OPERATOR_EQ OPERATOR_DIF '<' '>'
 %left  '+' '-'
 %left  '*' '/'
 
