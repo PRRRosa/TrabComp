@@ -85,10 +85,6 @@ void checkOperands(AST*node, char*currentFunction){
     case AST_SUB:
     case AST_MUL:
     case AST_DIV:
-    case AST_LESS:
-    case AST_LE:
-    case AST_GRE:
-    case AST_GE:
       for(i=0;i<2;++i){
         if(isNodeTypeNumber(node->son[i])){
         ;
