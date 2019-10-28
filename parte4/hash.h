@@ -11,6 +11,10 @@
 #define SYMBOL_VECTOR 5
 #define SYMBOL_FUNCTION 6
 
+#define SYMBOL_LITCHAR 7
+#define SYMBOL_LITTRUE 8
+#define SYMBOL_LITFALSE 9
+
 
 #define DATATYPE_BYTE 1
 #define DATATYPE_INT 2
@@ -23,6 +27,7 @@ typedef struct hash_node{
   int datatype;
   char *text;
   struct hash_node *next;
+  struct astree_node *funDeclNode;
 }HASH_NODE;
 
 void hashInit();

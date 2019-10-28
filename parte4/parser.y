@@ -80,7 +80,7 @@
 %%
 
 begin:
-  programa {astreeWrite($1,yyout);astreePrint($1,0);printf("\n");checkAndSetTypes($1);checkOperands($1);fprintf(stderr,"%d semantic errors\n",getSemanticError());}
+  programa {astreeWrite($1,yyout);astreePrint($1,0);printf("\n");checkAndSetTypes($1);checkOperands($1,NULL);fprintf(stderr,"%d semantic errors\n",getSemanticError());}
 ;
 
 programa:
@@ -147,7 +147,7 @@ printString:
   | expression printString  {$$=astreeCreate(AST_PRINTSTR,0,$1,$2,0,0);}
 ;
 expression:
-    '(' expression ')'  {$$=astreeCreate(BOOL_EXP,0,$2,0,0,0);}
+    '(' expression ')'  {$$=$2;}
   | expression OPERATOR_LE expression {$$=astreeCreate(AST_LE,0,$1,$3,0,0);}
   | expression OPERATOR_GE expression {$$=astreeCreate(AST_GE,0,$1,$3,0,0);}
   | expression OPERATOR_EQ expression {$$=astreeCreate(AST_EQ,0,$1,$3,0,0);}
