@@ -7,3 +7,4 @@ int checkFuncParameters(AST* funcCallNode);
 int isNodeTypeNumber(AST* node);
 int isNodeTypeBool(AST* node);
 int checkFuncParameter(AST* funDefParameter, AST* funCallParameter);
+void checkArrayElements(AST* n, int tipo);

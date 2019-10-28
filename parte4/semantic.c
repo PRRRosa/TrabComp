@@ -51,28 +51,7 @@ void checkAndSetTypes(AST*node){
         }
       }
     }
-/*
-    if(node->type == AST_FUNDEC){
-      if(node->symbol){
-      if(node->symbol->type != SYMBOL_IDENTIFIER){
-        fprintf(stderr, "Semantic Error: %s already declared\n", node->symbol->text);
-      }
-      node->symbol->type = SYMBOL_FUNCTION;
-      if(node->son[0]->type == AST_TYPEINT){
-        node->symbol->datatype = DATATYPE_INT;
-      }
-    }
-  }
 
-    if(node->type == AST_ARRDEC){
-      if(node->symbol){
-      if(node->symbol->type != SYMBOL_IDENTIFIER){
-        fprintf(stderr, "Semantic Error: %s already declared\n", node->symbol->text);
-      }
-      node->symbol->type = SYMBOL_VECTOR;
-    }
-  }
-*/
     for(i=0;i<MAX_SONS;++i){
       checkAndSetTypes(node->son[i]);
     }
@@ -202,10 +181,11 @@ void checkOperands(AST*node, char*currentFunction){
           ++semanticError;
         }
         break;
-    /*case AST_ARRDEC:
-      printf("LIMITE VETOR: %s\n", node->son[0]->text);
-      //for (i=0; i< node->son[0]->)
-      break;*/
+    case AST_ARRDEC:
+    if(node->son[2]){
+      checkArrayElements(node->son[2], node->son[0]->type);
+    }
+      break;
 
     default:
       break;
@@ -213,6 +193,30 @@ void checkOperands(AST*node, char*currentFunction){
   for(i=0;i<MAX_SONS;++i){
     checkOperands(node->son[i],currentFunction);
   }
+}
+
+void checkArrayElements(AST* n, int tipo){
+  if(!n){
+    return;
+  }
+    if(tipo == AST_TYPEBYTE || tipo == AST_TYPEINT ||
+       tipo == AST_TYPELONG || tipo == AST_TYPEFLOAT){
+           if(isNodeTypeNumber(n->son[0])){
+             checkArrayElements(n->son[1], tipo);
+           }else{
+             fprintf(stderr, "Semantic Error: Incompatible type of vector and its elements\n");
+             ++semanticError;
+           }
+
+    }else if(tipo == AST_TYPEBOOL){
+           if(isNodeTypeBool(n->son[0])){
+             checkArrayElements(n->son[1], tipo);
+           }else{
+             fprintf(stderr, "Semantic Error: Incompatible type of vector and its elements\n");
+             ++semanticError;
+           }
+    }
+
 }
 void checkUndeclared(){
   semanticError+=hashCheckUndeclared();
@@ -264,6 +268,7 @@ int checkFuncParameter(AST* funDefParameter, AST* funCallParameter){
         return checkFuncParameter(funDefParameter->son[1], funCallParameter->son[1]);
       } else{printf("parametro de tipo bool diferente\n"); return 0;}
       break;
+
   }
 }
 
