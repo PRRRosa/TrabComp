@@ -198,12 +198,12 @@ void checkOperands(AST*node, char*currentFunction){
         if( (isNodeTypeBool(node->son[0]) && isNodeTypeBool(node->son[1])) ||
           ( (isNodeTypeNumber(node->son[0]) && isNodeTypeNumber(node->son[1])) )){
         }else{
-          fprintf(stderr, "Semantic Error: Assignment between conflicting types\n");
+          fprintf(stderr, "Semantic Error: Operands must be of same type\n");
           ++semanticError;
         }
         break;
     /*case AST_ARRDEC:
-      printf("LIMITE VETOR: %s\n", node->text);
+      printf("LIMITE VETOR: %s\n", node->son[0]->text);
       //for (i=0; i< node->son[0]->)
       break;*/
 
