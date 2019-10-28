@@ -124,6 +124,7 @@ void checkOperands(AST*node, char*currentFunction){
         }
       }
       break;
+      
     case AST_ARRELEMENT:
       if(node->symbol->type != SYMBOL_VECTOR){
         fprintf(stderr, "Semantic Error: Indexation in non array type\n");
@@ -135,6 +136,17 @@ void checkOperands(AST*node, char*currentFunction){
           fprintf(stderr, "Semantic Error: Indexation without number\n");
           ++semanticError;
         }
+      }
+      break;
+
+    case AST_SYMBOL:
+      if(node->symbol->type ==SYMBOL_VECTOR){
+        fprintf(stderr, "Semantic Error: Vector being used as symbol\n");
+        ++semanticError;
+      }
+      if(node->symbol->type ==SYMBOL_FUNCTION){
+        fprintf(stderr, "Semantic Error: Function name being used as symbol\n");
+        ++semanticError;
       }
       break;
     default:
