@@ -32,6 +32,15 @@ void checkAndSetTypes(AST*node){
           if(node->son[0]->type == AST_TYPEFLOAT){
             node->symbol->datatype = DATATYPE_FLOAT;
           }
+          if(node->son[0]->type == AST_TYPELONG){
+            node->symbol->datatype = DATATYPE_LONG;
+          }
+          if(node->son[0]->type == AST_TYPEBYTE){
+            node->symbol->datatype = DATATYPE_BYTE;
+          }
+          if(node->son[0]->type == AST_TYPEBOOL){
+            node->symbol->datatype = DATATYPE_BOOL;
+          }
         }
       }
     }
@@ -72,14 +81,23 @@ void checkOperands(AST*node){
     case AST_SUB:
     case AST_MUL:
     case AST_DIV:
+    case AST_LESS:
+    case AST_LE:
+    case AST_GRE:
+    case AST_GE:
       for(i=0;i<2;++i){
         if(node->son[i]->type == AST_ADD ||
            node->son[i]->type == AST_SUB ||
            node->son[i]->type == AST_MUL ||
            node->son[i]->type == AST_DIV ||
+           node->son[i]->type == AST_LESS ||
+           node->son[i]->type == AST_LE ||
+           node->son[i]->type == AST_GRE ||
+           node->son[i]->type == AST_GE ||
            (node->son[i]->type == AST_SYMBOL && node->son[i]->symbol->type == SYMBOL_SCALAR &&
             node->son[i]->symbol->datatype != DATATYPE_BOOL) ||
            (node->son[i]->type == AST_SYMBOL && (node->son[i]->symbol->type == SYMBOL_LITINT || node->son[i]->symbol->type == SYMBOL_LITREAL) )
+
          ){
         ;
         }
@@ -89,6 +107,10 @@ void checkOperands(AST*node){
         }
       }
       break;
+    case AST_ARRDEC:
+        
+        break;
+
   }
   for(i=0;i<MAX_SONS;++i){
     checkOperands(node->son[i]);

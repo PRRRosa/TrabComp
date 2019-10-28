@@ -77,9 +77,6 @@ void astreePrint(AST *node, int level){
     case AST_PRINTSTR:
       fprintf(stderr,"AST_PRINTSTR,");
       break;
-    case AST_UNIMPL:
-      fprintf(stderr,"AST_UNIMPL,");
-      break;
     case AST_IFCMD:
       fprintf(stderr,"AST_IFCMD,");
       break;
@@ -258,9 +255,6 @@ void astreeWrite(AST *node,FILE *fileToWrite){
       astreeWrite(node->son[0],fileToWrite);
       fprintf(fileToWrite," ");
       astreeWrite(node->son[1],fileToWrite);
-      break;
-    case AST_UNIMPL:
-      fprintf(fileToWrite,"AST_UNIMPL,");
       break;
     case AST_IFCMD:
     //KW_IF '(' expression ')' KW_THEN cmd KW_ELSE cmd  {$$=astreeCreate(AST_IFCMD,0,$3,$6,$8,0);}

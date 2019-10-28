@@ -44,7 +44,6 @@
 #define AST_LCMD 38
 #define BOOL_EXP 39
 
-#define AST_UNIMPL 99
 
 typedef struct astree_node{
   int type;
