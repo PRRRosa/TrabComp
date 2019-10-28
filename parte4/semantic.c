@@ -119,8 +119,26 @@ void checkOperands(AST*node, char*currentFunction){
               ++semanticError;
             }
             break;
+          default:
+            break;
         }
       }
+      break;
+    case AST_ARRELEMENT:
+      if(node->symbol->type != SYMBOL_VECTOR){
+        fprintf(stderr, "Semantic Error: Indexation in non array type\n");
+        ++semanticError;
+      }
+      if(node->son[0]){
+
+        if(!isNodeTypeNumber(node->son[0])){
+          fprintf(stderr, "Semantic Error: Indexation without number\n");
+          ++semanticError;
+        }
+      }
+      break;
+    default:
+      break;
   }
   for(i=0;i<MAX_SONS;++i){
     checkOperands(node->son[i],currentFunction);
