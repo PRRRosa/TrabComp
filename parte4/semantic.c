@@ -165,6 +165,21 @@ void checkOperands(AST*node, char*currentFunction){
         ++semanticError;
       }
       break;
+
+    case AST_ASSIGNCMD:
+      if(((node->son[0]->type == AST_SYMBOL)&&(node->son[0]->symbol->type==SYMBOL_SCALAR))||
+        ((node->son[0]->type == AST_ARRELEMENT)&&(node->son[0]->symbol->type==SYMBOL_VECTOR))){
+      }else{
+        fprintf(stderr, "Semantic Error: Element being assigned to is not variable or array element\n");
+        ++semanticError;
+      }
+      if( (isNodeTypeBool(node->son[0]) && isNodeTypeBool(node->son[1])) ||
+        ( (isNodeTypeNumber(node->son[0]) && isNodeTypeNumber(node->son[1])) )){
+      }else{
+        fprintf(stderr, "Semantic Error: Assignment between conflicting types\n");
+        ++semanticError;
+      }
+      break;
     default:
       break;
   }
