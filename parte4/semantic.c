@@ -72,7 +72,7 @@ void checkAndSetTypes(AST*node){
     }
 
 }
-void checkOperands(AST*node){
+void checkOperands(AST*node, char*currentFunction){
   int i;
   if(!node){
     return;
@@ -83,14 +83,7 @@ void checkOperands(AST*node){
     case AST_MUL:
     case AST_DIV:
       for(i=0;i<2;++i){
-        if(node->son[i]->type == AST_ADD ||
-           node->son[i]->type == AST_SUB ||
-           node->son[i]->type == AST_MUL ||
-           node->son[i]->type == AST_DIV ||
-           (node->son[i]->type == AST_SYMBOL && node->son[i]->symbol->type == SYMBOL_SCALAR &&
-            node->son[i]->symbol->datatype != DATATYPE_BOOL) ||
-           (node->son[i]->type == AST_SYMBOL && (node->son[i]->symbol->type == SYMBOL_LITINT || node->son[i]->symbol->type == SYMBOL_LITREAL) )
-         ){
+        if(isNodeTypeNumber(node->son[i])){
         ;
         }
         else {
@@ -105,9 +98,32 @@ void checkOperands(AST*node){
         ++semanticError;
       }
       break;
+    case AST_FUNDEC:
+      currentFunction = node->symbol->text;
+      break;
+    case AST_RETURN:
+      if(currentFunction){
+        switch(hashFind(currentFunction)->datatype){
+          case DATATYPE_INT:
+          case DATATYPE_LONG:
+          case DATATYPE_FLOAT:
+          case DATATYPE_BYTE:
+            if(!isNodeTypeNumber(node->son[0])){
+              fprintf(stderr, "Semantic Error: return type not compatible\n");
+              ++semanticError;
+            }
+            break;
+          case DATATYPE_BOOL:
+            if(!isNodeTypeBool(node->son[0])){
+              fprintf(stderr, "Semantic Error: return type not compatible\n");
+              ++semanticError;
+            }
+            break;
+        }
+      }
   }
   for(i=0;i<MAX_SONS;++i){
-    checkOperands(node->son[i]);
+    checkOperands(node->son[i],currentFunction);
   }
 }
 void checkUndeclared(){

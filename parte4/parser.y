@@ -80,7 +80,7 @@
 %%
 
 begin:
-  programa {astreeWrite($1,yyout);astreePrint($1,0);printf("\n");checkAndSetTypes($1);checkOperands($1);fprintf(stderr,"%d semantic errors\n",getSemanticError());}
+  programa {astreeWrite($1,yyout);astreePrint($1,0);printf("\n");checkAndSetTypes($1);checkOperands($1,NULL);fprintf(stderr,"%d semantic errors\n",getSemanticError());}
 ;
 
 programa:
