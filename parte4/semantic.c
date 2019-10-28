@@ -45,6 +45,9 @@ void checkAndSetTypes(AST*node){
           if(node->son[0]->type == AST_TYPEBOOL){
             node->symbol->datatype = DATATYPE_BOOL;
           }
+          if(node->son[0]->type == AST_TYPEBOOL){
+            node->symbol->datatype = DATATYPE_BOOL;
+          }
         }
       }
     }
@@ -122,8 +125,66 @@ void checkOperands(AST*node, char*currentFunction){
               ++semanticError;
             }
             break;
+          default:
+            break;
         }
       }
+      break;
+
+    case AST_ARRELEMENT:
+      if(node->symbol->type != SYMBOL_VECTOR){
+        fprintf(stderr, "Semantic Error: Indexation in non array type\n");
+        ++semanticError;
+      }
+      if(node->son[0]){
+
+        if(!isNodeTypeNumber(node->son[0])){
+          fprintf(stderr, "Semantic Error: Indexation without number\n");
+          ++semanticError;
+        }
+      }
+      break;
+
+    case AST_SYMBOL:
+      if(node->symbol->type ==SYMBOL_VECTOR){
+        fprintf(stderr, "Semantic Error: Vector being used as symbol\n");
+        ++semanticError;
+      }
+      if(node->symbol->type ==SYMBOL_FUNCTION){
+        fprintf(stderr, "Semantic Error: Function name being used as symbol\n");
+        ++semanticError;
+      }
+      break;
+
+    case AST_IFCMD:
+      if(!isNodeTypeBool(node->son[0])){
+        fprintf(stderr, "Semantic Error: Non boolean expression being tested on if command\n");
+        ++semanticError;
+      }
+      break;
+    case AST_WHILE:
+      if(!isNodeTypeBool(node->son[0])){
+        fprintf(stderr, "Semantic Error: Non boolean expression being tested on while command\n");
+        ++semanticError;
+      }
+      break;
+
+    case AST_ASSIGNCMD:
+      if(((node->son[0]->type == AST_SYMBOL)&&(node->son[0]->symbol->type==SYMBOL_SCALAR))||
+        ((node->son[0]->type == AST_ARRELEMENT)&&(node->son[0]->symbol->type==SYMBOL_VECTOR))){
+      }else{
+        fprintf(stderr, "Semantic Error: Element being assigned to is not variable or array element\n");
+        ++semanticError;
+      }
+      if( (isNodeTypeBool(node->son[0]) && isNodeTypeBool(node->son[1])) ||
+        ( (isNodeTypeNumber(node->son[0]) && isNodeTypeNumber(node->son[1])) )){
+      }else{
+        fprintf(stderr, "Semantic Error: Assignment between conflicting types\n");
+        ++semanticError;
+      }
+      break;
+    default:
+      break;
   }
   for(i=0;i<MAX_SONS;++i){
     checkOperands(node->son[i],currentFunction);
