@@ -269,7 +269,7 @@ void astreeWrite(AST *node,FILE *fileToWrite){
       fprintf(fileToWrite,") then ");
       astreeWrite(node->son[1],fileToWrite);
       if(node->son[2]!=0){
-        fprintf(fileToWrite,"else ");
+        fprintf(fileToWrite," else ");
         astreeWrite(node->son[2],fileToWrite);
       }
 
