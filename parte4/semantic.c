@@ -12,7 +12,7 @@ void checkAndSetTypes(AST*node){
     if(node->type == AST_VARDEC || node->type == AST_FUNDEC || node->type == AST_ARRDEC || node->type == AST_DECPARAM){
       if(node->symbol){
         if(node->symbol->type != SYMBOL_IDENTIFIER){
-          fprintf(stderr, "Semantic Error: %s already declared\n", node->symbol->text);
+          fprintf(stderr, "Semantic Error line %d: %s already declared\n",node->line , node->symbol->text);
           ++semanticError;
         }
         if (node->type == AST_VARDEC){
@@ -76,14 +76,14 @@ void checkOperands(AST*node, char*currentFunction){
         ;
         }
         else {
-          fprintf(stderr, "Semantic Error: operands not compatible\n");
+          fprintf(stderr, "Semantic Error line %d: operands not compatible\n", node->line);
           ++semanticError;
         }
       }
       break;
     case AST_FUNCALL:
       if(checkFuncParameters(node)==0){
-        fprintf(stderr, "Semantic Error: function parameters not compatible\n");
+        fprintf(stderr, "Semantic Error line %d: function parameters not compatible\n", node->line);
         ++semanticError;
       }
       break;
@@ -98,13 +98,13 @@ void checkOperands(AST*node, char*currentFunction){
           case DATATYPE_FLOAT:
           case DATATYPE_BYTE:
             if(!isNodeTypeNumber(node->son[0])){
-              fprintf(stderr, "Semantic Error: return type not compatible\n");
+              fprintf(stderr, "Semantic Error line %d: return type not compatible\n", node->line);
               ++semanticError;
             }
             break;
           case DATATYPE_BOOL:
             if(!isNodeTypeBool(node->son[0])){
-              fprintf(stderr, "Semantic Error: return type not compatible\n");
+              fprintf(stderr, "Semantic Error line %d: return type not compatible\n", node->line);
               ++semanticError;
             }
             break;
@@ -116,13 +116,13 @@ void checkOperands(AST*node, char*currentFunction){
 
     case AST_ARRELEMENT:
       if(node->symbol->type != SYMBOL_VECTOR){
-        fprintf(stderr, "Semantic Error: Indexation in non array type\n");
+        fprintf(stderr, "Semantic Error line %d: Indexation in non array type\n", node->line);
         ++semanticError;
       }
       if(node->son[0]){
 
         if(!isNodeTypeNumber(node->son[0])){
-          fprintf(stderr, "Semantic Error: Indexation without number\n");
+          fprintf(stderr, "Semantic Error line %d: Indexation without number\n", node->line);
           ++semanticError;
         }
       }
@@ -130,24 +130,24 @@ void checkOperands(AST*node, char*currentFunction){
 
     case AST_SYMBOL:
       if(node->symbol->type ==SYMBOL_VECTOR){
-        fprintf(stderr, "Semantic Error: Vector being used as symbol\n");
+        fprintf(stderr, "Semantic Error line %d: Vector being used as symbol\n", node->line);
         ++semanticError;
       }
       if(node->symbol->type ==SYMBOL_FUNCTION){
-        fprintf(stderr, "Semantic Error: Function name being used as symbol\n");
+        fprintf(stderr, "Semantic Error line %d: Function name being used as symbol\n", node->line);
         ++semanticError;
       }
       break;
 
     case AST_IFCMD:
       if(!isNodeTypeBool(node->son[0])){
-        fprintf(stderr, "Semantic Error: Non boolean expression being tested on if command\n");
+        fprintf(stderr, "Semantic Error line %d: Non boolean expression being tested on if command\n", node->line);
         ++semanticError;
       }
       break;
     case AST_WHILE:
       if(!isNodeTypeBool(node->son[0])){
-        fprintf(stderr, "Semantic Error: Non boolean expression being tested on while command\n");
+        fprintf(stderr, "Semantic Error line %d: Non boolean expression being tested on while command\n", node->line);
         ++semanticError;
       }
       break;
@@ -156,19 +156,19 @@ void checkOperands(AST*node, char*currentFunction){
       if(((node->son[0]->type == AST_SYMBOL)&&(node->son[0]->symbol->type==SYMBOL_SCALAR))||
         ((node->son[0]->type == AST_ARRELEMENT)&&(node->son[0]->symbol->type==SYMBOL_VECTOR))){
       }else{
-        fprintf(stderr, "Semantic Error: Element being assigned to is not variable or array element\n");
+        fprintf(stderr, "Semantic Error line %d: Element being assigned to is not variable or array element\n", node->line);
         ++semanticError;
       }
       if( (isNodeTypeBool(node->son[0]) && isNodeTypeBool(node->son[1])) ||
         ( (isNodeTypeNumber(node->son[0]) && isNodeTypeNumber(node->son[1])) )){
       }else{
-        fprintf(stderr, "Semantic Error: Assignment between conflicting types\n");
+        fprintf(stderr, "Semantic Error line %d: Assignment between conflicting types\n", node->line);
         ++semanticError;
       }
       break;
     case AST_OR:
         if(!isNodeTypeBool(node->son[0]) || !isNodeTypeBool(node->son[1])){
-          fprintf(stderr, "Semantic Error: Operands must be boolean\n");
+          fprintf(stderr, "Semantic Error line %d: Operands must be boolean\n", node->line);
           ++semanticError;
         }
         break;
@@ -177,7 +177,7 @@ void checkOperands(AST*node, char*currentFunction){
         if( (isNodeTypeBool(node->son[0]) && isNodeTypeBool(node->son[1])) ||
           ( (isNodeTypeNumber(node->son[0]) && isNodeTypeNumber(node->son[1])) )){
         }else{
-          fprintf(stderr, "Semantic Error: Operands must be of same type\n");
+          fprintf(stderr, "Semantic Error line %d: Operands must be of same type\n", node->line);
           ++semanticError;
         }
         break;
@@ -204,7 +204,7 @@ void checkArrayElements(AST* n, int tipo){
            if(isNodeTypeNumber(n->son[0])){
              checkArrayElements(n->son[1], tipo);
            }else{
-             fprintf(stderr, "Semantic Error: Incompatible type of vector and its elements\n");
+             fprintf(stderr, "Semantic Error line %d: Incompatible type of vector and its elements\n", n->line);
              ++semanticError;
            }
 
@@ -212,7 +212,7 @@ void checkArrayElements(AST* n, int tipo){
            if(isNodeTypeBool(n->son[0])){
              checkArrayElements(n->son[1], tipo);
            }else{
-             fprintf(stderr, "Semantic Error: Incompatible type of vector and its elements\n");
+             fprintf(stderr, "Semantic Error line %d: Incompatible type of vector and its elements\n", n->line);
              ++semanticError;
            }
     }
