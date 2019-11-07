@@ -77,3 +77,10 @@ HASH_NODE* makeTemp(){
   sprintf(name,"TEMPORARYNODE%d", serialNumber++);
   return hashInsert(name,0);
 }
+HASH_NODE* makeLabel(){
+  static int serialNumber = 0;
+  static char name[100];
+
+  sprintf(name,"TEMPORARYLABEL%d", serialNumber++);
+  return hashInsert(name,0);
+}

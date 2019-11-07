@@ -14,6 +14,9 @@ void tacPrintSingle(TAC *tac){
   if(!tac){
     return;
   }
+  if(tac->type == TAC_SYMBOL){
+    return;
+  }
   fprintf(stderr, "TAC( ");
   switch(tac->type){
     case TAC_SYMBOL:
@@ -33,6 +36,12 @@ void tacPrintSingle(TAC *tac){
       break;
     case TAC_MOVE:
       fprintf(stderr,"TAC_MOVE");
+      break;
+    case TAC_IFZ:
+      fprintf(stderr,"TAC_IFZ");
+      break;
+    case TAC_LABEL:
+      fprintf(stderr,"TAC_LABEL");
       break;
     default:
       fprintf(stderr,"UNKNOWN");
@@ -55,7 +64,7 @@ void tacPrintSingle(TAC *tac){
   }
   fprintf(stderr,");\n");
 }
-void tacPrinBackwards(TAC *tac){
+void tacPrintBackwards(TAC *tac){
   for(;tac;tac=tac->prev){
     tacPrintSingle(tac);
   }
@@ -70,6 +79,26 @@ TAC* tacJoin(TAC* l1, TAC* l2){
   tac->prev = l1;
   return l2;
 }
+TAC* makeBinOp(int type,TAC* code0, TAC* code1){
+  //return tacJoin(tacJoin(code0,code1),tacCreate(type,makeTemp(),code0?code0->res:0,code1?code1->res:0));
+  TAC* list=0;
+  TAC* novatac = 0;
+  novatac = tacCreate(type, makeTemp(),code0?code0->res:0,code1?code1->res:0);
+  list = tacJoin(code0,code1);
+  novatac->prev = list;
+  return novatac;
+
+}
+TAC* makeIfThen(TAC* code0, TAC* code1){
+  HASH_NODE* label = 0;
+  TAC* tacif = 0;
+  TAC* taclabel = 0;
+  label = makeLabel();
+  tacif = tacCreate(TAC_IFZ, label,code0?code0->res:0,0);
+  taclabel = tacCreate(TAC_LABEL, label,0,0);
+
+  return tacJoin(tacJoin(tacJoin(code0,tacif),code1),taclabel);
+}
 
 TAC* generateCode(AST* ast){
   int i;
@@ -83,7 +112,20 @@ TAC* generateCode(AST* ast){
       return tacCreate(TAC_SYMBOL,ast->symbol,0,0);
       break;
     case AST_ADD:
-      return tacJoin(tacJoin(code[0],code[1]),tacCreate(TAC_ADD,makeTemp(),code[0]?code[0]->res:0,code[1]?code[1]->res:0));
+      //return tacJoin(code[0],tacJoin(code[1],tacCreate(TAC_ADD,makeTemp(),code[0]?code[0]->res:0,code[1]?code[1]->res:0)));
+      return makeBinOp(TAC_ADD,code[0],code[1]);
+      break;
+    case AST_SUB:
+      return makeBinOp(TAC_SUB,code[0],code[1]);
+      break;
+    case AST_MUL:
+      return makeBinOp(TAC_MUL,code[0],code[1]);
+      break;
+    case AST_DIV:
+      return makeBinOp(TAC_DIV,code[0],code[1]);
+      break;
+    case AST_IFCMD:
+      return makeIfThen(code[0],code[1]);
       break;
     case AST_ASSIGNCMD:
       return tacJoin(code[0],tacCreate(TAC_MOVE,ast->symbol,code[0]?code[0]->res:0,0));
