@@ -157,7 +157,7 @@ expression:
   | expression '<' expression {$$=astreeCreate(AST_LESS,0,$1,$3,0,0,getLineNumber());}
   | expression '>' expression {$$=astreeCreate(AST_GRE,0,$1,$3,0,0,getLineNumber());}
   | expression 'v' expression {$$=astreeCreate(AST_OR,0,$1,$3,0,0,getLineNumber());}
-  | expression '+' expression {$$=astreeCreate(AST_ADD,0,$1,$3,0,0,getLineNumber());/*astreePrint(astreeCreate(AST_ADD,0,$1,$3,0,0),0);*/}
+  | expression '+' expression {$$=astreeCreate(AST_ADD,0,$1,$3,0,0,getLineNumber());}
   | expression '-' expression {$$=astreeCreate(AST_SUB,0,$1,$3,0,0,getLineNumber());}
   | expression '*' expression {$$=astreeCreate(AST_MUL,0,$1,$3,0,0,getLineNumber());}
   | expression '/' expression {$$=astreeCreate(AST_DIV,0,$1,$3,0,0,getLineNumber());}
