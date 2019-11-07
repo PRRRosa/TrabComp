@@ -1,4 +1,7 @@
 #include "tacs.h"
+TAC* makeBinOp(int type,TAC* code0, TAC* code1);
+TAC* makeIfThen(TAC* code0, TAC* code1);
+
 TAC* tacCreate(int type, HASH_NODE *res,HASH_NODE *op1,HASH_NODE *op2){
   TAC* newtac;
   newtac = (TAC*) calloc(1,sizeof(TAC));
@@ -79,26 +82,6 @@ TAC* tacJoin(TAC* l1, TAC* l2){
   tac->prev = l1;
   return l2;
 }
-TAC* makeBinOp(int type,TAC* code0, TAC* code1){
-  //return tacJoin(tacJoin(code0,code1),tacCreate(type,makeTemp(),code0?code0->res:0,code1?code1->res:0));
-  TAC* list=0;
-  TAC* novatac = 0;
-  novatac = tacCreate(type, makeTemp(),code0?code0->res:0,code1?code1->res:0);
-  list = tacJoin(code0,code1);
-  novatac->prev = list;
-  return novatac;
-
-}
-TAC* makeIfThen(TAC* code0, TAC* code1){
-  HASH_NODE* label = 0;
-  TAC* tacif = 0;
-  TAC* taclabel = 0;
-  label = makeLabel();
-  tacif = tacCreate(TAC_IFZ, label,code0?code0->res:0,0);
-  taclabel = tacCreate(TAC_LABEL, label,0,0);
-
-  return tacJoin(tacJoin(tacJoin(code0,tacif),code1),taclabel);
-}
 
 TAC* generateCode(AST* ast){
   int i;
@@ -128,10 +111,30 @@ TAC* generateCode(AST* ast){
       return makeIfThen(code[0],code[1]);
       break;
     case AST_ASSIGNCMD:
-      return tacJoin(code[0],tacCreate(TAC_MOVE,ast->symbol,code[0]?code[0]->res:0,0));
+      return tacJoin(tacJoin(code[0],code[1]),tacCreate(TAC_MOVE,ast->symbol,code[0]?code[0]->res:0,0));
       break;
     default:
       return (tacJoin(tacJoin(tacJoin(code[0],code[1]),code[2]),code[3]));
       break;
   }
+}
+TAC* makeBinOp(int type,TAC* code0, TAC* code1){
+  //return tacJoin(tacJoin(code0,code1),tacCreate(type,makeTemp(),code0?code0->res:0,code1?code1->res:0));
+  TAC* list=0;
+  TAC* novatac = 0;
+  novatac = tacCreate(type, makeTemp(),code0?code0->res:0,code1?code1->res:0);
+  list = tacJoin(code0,code1);
+  novatac->prev = list;
+  return novatac;
+
+}
+TAC* makeIfThen(TAC* code0, TAC* code1){
+  HASH_NODE* label = 0;
+  TAC* tacif = 0;
+  TAC* taclabel = 0;
+  label = makeLabel();
+  tacif = tacCreate(TAC_IFZ, label,code0?code0->res:0,0);
+  taclabel = tacCreate(TAC_LABEL, label,0,0);
+
+  return tacJoin(tacJoin(tacJoin(code0,tacif),code1),taclabel);
 }

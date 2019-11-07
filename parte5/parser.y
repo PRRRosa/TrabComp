@@ -149,7 +149,7 @@ printString:
   | expression printString  {$$=astreeCreate(AST_PRINTSTR,0,$1,$2,0,0,getLineNumber());}
 ;
 expression:
-    '(' expression ')'  {$$=astreeCreate(BOOL_EXP,0,$2,0,0,0, getLineNumber());}
+    '(' expression ')'  {$$=$2;}
   | expression OPERATOR_LE expression {$$=astreeCreate(AST_LE,0,$1,$3,0,0,getLineNumber());}
   | expression OPERATOR_GE expression {$$=astreeCreate(AST_GE,0,$1,$3,0,0,getLineNumber());}
   | expression OPERATOR_EQ expression {$$=astreeCreate(AST_EQ,0,$1,$3,0,0,getLineNumber());}
