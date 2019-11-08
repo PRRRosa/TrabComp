@@ -1,6 +1,7 @@
 #include "tacs.h"
 TAC* makeBinOp(int type,TAC* code0, TAC* code1);
 TAC* makeIfThen(TAC* code0, TAC* code1);
+TAC* makeIfThenElse(TAC* code0, TAC* code1, TAC* code2);
 
 TAC* tacCreate(int type, HASH_NODE *res,HASH_NODE *op1,HASH_NODE *op2){
   TAC* newtac;
@@ -43,8 +44,14 @@ void tacPrintSingle(TAC *tac){
     case TAC_IFZ:
       fprintf(stderr,"TAC_IFZ");
       break;
+    case TAC_IFELSE:
+      fprintf(stderr,"TAC_IFELSE");
+      break;
     case TAC_LABEL:
       fprintf(stderr,"TAC_LABEL");
+      break;
+    case TAC_PRINT:
+      fprintf(stderr,"TAC_PRINT");
       break;
     default:
       fprintf(stderr,"UNKNOWN");
@@ -108,10 +115,15 @@ TAC* generateCode(AST* ast){
       return makeBinOp(TAC_DIV,code[0],code[1]);
       break;
     case AST_IFCMD:
-      return makeIfThen(code[0],code[1]);
+      if(ast->son[2]){
+        return makeIfThenElse(code[0],code[1], code[2]);
+      }else return makeIfThen(code[0],code[1]);
       break;
     case AST_ASSIGNCMD:
       return tacJoin(tacJoin(code[0],code[1]),tacCreate(TAC_MOVE,ast->symbol,code[0]?code[0]->res:0,0));
+      break;
+    case AST_PRINT:
+      return tacJoin(code[0],tacCreate(TAC_PRINT,NULL,code[0]?code[0]->res:0,0));
       break;
     default:
       return (tacJoin(tacJoin(tacJoin(code[0],code[1]),code[2]),code[3]));
@@ -137,4 +149,19 @@ TAC* makeIfThen(TAC* code0, TAC* code1){
   taclabel = tacCreate(TAC_LABEL, label,0,0);
 
   return tacJoin(tacJoin(tacJoin(code0,tacif),code1),taclabel);
+}
+
+TAC* makeIfThenElse(TAC* code0, TAC* code1, TAC* code2){
+  HASH_NODE* labelBetween = 0;
+  HASH_NODE* labelEnd = 0;
+  TAC* tacif = 0;
+  TAC* taclabelbetween = 0;
+  TAC* taclabelend = 0;
+  labelBetween = makeLabel();
+  labelEnd = makeLabel();
+  tacif = tacCreate(TAC_IFELSE, labelBetween,labelEnd,code0?code0->res:0);
+  taclabelbetween = tacCreate(TAC_LABEL, labelBetween,0,0);
+  taclabelend = tacCreate(TAC_LABEL, labelEnd,0,0);
+
+  return tacJoin(tacJoin(tacJoin(tacJoin(tacJoin(code0,tacif),code1),taclabelbetween),code2),taclabelend);
 }
