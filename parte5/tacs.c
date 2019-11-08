@@ -53,6 +53,9 @@ void tacPrintSingle(TAC *tac){
     case TAC_PRINT:
       fprintf(stderr,"TAC_PRINT");
       break;
+    case TAC_JUMP:
+      fprintf(stderr,"TAC_JUMP");
+      break;
     default:
       fprintf(stderr,"UNKNOWN");
       break;
@@ -159,9 +162,9 @@ TAC* makeIfThenElse(TAC* code0, TAC* code1, TAC* code2){
   TAC* taclabelend = 0;
   labelBetween = makeLabel();
   labelEnd = makeLabel();
-  tacif = tacCreate(TAC_IFELSE, labelBetween,labelEnd,code0?code0->res:0);
+  tacif = tacCreate(TAC_IFELSE, labelBetween,code0?code0->res:0,0);
   taclabelbetween = tacCreate(TAC_LABEL, labelBetween,0,0);
   taclabelend = tacCreate(TAC_LABEL, labelEnd,0,0);
 
-  return tacJoin(tacJoin(tacJoin(tacJoin(tacJoin(code0,tacif),code1),taclabelbetween),code2),taclabelend);
+  return tacJoin(tacJoin(tacJoin(tacJoin(tacJoin(tacJoin(code0,tacif),code1),tacCreate(TAC_JUMP,labelEnd,0,0)),taclabelbetween),code2),taclabelend);
 }
