@@ -2,6 +2,7 @@
 TAC* makeBinOp(int type,TAC* code0, TAC* code1);
 TAC* makeIfThen(TAC* code0, TAC* code1);
 TAC* makeIfThenElse(TAC* code0, TAC* code1, TAC* code2);
+TAC* makeWhile(TAC* code0, TAC* code1);
 
 TAC* tacCreate(int type, HASH_NODE *res,HASH_NODE *op1,HASH_NODE *op2){
   TAC* newtac;
@@ -43,9 +44,6 @@ void tacPrintSingle(TAC *tac){
       break;
     case TAC_IFZ:
       fprintf(stderr,"TAC_IFZ");
-      break;
-    case TAC_IFELSE:
-      fprintf(stderr,"TAC_IFELSE");
       break;
     case TAC_LABEL:
       fprintf(stderr,"TAC_LABEL");
@@ -140,6 +138,9 @@ TAC* generateCode(AST* ast){
     case AST_ARGLIST:
       return tacJoin(tacJoin(tacCreate(TAC_ARG,code[0]?code[0]->res:0,0,0),code[0]),code[1]);
       break;
+    case AST_WHILE:
+      return makeWhile(code[0],code[1]);
+      break;
     default:
       return (tacJoin(tacJoin(tacJoin(code[0],code[1]),code[2]),code[3]));
       break;
@@ -174,7 +175,7 @@ TAC* makeIfThenElse(TAC* code0, TAC* code1, TAC* code2){
   TAC* taclabelend = 0;
   labelBetween = makeLabel();
   labelEnd = makeLabel();
-  tacif = tacCreate(TAC_IFELSE, labelBetween,code0?code0->res:0,0);
+  tacif = tacCreate(TAC_IFZ, labelBetween,code0?code0->res:0,0);
   taclabelbetween = tacCreate(TAC_LABEL, labelBetween,0,0);
   taclabelend = tacCreate(TAC_LABEL, labelEnd,0,0);
 
@@ -190,4 +191,22 @@ TAC* makeCall(TAC* code0,AST* func){
     callTAC = tacJoin(callTAC,tacCreate(TAC_ARG,currentArg->son[0]->symbol,0,0));
   }
   return callTAC;
+}
+
+TAC* makeWhile(TAC* code0, TAC* code1){
+  HASH_NODE* labelStart = 0;
+  HASH_NODE* labelEnd = 0;
+  TAC* tacif = 0;
+  TAC* taclabelEnd = 0;
+  TAC* taclabelStart = 0;
+  TAC* tacJumpStart = 0;
+  labelStart = makeLabel();
+  labelEnd = makeLabel();
+  
+  tacif = tacCreate(TAC_IFZ, labelEnd,code0?code0->res:0,0);
+  taclabelEnd = tacCreate(TAC_LABEL, labelEnd,0,0);
+  taclabelStart = tacCreate(TAC_LABEL, labelStart,0,0);
+  tacJumpStart = tacCreate(TAC_JUMP, labelStart,0,0);
+
+  return tacJoin(tacJoin(tacJoin(tacJoin(tacJoin(taclabelStart,code0),tacif),code1),tacJumpStart),taclabelEnd);
 }

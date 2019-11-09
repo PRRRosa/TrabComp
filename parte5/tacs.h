@@ -12,7 +12,6 @@
 #define TAC_MOVE 6
 #define TAC_IFZ 7
 #define TAC_LABEL 8
-#define TAC_IFELSE 9
 #define TAC_PRINT 10
 #define TAC_JUMP 11
 #define TAC_CALL 12
