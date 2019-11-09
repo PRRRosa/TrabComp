@@ -56,6 +56,12 @@ void tacPrintSingle(TAC *tac){
     case TAC_JUMP:
       fprintf(stderr,"TAC_JUMP");
       break;
+    case TAC_CALL:
+      fprintf(stderr,"TAC_CALL");
+      break;
+    case TAC_ARG:
+      fprintf(stderr,"TAC_ARG");
+      break;
     default:
       fprintf(stderr,"UNKNOWN");
       break;
@@ -128,6 +134,12 @@ TAC* generateCode(AST* ast){
     case AST_PRINT:
       return tacJoin(code[0],tacCreate(TAC_PRINT,NULL,code[0]?code[0]->res:0,0));
       break;
+    case AST_FUNCALL:
+      return tacJoin(tacCreate(TAC_CALL,ast->symbol,code[0]?code[0]->res:0,code[1]?code[1]->res:0),code[0]);
+      break;
+    case AST_ARGLIST:
+      return tacJoin(tacJoin(tacCreate(TAC_ARG,code[0]?code[0]->res:0,0,0),code[0]),code[1]);
+      break;
     default:
       return (tacJoin(tacJoin(tacJoin(code[0],code[1]),code[2]),code[3]));
       break;
@@ -167,4 +179,15 @@ TAC* makeIfThenElse(TAC* code0, TAC* code1, TAC* code2){
   taclabelend = tacCreate(TAC_LABEL, labelEnd,0,0);
 
   return tacJoin(tacJoin(tacJoin(tacJoin(tacJoin(tacJoin(code0,tacif),code1),tacCreate(TAC_JUMP,labelEnd,0,0)),taclabelbetween),code2),taclabelend);
+}
+
+TAC* makeCall(TAC* code0,AST* func){
+  TAC* callTAC;
+  callTAC = tacCreate(TAC_CALL,func->symbol,code0?code0->res:0,0);
+  AST* currentArg;
+  currentArg = func->son[0];
+  while(currentArg){
+    callTAC = tacJoin(callTAC,tacCreate(TAC_ARG,currentArg->son[0]->symbol,0,0));
+  }
+  return callTAC;
 }
