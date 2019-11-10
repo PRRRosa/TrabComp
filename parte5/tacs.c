@@ -3,6 +3,7 @@ TAC* makeBinOp(int type,TAC* code0, TAC* code1);
 TAC* makeIfThen(TAC* code0, TAC* code1);
 TAC* makeIfThenElse(TAC* code0, TAC* code1, TAC* code2);
 TAC* makeWhile(TAC* code0, TAC* code1);
+TAC* makeFunction(AST* funcAST,TAC* functionCode);
 
 TAC* tacCreate(int type, HASH_NODE *res,HASH_NODE *op1,HASH_NODE *op2){
   TAC* newtac;
@@ -59,6 +60,12 @@ void tacPrintSingle(TAC *tac){
       break;
     case TAC_ARG:
       fprintf(stderr,"TAC_ARG");
+      break;
+    case TAC_BEGINFUN:
+      fprintf(stderr,"TAC_BEGINFUN");
+      break;
+    case TAC_ENDFUN:
+      fprintf(stderr,"TAC_ENDFUN");
       break;
     default:
       fprintf(stderr,"UNKNOWN");
@@ -141,6 +148,10 @@ TAC* generateCode(AST* ast){
     case AST_WHILE:
       return makeWhile(code[0],code[1]);
       break;
+
+    case AST_FUNDEC:
+      return makeFunction(ast,code[2]);
+      break;
     default:
       return (tacJoin(tacJoin(tacJoin(code[0],code[1]),code[2]),code[3]));
       break;
@@ -209,4 +220,12 @@ TAC* makeWhile(TAC* code0, TAC* code1){
   tacJumpStart = tacCreate(TAC_JUMP, labelStart,0,0);
 
   return tacJoin(tacJoin(tacJoin(tacJoin(tacJoin(taclabelStart,code0),tacif),code1),tacJumpStart),taclabelEnd);
+}
+
+TAC* makeFunction(AST* funcAST,TAC* functionCode){
+  TAC* tacFuncStart = 0;
+  TAC* tacFuncEnd = 0;
+  tacFuncStart = tacCreate(TAC_BEGINFUN,funcAST->symbol,0,0);
+  tacFuncEnd = tacCreate(TAC_ENDFUN,funcAST->symbol,0,0);
+  return tacJoin(tacJoin(tacFuncStart,functionCode),tacFuncEnd);
 }
