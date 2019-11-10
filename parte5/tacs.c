@@ -67,6 +67,27 @@ void tacPrintSingle(TAC *tac){
     case TAC_ENDFUN:
       fprintf(stderr,"TAC_ENDFUN");
       break;
+    case TAC_LE:
+      fprintf(stderr,"TAC_LE");
+      break;
+    case TAC_GE:
+      fprintf(stderr,"TAC_GE");
+      break;
+    case TAC_EQ:
+      fprintf(stderr,"TAC_EQ");
+      break;
+    case TAC_DIF:
+      fprintf(stderr,"TAC_DIF");
+      break;
+    case TAC_LESS:
+      fprintf(stderr,"TAC_LESS");
+      break;
+    case TAC_GRE:
+      fprintf(stderr,"TAC_GRE");
+      break;
+    case TAC_OR:
+      fprintf(stderr,"TAC_OR");
+      break;
     default:
       fprintf(stderr,"UNKNOWN");
       break;
@@ -151,6 +172,28 @@ TAC* generateCode(AST* ast){
 
     case AST_FUNDEC:
       return makeFunction(ast,code[2]);
+      break;
+
+    case AST_LE:
+      return makeBinOp(TAC_LE,code[0],code[1]);
+      break;
+    case AST_GE:
+      return makeBinOp(TAC_GE,code[0],code[1]);
+      break;
+    case AST_EQ:
+      return makeBinOp(TAC_EQ,code[0],code[1]);
+      break;
+    case AST_DIF:
+      return makeBinOp(TAC_DIF,code[0],code[1]);
+      break;     
+    case AST_LESS:
+      return makeBinOp(TAC_LESS,code[0],code[1]);
+      break;
+    case AST_GRE:
+      return makeBinOp(TAC_GRE,code[0],code[1]);
+      break;
+    case AST_OR:
+      return makeBinOp(TAC_OR,code[0],code[1]);
       break;
     default:
       return (tacJoin(tacJoin(tacJoin(code[0],code[1]),code[2]),code[3]));

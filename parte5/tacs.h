@@ -18,6 +18,13 @@
 #define TAC_ARG 13
 #define TAC_BEGINFUN 14
 #define TAC_ENDFUN 15
+#define TAC_LE 16
+#define TAC_GE 17
+#define TAC_EQ 18
+#define TAC_DIF 19
+#define TAC_LESS 20
+#define TAC_GRE 21
+#define TAC_OR 22
 
 typedef struct tac_node{
   int type;
