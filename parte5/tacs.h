@@ -26,6 +26,7 @@
 #define TAC_GRE 21
 #define TAC_OR 22
 #define TAC_ARREF 23
+#define TAC_RET 24
 
 typedef struct tac_node{
   int type;

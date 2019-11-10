@@ -91,6 +91,9 @@ void tacPrintSingle(TAC *tac){
     case TAC_ARREF:
       fprintf(stderr,"TAC_ARREF");
       break;
+    case TAC_RET:
+      fprintf(stderr, "TAC_RET");
+      break;
     default:
       fprintf(stderr,"UNKNOWN");
       break;
@@ -188,7 +191,7 @@ TAC* generateCode(AST* ast){
       break;
     case AST_DIF:
       return makeBinOp(TAC_DIF,code[0],code[1]);
-      break;     
+      break;
     case AST_LESS:
       return makeBinOp(TAC_LESS,code[0],code[1]);
       break;
@@ -200,6 +203,9 @@ TAC* generateCode(AST* ast){
       break;
     case AST_ARRELEMENT:
       return tacCreate(TAC_ARREF,makeTemp(),code[0]?code[0]->res:0,0);
+    case AST_RETURN:
+      return tacJoin(code[0],tacCreate(TAC_RET,code[0]?code[0]->res:0,0,0));
+      break;
     default:
       return (tacJoin(tacJoin(tacJoin(code[0],code[1]),code[2]),code[3]));
       break;
@@ -261,7 +267,7 @@ TAC* makeWhile(TAC* code0, TAC* code1){
   TAC* tacJumpStart = 0;
   labelStart = makeLabel();
   labelEnd = makeLabel();
-  
+
   tacif = tacCreate(TAC_IFZ, labelEnd,code0?code0->res:0,0);
   taclabelEnd = tacCreate(TAC_LABEL, labelEnd,0,0);
   taclabelStart = tacCreate(TAC_LABEL, labelStart,0,0);
