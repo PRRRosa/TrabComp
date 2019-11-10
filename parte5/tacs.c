@@ -88,6 +88,9 @@ void tacPrintSingle(TAC *tac){
     case TAC_OR:
       fprintf(stderr,"TAC_OR");
       break;
+    case TAC_ARREF:
+      fprintf(stderr,"TAC_ARREF");
+      break;
     default:
       fprintf(stderr,"UNKNOWN");
       break;
@@ -195,6 +198,8 @@ TAC* generateCode(AST* ast){
     case AST_OR:
       return makeBinOp(TAC_OR,code[0],code[1]);
       break;
+    case AST_ARRELEMENT:
+      return tacCreate(TAC_ARREF,makeTemp(),code[0]?code[0]->res:0,0);
     default:
       return (tacJoin(tacJoin(tacJoin(code[0],code[1]),code[2]),code[3]));
       break;
