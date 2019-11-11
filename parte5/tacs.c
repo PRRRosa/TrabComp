@@ -94,6 +94,12 @@ void tacPrintSingle(TAC *tac){
     case TAC_RET:
       fprintf(stderr, "TAC_RET");
       break;
+    case TAC_READ:
+      fprintf(stderr, "TAC_READ");
+      break;
+    case TAC_VAR:
+      fprintf(stderr, "TAC_VAR");
+      break;
     default:
       fprintf(stderr,"UNKNOWN");
       break;
@@ -205,6 +211,12 @@ TAC* generateCode(AST* ast){
       return tacCreate(TAC_ARREF,makeTemp(),code[0]?code[0]->res:0,0);
     case AST_RETURN:
       return tacJoin(code[0],tacCreate(TAC_RET,code[0]?code[0]->res:0,0,0));
+      break;
+    case AST_READ:
+      return tacJoin(tacCreate(TAC_SYMBOL,ast->symbol,0,0),tacCreate(TAC_READ,ast->symbol,0,0));
+      break;
+    case AST_VARDEC:
+      return tacJoin(tacCreate(TAC_SYMBOL,ast->symbol,0,0),tacJoin(code[1],tacCreate(TAC_VAR,ast->symbol,code[1]->res,0)));
       break;
     default:
       return (tacJoin(tacJoin(tacJoin(code[0],code[1]),code[2]),code[3]));

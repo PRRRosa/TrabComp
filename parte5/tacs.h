@@ -27,6 +27,8 @@
 #define TAC_OR 22
 #define TAC_ARREF 23
 #define TAC_RET 24
+#define TAC_READ 25
+#define TAC_VAR 26
 
 typedef struct tac_node{
   int type;
