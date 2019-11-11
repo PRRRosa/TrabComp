@@ -37,7 +37,7 @@
 #define AST_TYPEFLOAT 31
 #define AST_TYPEBOOL 32
 #define AST_LDEC 33 //?
-#define AST_ARRDEC 34 //nao tem
+#define AST_ARRDEC 34
 #define AST_LISTINIT 35 //nao tem
 #define AST_VARDECLST 36 //ano tem
 #define AST_DECPARAM 37 //?
