@@ -21,14 +21,14 @@
 #define AST_ARRELEMENT 15
 #define AST_ASSIGNCMD 16
 #define AST_PRINT 17
-#define AST_PRINTSTR 18 //nao tem
+#define AST_PRINTSTR 18
 #define AST_IFCMD 19
 #define AST_READ 20
 #define AST_WHILE 21
-#define AST_FOR 22 //nao tem
+#define AST_FOR 22
 #define AST_BREAK 23 //nao tem
 #define AST_RETURN 24
-#define AST_BLOCK 25 //?
+#define AST_BLOCK 25
 #define AST_VARDEC 26
 #define AST_FUNDEC 27
 #define AST_TYPEBYTE 28
@@ -36,12 +36,12 @@
 #define AST_TYPELONG 30
 #define AST_TYPEFLOAT 31
 #define AST_TYPEBOOL 32
-#define AST_LDEC 33 //?
+#define AST_LDEC 33
 #define AST_ARRDEC 34
-#define AST_LISTINIT 35 //nao tem
-#define AST_VARDECLST 36 //ano tem
-#define AST_DECPARAM 37 //?
-#define AST_LCMD 38 //?
+#define AST_LISTINIT 35
+#define AST_VARDECLST 36
+#define AST_DECPARAM 37
+#define AST_LCMD 38
 #define BOOL_EXP 39
 
 
