@@ -26,7 +26,7 @@
 #define AST_READ 20
 #define AST_WHILE 21
 #define AST_FOR 22
-#define AST_BREAK 23 //nao tem
+#define AST_BREAK 23
 #define AST_RETURN 24
 #define AST_BLOCK 25
 #define AST_VARDEC 26
