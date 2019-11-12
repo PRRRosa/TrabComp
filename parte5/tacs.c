@@ -323,6 +323,7 @@ TAC* makeFunction(AST* funcAST,TAC* functionCode){
 TAC* makeFor(HASH_NODE* loopVar,TAC* tacInitOp, TAC* tacIfOp, TAC* tacLoopOp, TAC* codigoFor, HASH_NODE* labelLoopEnd){
   HASH_NODE* labelStart = 0;
   HASH_NODE* labelEnd = 0;
+  TAC* tacifComparison = 0;
   TAC* tacif = 0;
   TAC* taclabelEnd = 0;
   TAC* taclabelStart = 0;
@@ -332,10 +333,23 @@ TAC* makeFor(HASH_NODE* loopVar,TAC* tacInitOp, TAC* tacIfOp, TAC* tacLoopOp, TA
   labelEnd = labelLoopEnd;
 
   tacInitAssign = makeAssign(loopVar,tacInitOp);
-  tacif = tacCreate(TAC_IFZ, labelEnd,tacIfOp?tacIfOp->res:0,0);
+
+  /*Adiciona ao final da operação do valor a ser testado com a variável do loop 
+    a comparação entre esse valor e a variável do loop
+  */
+  tacifComparison = tacCreate(TAC_LESS, makeTemp(),loopVar,tacIfOp?tacIfOp->res:0);
+  tacif = tacJoin(tacifComparison,tacCreate(TAC_IFZ, labelEnd,tacifComparison?tacifComparison->res:0,0));
+
   taclabelEnd = tacCreate(TAC_LABEL, labelEnd,0,0);
   taclabelStart = tacCreate(TAC_LABEL, labelStart,0,0);
   tacJumpStart = tacCreate(TAC_JUMP, labelStart,0,0);
+
+  /*Adiciona ao final da operação do loop uma soma do elemento final à variável do loop e 
+    uma operação para mover esse valor de volta à variável do loop
+  */
+  HASH_NODE* tacLoopOpResult = makeTemp();
+  tacLoopOp = tacJoin(tacJoin(tacLoopOp, tacCreate(TAC_ADD, tacLoopOpResult,loopVar,tacLoopOp?tacLoopOp->res:0)),
+      tacCreate(TAC_MOVE,loopVar,tacLoopOpResult,0));
 
   return tacJoin(tacJoin(tacJoin(tacJoin(tacJoin(tacJoin(tacJoin(tacInitAssign,taclabelStart),tacIfOp),tacif),codigoFor),tacLoopOp),tacJumpStart),taclabelEnd);
 }
