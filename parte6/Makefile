@@ -38,4 +38,4 @@ yaccAnalysis: lexScan
 	yacc parser.y -d
 
 clean:
-	rm lex.yy.c lex.yy.h etapa6 y.tab.c y.tab.h *.o
+	rm lex.yy.c lex.yy.h etapa6 y.tab.c y.tab.h *.o etapa6.asm
