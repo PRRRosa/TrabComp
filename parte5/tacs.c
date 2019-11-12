@@ -148,9 +148,10 @@ TAC* generateCode(AST* ast,HASH_NODE* labelLoopEnd){
   int i;
   TAC *code[MAX_SONS];
   if(!ast) return 0;
+  if((ast->type == AST_FOR)||(ast->type == AST_WHILE)){
+    labelLoopEnd = makeLabel();
+  }
   for(i = 0;i<MAX_SONS;++i){
-    if((ast->type == AST_FOR)||(ast->type == AST_WHILE))
-      labelLoopEnd = makeLabel();
     code[i] = generateCode(ast->son[i],labelLoopEnd);
   }
   switch(ast->type){
@@ -378,5 +379,7 @@ TAC* makePrint(AST* node,HASH_NODE* labelLoopEnd){
 }
 
 TAC* makeBreak(HASH_NODE* labelLoopEnd){
-  return tacCreate(TAC_JUMP,labelLoopEnd,0,0);
+  if(labelLoopEnd)
+    return tacCreate(TAC_JUMP,labelLoopEnd,0,0);
+  else return 0;
 }
