@@ -284,10 +284,10 @@ int isNodeTypeNumber(AST* node){
     case AST_SUB:
     case AST_MUL:
     case AST_DIV:
-    case AST_LESS:
-    case AST_LE:
-    case AST_GRE:
-    case AST_GE:
+    //case AST_LESS:
+    //case AST_LE:
+    //case AST_GRE:
+    //case AST_GE:
       return 1;
       break;
     case AST_SYMBOL:
