@@ -331,11 +331,11 @@ TAC* makeFor(HASH_NODE* loopVar,TAC* tacInitOp, TAC* tacIfOp, TAC* tacLoopOp, TA
   taclabelStart = tacCreate(TAC_LABEL, labelStart,0,0);
   tacJumpStart = tacCreate(TAC_JUMP, labelStart,0,0);
 
-  return tacJoin(tacJoin(tacJoin(tacJoin(tacJoin(tacJoin(tacJoin(tacJoin(tacInitOp,tacInitAssign),taclabelStart),tacIfOp),tacif),codigoFor),tacLoopOp),tacJumpStart),taclabelEnd);
+  return tacJoin(tacJoin(tacJoin(tacJoin(tacJoin(tacJoin(tacJoin(tacInitAssign,taclabelStart),tacIfOp),tacif),codigoFor),tacLoopOp),tacJumpStart),taclabelEnd);
 }
 
 TAC* makeAssign(HASH_NODE* assignVar, TAC* code1){
-  return tacCreate(TAC_MOVE,assignVar,code1?code1->res:0,0);
+  return tacJoin(code1,tacCreate(TAC_MOVE,assignVar,code1?code1->res:0,0));
 }
 
 TAC* makePrint(AST* node){
