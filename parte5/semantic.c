@@ -9,7 +9,7 @@ void checkAndSetTypes(AST*node){
       return;
     }
 
-    if(node->type == AST_VARDEC || node->type == AST_FUNDEC || node->type == AST_ARRDEC || node->type == AST_DECPARAM){
+    if(node->type == AST_VARDEC || node->type == AST_FUNDEC || node->type == AST_ARRDEC || node->type == AST_ARRDECINIT || node->type == AST_DECPARAM){
       if(node->symbol){
         if(node->symbol->type != SYMBOL_IDENTIFIER){
           fprintf(stderr, "Semantic Error line %d: %s already declared\n",node->line , node->symbol->text);
@@ -22,7 +22,7 @@ void checkAndSetTypes(AST*node){
           node->symbol->type = SYMBOL_FUNCTION;
           node->symbol->funDeclNode = node;
         }
-        if(node->type == AST_ARRDEC){
+        if(node->type == AST_ARRDEC || node->type == AST_ARRDECINIT){
           node->symbol->type = SYMBOL_VECTOR;
         }
         if(node->type == AST_DECPARAM){
@@ -182,6 +182,7 @@ void checkOperands(AST*node, char*currentFunction){
         }
         break;
     case AST_ARRDEC:
+    case AST_ARRDECINIT:
     if(node->son[2]){
       checkArrayElements(node->son[2], node->son[0]->type);
     }

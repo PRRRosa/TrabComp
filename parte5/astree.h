@@ -43,6 +43,7 @@
 #define AST_DECPARAM 37
 #define AST_LCMD 38
 #define BOOL_EXP 39
+#define AST_ARRDECINIT 40
 
 
 typedef struct astree_node{

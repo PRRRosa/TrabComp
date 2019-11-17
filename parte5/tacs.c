@@ -8,6 +8,7 @@ TAC* makeFor(HASH_NODE* loopVar,TAC* tacInitOp, TAC* tacIfOp, TAC* tacLoopOp, TA
 TAC* makeAssign(HASH_NODE* assignVar, TAC* code1);
 TAC* makePrint(AST* node, HASH_NODE* labelLoopEnd);
 TAC* makeBreak(HASH_NODE* labelLoopEnd);
+TAC* makeCall(AST* funcCall);
 
 TAC* tacCreate(int type, HASH_NODE *res,HASH_NODE *op1,HASH_NODE *op2){
   TAC* newtac;
@@ -107,6 +108,9 @@ void tacPrintSingle(TAC *tac){
     case TAC_VEC:
       fprintf(stderr, "TAC_VEC");
       break;
+    case TAC_VECINIT:
+      fprintf(stderr, "TAC_VECINIT");
+      break;
     default:
       fprintf(stderr,"UNKNOWN");
       break;
@@ -184,7 +188,8 @@ TAC* generateCode(AST* ast,HASH_NODE* labelLoopEnd){
       return makePrint(ast, labelLoopEnd);
       break;
     case AST_FUNCALL:
-      return tacJoin(tacCreate(TAC_CALL,ast->symbol,code[0]?code[0]->res:0,code[1]?code[1]->res:0),code[0]);
+      //return tacJoin(tacCreate(TAC_CALL,ast->symbol,code[0]?code[0]->res:0,code[1]?code[1]->res:0),code[0]);
+      return makeCall(ast);
       break;
     case AST_ARGLIST:
       return tacJoin(tacJoin(tacCreate(TAC_ARG,code[0]?code[0]->res:0,0,0),code[0]),code[1]);
@@ -231,6 +236,9 @@ TAC* generateCode(AST* ast,HASH_NODE* labelLoopEnd){
       break;
     case AST_ARRDEC:
       return tacJoin(tacCreate(TAC_VEC,ast->symbol,ast->son[0]->symbol,0),code[0]);
+      break;
+    case AST_ARRDECINIT:
+      return tacJoin(tacCreate(TAC_VECINIT,ast->symbol,ast->son[0]->symbol,ast->son[2]->symbol),code[0]);
       break;
     case AST_FOR:
       return makeFor(ast->symbol,code[0],code[1],code[2],code[3],labelLoopEnd);
@@ -279,15 +287,32 @@ TAC* makeIfThenElse(TAC* code0, TAC* code1, TAC* code2){
   return tacJoin(tacJoin(tacJoin(tacJoin(tacJoin(tacJoin(code0,tacif),code1),tacCreate(TAC_JUMP,labelEnd,0,0)),taclabelbetween),code2),taclabelend);
 }
 
-TAC* makeCall(TAC* code0,AST* func){
-  TAC* callTAC;
+TAC* makeCall(AST* funcCall){
+  /*TAC* callTAC;
   callTAC = tacCreate(TAC_CALL,func->symbol,code0?code0->res:0,0);
   AST* currentArg;
   currentArg = func->son[0];
   while(currentArg){
     callTAC = tacJoin(callTAC,tacCreate(TAC_ARG,currentArg->son[0]->symbol,0,0));
   }
-  return callTAC;
+  return callTAC;*/
+  TAC* tacCall = 0;
+	TAC* params = 0;
+	AST* buff = 0;
+	TAC* tacBuff = 0;
+	TAC* tacArg = 0;
+	int i = 1;
+	HASH_NODE* func_name = funcCall->symbol;
+	for(buff = funcCall->son[0]; buff; buff = buff->son[1]){
+		tacBuff = generateCode(buff->son[0],0); //expr or a symbol... tacGenerate can process
+		tacArg = tacCreate(TAC_ARG, 0, tacBuff->res,func_name);
+		params = tacJoin(tacJoin(params,tacBuff),tacArg);
+		i++;
+	}
+
+	HASH_NODE* tempCall = makeTemp();
+	tacCall = tacCreate(TAC_CALL, tempCall, funcCall->symbol,0);
+	return tacJoin(params,tacCall);
 }
 
 TAC* makeWhile(TAC* code0, TAC* code1, HASH_NODE* labelLoopEnd){
@@ -335,7 +360,7 @@ TAC* makeFor(HASH_NODE* loopVar,TAC* tacInitOp, TAC* tacIfOp, TAC* tacLoopOp, TA
 
   tacInitAssign = makeAssign(loopVar,tacInitOp);
 
-  /*Adiciona ao final da operação do valor a ser testado com a variável do loop 
+  /*Adiciona ao final da operação do valor a ser testado com a variável do loop
     a comparação entre esse valor e a variável do loop
   */
   tacifComparison = tacCreate(TAC_LESS, makeTemp(),loopVar,tacIfOp?tacIfOp->res:0);
@@ -345,7 +370,7 @@ TAC* makeFor(HASH_NODE* loopVar,TAC* tacInitOp, TAC* tacIfOp, TAC* tacLoopOp, TA
   taclabelStart = tacCreate(TAC_LABEL, labelStart,0,0);
   tacJumpStart = tacCreate(TAC_JUMP, labelStart,0,0);
 
-  /*Adiciona ao final da operação do loop uma soma do elemento final à variável do loop e 
+  /*Adiciona ao final da operação do loop uma soma do elemento final à variável do loop e
     uma operação para mover esse valor de volta à variável do loop
   */
   HASH_NODE* tacLoopOpResult = makeTemp();

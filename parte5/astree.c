@@ -126,6 +126,9 @@ void astreePrint(AST *node, int level){
     case AST_ARRDEC:
       fprintf(stderr,"AST_ARRDEC,");
       break;
+    case AST_ARRDECINIT:
+      fprintf(stderr,"AST_ARRDECINIT,");
+      break;
     case AST_LISTINIT:
       fprintf(stderr,"AST_LISTINIT,");
       break;
@@ -317,10 +320,23 @@ void astreeWrite(AST *node,FILE *fileToWrite){
       astreeWrite(node->son[1],fileToWrite);//índicenode->symbol->text
 
       fprintf(fileToWrite,"]");
-      if(node->son[2]!=0){// Se a declaração tiver uma inicialização
+
+
+      fprintf(fileToWrite,";\n");
+      break;
+    case AST_ARRDECINIT://vartype TK_IDENTIFIER '[' LIT_INTEGER ']' ':' listInit ';' vartype,nodo para int,List
+      //{$$=astreeCreate(AST_ARRDEC,$2,$1, astreeCreate(AST_SYMBOL,$4,0,0,0,0),$7,0);}
+      astreeWrite(node->son[0],fileToWrite);//tipo da var.
+      fprintf(fileToWrite," %s", node->symbol->text);// Nome da variável sendo declarada
+
+      fprintf(fileToWrite,"[");
+      astreeWrite(node->son[1],fileToWrite);//índicenode->symbol->text
+
+      fprintf(fileToWrite,"]");
+      // Se a declaração tiver uma inicialização
         fprintf(fileToWrite," : ");
         astreeWrite(node->son[2],fileToWrite);//imprime a lista da inicialização do array
-      }
+
 
       fprintf(fileToWrite,";\n");
       break;

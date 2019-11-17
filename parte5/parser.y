@@ -108,7 +108,7 @@ singleVarDec:
     vartype TK_IDENTIFIER '=' init ';' {$$=astreeCreate(AST_VARDEC,$2,$1,$4,0,0,getLineNumber());}
 ;
 arrayDec:
-    vartype TK_IDENTIFIER '[' LIT_INTEGER ']' ':' listInit ';'  {$$=astreeCreate(AST_ARRDEC,$2,$1,astreeCreate(AST_SYMBOL,$4,0,0,0,0,getLineNumber()),$7,0,getLineNumber());}
+    vartype TK_IDENTIFIER '[' LIT_INTEGER ']' ':' listInit ';'  {$$=astreeCreate(AST_ARRDECINIT,$2,$1,astreeCreate(AST_SYMBOL,$4,0,0,0,0,getLineNumber()),$7,0,getLineNumber());}
   | vartype TK_IDENTIFIER '[' LIT_INTEGER ']' ';' {$$=astreeCreate(AST_ARRDEC,$2,$1,astreeCreate(AST_SYMBOL,$4,0,0,0,0,getLineNumber()),0,0,getLineNumber());}
 ;
 listInit:
