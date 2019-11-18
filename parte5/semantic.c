@@ -128,6 +128,20 @@ void checkOperands(AST*node, char*currentFunction){
       }
       break;
 
+    case AST_ARRWRITE:
+      if(node->symbol->type != SYMBOL_VECTOR){
+        fprintf(stderr, "Semantic Error line %d: Indexation in non array type\n", node->line);
+        ++semanticError;
+      }
+      if(node->son[0]){
+
+        if(!isNodeTypeNumber(node->son[0])){
+          fprintf(stderr, "Semantic Error line %d: Indexation without number\n", node->line);
+          ++semanticError;
+        }
+      }
+      break;
+
     case AST_SYMBOL:
       if(node->symbol->type ==SYMBOL_VECTOR){
         fprintf(stderr, "Semantic Error line %d: Vector being used as symbol\n", node->line);

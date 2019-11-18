@@ -31,6 +31,7 @@
 #define TAC_VAR 26
 #define TAC_VEC 27
 #define TAC_VECINIT 28
+#define TAC_ARRWRITE 29
 
 typedef struct tac_node{
   int type;

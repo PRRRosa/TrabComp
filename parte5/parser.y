@@ -140,7 +140,7 @@ cmd:
 ;
 assignmentCommand:
     TK_IDENTIFIER '=' expression {$$=astreeCreate(AST_ASSIGNCMD,0, astreeCreate(AST_SYMBOL,$1,0,0,0,0,getLineNumber()), $3,0,0,getLineNumber());}
-  | TK_IDENTIFIER '[' expression ']' '=' expression  {$$=astreeCreate(AST_ASSIGNCMD,0, astreeCreate(AST_ARRELEMENT,$1,$3,0,0,0,getLineNumber()), $6,0,0,getLineNumber());}
+  | TK_IDENTIFIER '[' expression ']' '=' expression  {$$=astreeCreate(AST_ARRWRITE,$1, $3, $6,0,0,getLineNumber());}
 ;
 printString:
     LIT_STRING  {$$=astreeCreate(AST_PRINTSTR,0,astreeCreate(AST_SYMBOL,$1,0,0,0,0,getLineNumber()),0,0,0,getLineNumber());}

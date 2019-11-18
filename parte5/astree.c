@@ -144,6 +144,9 @@ void astreePrint(AST *node, int level){
     case BOOL_EXP:
       fprintf(stderr,"BOOL_EXP,");
       break;
+    case AST_ARRWRITE:
+      fprintf(stderr,"AST_ARRWRITE,");
+      break;
     default:
       break;
   }

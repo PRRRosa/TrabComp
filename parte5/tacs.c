@@ -9,6 +9,7 @@ TAC* makeAssign(HASH_NODE* assignVar, TAC* code1);
 TAC* makePrint(AST* node, HASH_NODE* labelLoopEnd);
 TAC* makeBreak(HASH_NODE* labelLoopEnd);
 TAC* makeCall(AST* funcCall);
+TAC* makeArrayWrite(HASH_NODE* vectorName,TAC* vectorIndexCode,TAC* assignCode);
 
 TAC* tacCreate(int type, HASH_NODE *res,HASH_NODE *op1,HASH_NODE *op2){
   TAC* newtac;
@@ -110,6 +111,9 @@ void tacPrintSingle(TAC *tac){
       break;
     case TAC_VECINIT:
       fprintf(stderr, "TAC_VECINIT");
+      break;
+    case TAC_ARRWRITE:
+      fprintf(stderr, "TAC_ARRWRITE");
       break;
     default:
       fprintf(stderr,"UNKNOWN");
@@ -225,6 +229,10 @@ TAC* generateCode(AST* ast,HASH_NODE* labelLoopEnd){
       break;
     case AST_ARRELEMENT:
       return tacCreate(TAC_ARREF,makeTemp(),code[0]?code[0]->res:0,0);
+      break;
+    case AST_ARRWRITE:
+      return makeArrayWrite(ast->symbol,code[0],code[1]);
+      break;
     case AST_RETURN:
       return tacJoin(code[0],tacCreate(TAC_RET,code[0]?code[0]->res:0,0,0));
       break;
@@ -407,4 +415,9 @@ TAC* makeBreak(HASH_NODE* labelLoopEnd){
   if(labelLoopEnd)
     return tacCreate(TAC_JUMP,labelLoopEnd,0,0);
   else return 0;
+}
+
+TAC* makeArrayWrite(HASH_NODE* vectorName,TAC* vectorIndexCode,TAC* assignCode){
+  TAC* writeTAC = tacCreate(TAC_ARRWRITE,vectorName,vectorIndexCode?vectorIndexCode->res:0,assignCode?assignCode->res:0);
+  return tacJoin(vectorIndexCode,tacJoin(assignCode,writeTAC));
 }
