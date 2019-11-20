@@ -237,7 +237,7 @@ TAC* generateCode(AST* ast,HASH_NODE* labelLoopEnd){
       return tacJoin(code[0],tacCreate(TAC_RET,code[0]?code[0]->res:0,0,0));
       break;
     case AST_READ:
-      return tacJoin(tacCreate(TAC_SYMBOL,ast->symbol,0,0),tacCreate(TAC_READ,ast->symbol,0,0));
+      return tacCreate(TAC_READ,code[0]?code[0]->res:0,0,0);
       break;
     case AST_VARDEC:
       return tacJoin(tacCreate(TAC_SYMBOL,ast->symbol,0,0),tacJoin(code[1],tacCreate(TAC_VAR,ast->symbol,code[1]->res,0)));
