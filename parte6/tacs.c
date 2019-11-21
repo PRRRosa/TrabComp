@@ -8,8 +8,10 @@ TAC* makeFor(HASH_NODE* loopVar,TAC* tacInitOp, TAC* tacIfOp, TAC* tacLoopOp, TA
 TAC* makeAssign(HASH_NODE* assignVar, TAC* code1);
 TAC* makePrint(AST* node, HASH_NODE* labelLoopEnd);
 TAC* makeBreak(HASH_NODE* labelLoopEnd);
+TAC* makeCall(AST* funcCall);
+TAC* makeArrayWrite(HASH_NODE* vectorName,TAC* vectorIndexCode,TAC* assignCode);
 
-TAC* tacCreate(int type, HASH_NODE *res,HASH_NODE *op1,HASH_NODE *op2){
+TAC* tacCreate(int type, HASH_NODE *res,HASH_NODE *op1,HASH_NODE *op2, int argNumber){
   TAC* newtac;
   newtac = (TAC*) calloc(1,sizeof(TAC));
   newtac->type = type;
@@ -18,6 +20,7 @@ TAC* tacCreate(int type, HASH_NODE *res,HASH_NODE *op1,HASH_NODE *op2){
   newtac->op2 = op2;
   newtac->prev = 0;
   newtac->next = 0;
+  newtac->argNumber = argNumber;
   return newtac;
 }
 void tacPrintSingle(TAC *tac){
@@ -107,6 +110,12 @@ void tacPrintSingle(TAC *tac){
     case TAC_VEC:
       fprintf(stderr, "TAC_VEC");
       break;
+    case TAC_VECINIT:
+      fprintf(stderr, "TAC_VECINIT");
+      break;
+    case TAC_ARRWRITE:
+      fprintf(stderr, "TAC_ARRWRITE");
+      break;
     default:
       fprintf(stderr,"UNKNOWN");
       break;
@@ -123,6 +132,11 @@ void tacPrintSingle(TAC *tac){
   }
   if(tac->op2){
     fprintf(stderr," ,%s", tac->op2->text);
+  }else {
+    fprintf(stderr, " ,0");
+  }
+  if(tac->argNumber){
+    fprintf(stderr," ,%d", tac->argNumber);
   }else {
     fprintf(stderr, " ,0");
   }
@@ -148,14 +162,15 @@ TAC* generateCode(AST* ast,HASH_NODE* labelLoopEnd){
   int i;
   TAC *code[MAX_SONS];
   if(!ast) return 0;
+  if((ast->type == AST_FOR)||(ast->type == AST_WHILE)){
+    labelLoopEnd = makeLabel();
+  }
   for(i = 0;i<MAX_SONS;++i){
-    if((ast->type == AST_FOR)||(ast->type == AST_WHILE))
-      labelLoopEnd = makeLabel();
     code[i] = generateCode(ast->son[i],labelLoopEnd);
   }
   switch(ast->type){
     case AST_SYMBOL:
-      return tacCreate(TAC_SYMBOL,ast->symbol,0,0);
+      return tacCreate(TAC_SYMBOL,ast->symbol,0,0,0);
       break;
     case AST_ADD:
       //return tacJoin(code[0],tacJoin(code[1],tacCreate(TAC_ADD,makeTemp(),code[0]?code[0]->res:0,code[1]?code[1]->res:0)));
@@ -183,10 +198,11 @@ TAC* generateCode(AST* ast,HASH_NODE* labelLoopEnd){
       return makePrint(ast, labelLoopEnd);
       break;
     case AST_FUNCALL:
-      return tacJoin(tacCreate(TAC_CALL,ast->symbol,code[0]?code[0]->res:0,code[1]?code[1]->res:0),code[0]);
+      //return tacJoin(code[0],tacCreate(TAC_CALL,ast->symbol,code[0]?code[0]->res:0,code[1]?code[1]->res:0,0));
+      return makeCall(ast);
       break;
     case AST_ARGLIST:
-      return tacJoin(tacJoin(tacCreate(TAC_ARG,code[0]?code[0]->res:0,0,0),code[0]),code[1]);
+      return tacJoin(tacJoin(tacCreate(TAC_ARG,code[0]?code[0]->res:0,0,0,0),code[0]),code[1]);
       break;
     case AST_WHILE:
       return makeWhile(code[0],code[1],labelLoopEnd);
@@ -218,18 +234,25 @@ TAC* generateCode(AST* ast,HASH_NODE* labelLoopEnd){
       return makeBinOp(TAC_OR,code[0],code[1]);
       break;
     case AST_ARRELEMENT:
-      return tacCreate(TAC_ARREF,makeTemp(),code[0]?code[0]->res:0,0);
+      return tacJoin(code[0], tacCreate(TAC_ARREF,ast->symbol,code[0]?code[0]->res:0,0,0));
+      break;
+    case AST_ARRWRITE:
+      return makeArrayWrite(ast->symbol,code[0],code[1]);
+      break;
     case AST_RETURN:
-      return tacJoin(code[0],tacCreate(TAC_RET,code[0]?code[0]->res:0,0,0));
+      return tacJoin(code[0],tacCreate(TAC_RET,code[0]?code[0]->res:0,0,0,0));
       break;
     case AST_READ:
-      return tacJoin(tacCreate(TAC_SYMBOL,ast->symbol,0,0),tacCreate(TAC_READ,ast->symbol,0,0));
+      return tacCreate(TAC_READ,code[0]?code[0]->res:0,0,0,0);
       break;
     case AST_VARDEC:
-      return tacJoin(tacCreate(TAC_SYMBOL,ast->symbol,0,0),tacJoin(code[1],tacCreate(TAC_VAR,ast->symbol,code[1]->res,0)));
+      return tacJoin(tacCreate(TAC_SYMBOL,ast->symbol,0,0,0),tacJoin(code[1],tacCreate(TAC_VAR,ast->symbol,code[1]->res,0,0)));
       break;
     case AST_ARRDEC:
-      return tacJoin(tacCreate(TAC_VEC,ast->symbol,ast->son[0]->symbol,0),code[0]);
+      return tacJoin(tacCreate(TAC_VEC,ast->symbol,ast->son[0]->symbol,0,0),code[0]);
+      break;
+    case AST_ARRDECINIT:
+      return tacJoin(tacCreate(TAC_VECINIT,ast->symbol,ast->son[0]->symbol,ast->son[2]->symbol,0),code[0]);
       break;
     case AST_FOR:
       return makeFor(ast->symbol,code[0],code[1],code[2],code[3],labelLoopEnd);
@@ -246,7 +269,7 @@ TAC* makeBinOp(int type,TAC* code0, TAC* code1){
   //return tacJoin(tacJoin(code0,code1),tacCreate(type,makeTemp(),code0?code0->res:0,code1?code1->res:0));
   TAC* list=0;
   TAC* novatac = 0;
-  novatac = tacCreate(type, makeTemp(),code0?code0->res:0,code1?code1->res:0);
+  novatac = tacCreate(type, makeTemp(),code0?code0->res:0,code1?code1->res:0,0);
   list = tacJoin(code0,code1);
   novatac->prev = list;
   return novatac;
@@ -257,8 +280,8 @@ TAC* makeIfThen(TAC* code0, TAC* code1){
   TAC* tacif = 0;
   TAC* taclabel = 0;
   label = makeLabel();
-  tacif = tacCreate(TAC_IFZ, label,code0?code0->res:0,0);
-  taclabel = tacCreate(TAC_LABEL, label,0,0);
+  tacif = tacCreate(TAC_IFZ, label,code0?code0->res:0,0,0);
+  taclabel = tacCreate(TAC_LABEL, label,0,0,0);
 
   return tacJoin(tacJoin(tacJoin(code0,tacif),code1),taclabel);
 }
@@ -271,22 +294,39 @@ TAC* makeIfThenElse(TAC* code0, TAC* code1, TAC* code2){
   TAC* taclabelend = 0;
   labelBetween = makeLabel();
   labelEnd = makeLabel();
-  tacif = tacCreate(TAC_IFZ, labelBetween,code0?code0->res:0,0);
-  taclabelbetween = tacCreate(TAC_LABEL, labelBetween,0,0);
-  taclabelend = tacCreate(TAC_LABEL, labelEnd,0,0);
+  tacif = tacCreate(TAC_IFZ, labelBetween,code0?code0->res:0,0,0);
+  taclabelbetween = tacCreate(TAC_LABEL, labelBetween,0,0,0);
+  taclabelend = tacCreate(TAC_LABEL, labelEnd,0,0,0);
 
-  return tacJoin(tacJoin(tacJoin(tacJoin(tacJoin(tacJoin(code0,tacif),code1),tacCreate(TAC_JUMP,labelEnd,0,0)),taclabelbetween),code2),taclabelend);
+  return tacJoin(tacJoin(tacJoin(tacJoin(tacJoin(tacJoin(code0,tacif),code1),tacCreate(TAC_JUMP,labelEnd,0,0,0)),taclabelbetween),code2),taclabelend);
 }
 
-TAC* makeCall(TAC* code0,AST* func){
-  TAC* callTAC;
+TAC* makeCall(AST* funcCall){
+  /*TAC* callTAC;
   callTAC = tacCreate(TAC_CALL,func->symbol,code0?code0->res:0,0);
   AST* currentArg;
   currentArg = func->son[0];
   while(currentArg){
     callTAC = tacJoin(callTAC,tacCreate(TAC_ARG,currentArg->son[0]->symbol,0,0));
   }
-  return callTAC;
+  return callTAC;*/
+  TAC* tacCall = 0;
+	TAC* params = 0;
+	AST* buff = 0;
+	TAC* tacBuff = 0;
+	TAC* tacArg = 0;
+	int i = 1;
+	HASH_NODE* func_name = funcCall->symbol;
+	for(buff = funcCall->son[0]; buff; buff = buff->son[1]){
+		tacBuff = generateCode(buff->son[0],0); //expr or a symbol... tacGenerate can process
+		tacArg = tacCreate(TAC_ARG, 0, tacBuff->res,func_name,i);
+		params = tacJoin(tacJoin(params,tacBuff),tacArg);
+		i++;
+	}
+
+	HASH_NODE* tempCall = makeTemp();
+	tacCall = tacCreate(TAC_CALL, tempCall, funcCall->symbol,0,0);
+	return tacJoin(params,tacCall);
 }
 
 TAC* makeWhile(TAC* code0, TAC* code1, HASH_NODE* labelLoopEnd){
@@ -299,10 +339,10 @@ TAC* makeWhile(TAC* code0, TAC* code1, HASH_NODE* labelLoopEnd){
   labelStart = makeLabel();
   labelEnd = labelLoopEnd;
 
-  tacif = tacCreate(TAC_IFZ, labelEnd,code0?code0->res:0,0);
-  taclabelEnd = tacCreate(TAC_LABEL, labelEnd,0,0);
-  taclabelStart = tacCreate(TAC_LABEL, labelStart,0,0);
-  tacJumpStart = tacCreate(TAC_JUMP, labelStart,0,0);
+  tacif = tacCreate(TAC_IFZ, labelEnd,code0?code0->res:0,0,0);
+  taclabelEnd = tacCreate(TAC_LABEL, labelEnd,0,0,0);
+  taclabelStart = tacCreate(TAC_LABEL, labelStart,0,0,0);
+  tacJumpStart = tacCreate(TAC_JUMP, labelStart,0,0,0);
 
   return tacJoin(tacJoin(tacJoin(tacJoin(tacJoin(taclabelStart,code0),tacif),code1),tacJumpStart),taclabelEnd);
 }
@@ -310,8 +350,8 @@ TAC* makeWhile(TAC* code0, TAC* code1, HASH_NODE* labelLoopEnd){
 TAC* makeFunction(AST* funcAST,TAC* functionCode){
   TAC* tacFuncStart = 0;
   TAC* tacFuncEnd = 0;
-  tacFuncStart = tacCreate(TAC_BEGINFUN,funcAST->symbol,0,0);
-  tacFuncEnd = tacCreate(TAC_ENDFUN,funcAST->symbol,0,0);
+  tacFuncStart = tacCreate(TAC_BEGINFUN,funcAST->symbol,0,0,0);
+  tacFuncEnd = tacCreate(TAC_ENDFUN,funcAST->symbol,0,0,0);
   return tacJoin(tacJoin(tacFuncStart,functionCode),tacFuncEnd);
 }
 
@@ -337,25 +377,25 @@ TAC* makeFor(HASH_NODE* loopVar,TAC* tacInitOp, TAC* tacIfOp, TAC* tacLoopOp, TA
   /*Adiciona ao final da operação do valor a ser testado com a variável do loop
     a comparação entre esse valor e a variável do loop
   */
-  tacifComparison = tacCreate(TAC_LESS, makeTemp(),loopVar,tacIfOp?tacIfOp->res:0);
-  tacif = tacJoin(tacifComparison,tacCreate(TAC_IFZ, labelEnd,tacifComparison?tacifComparison->res:0,0));
+  tacifComparison = tacCreate(TAC_LESS, makeTemp(),loopVar,tacIfOp?tacIfOp->res:0,0);
+  tacif = tacJoin(tacifComparison,tacCreate(TAC_IFZ, labelEnd,tacifComparison?tacifComparison->res:0,0,0));
 
-  taclabelEnd = tacCreate(TAC_LABEL, labelEnd,0,0);
-  taclabelStart = tacCreate(TAC_LABEL, labelStart,0,0);
-  tacJumpStart = tacCreate(TAC_JUMP, labelStart,0,0);
+  taclabelEnd = tacCreate(TAC_LABEL, labelEnd,0,0,0);
+  taclabelStart = tacCreate(TAC_LABEL, labelStart,0,0,0);
+  tacJumpStart = tacCreate(TAC_JUMP, labelStart,0,0,0);
 
   /*Adiciona ao final da operação do loop uma soma do elemento final à variável do loop e
     uma operação para mover esse valor de volta à variável do loop
   */
   HASH_NODE* tacLoopOpResult = makeTemp();
-  tacLoopOp = tacJoin(tacJoin(tacLoopOp, tacCreate(TAC_ADD, tacLoopOpResult,loopVar,tacLoopOp?tacLoopOp->res:0)),
-      tacCreate(TAC_MOVE,loopVar,tacLoopOpResult,0));
+  tacLoopOp = tacJoin(tacJoin(tacLoopOp, tacCreate(TAC_ADD, tacLoopOpResult,loopVar,tacLoopOp?tacLoopOp->res:0,0)),
+      tacCreate(TAC_MOVE,loopVar,tacLoopOpResult,0,0));
 
   return tacJoin(tacJoin(tacJoin(tacJoin(tacJoin(tacJoin(tacJoin(tacInitAssign,taclabelStart),tacIfOp),tacif),codigoFor),tacLoopOp),tacJumpStart),taclabelEnd);
 }
 
 TAC* makeAssign(HASH_NODE* assignVar, TAC* code1){
-  return tacJoin(code1,tacCreate(TAC_MOVE,assignVar,code1?code1->res:0,0));
+  return tacJoin(code1,tacCreate(TAC_MOVE,assignVar,code1?code1->res:0,0,0));
 }
 
 TAC* makePrint(AST* node,HASH_NODE* labelLoopEnd){
@@ -365,21 +405,29 @@ TAC* makePrint(AST* node,HASH_NODE* labelLoopEnd){
 	TAC* tacPrint = 0;
 	while(buff){
 		if(buff->symbol){
-			tacBuff = tacCreate(TAC_SYMBOL,buff->symbol, 0, 0);
+			tacBuff = tacCreate(TAC_SYMBOL,buff->symbol, 0, 0,0);
 			buff = buff->son[0];
 		}else{
 			tacBuff = generateCode(buff->son[0],labelLoopEnd);
 			buff = buff->son[1];
 		}
-		tacPrint = tacCreate(TAC_PRINT,tacBuff ? tacBuff->res: 0,0,0);
+		tacPrint = tacCreate(TAC_PRINT,tacBuff ? tacBuff->res: 0,0,0,0);
 		result = tacJoin(tacJoin(result,tacBuff),tacPrint);
 	}
 	return result;
 }
 
 TAC* makeBreak(HASH_NODE* labelLoopEnd){
-  return tacCreate(TAC_JUMP,labelLoopEnd,0,0);
+  if(labelLoopEnd)
+    return tacCreate(TAC_JUMP,labelLoopEnd,0,0,0);
+  else return 0;
 }
+
+TAC* makeArrayWrite(HASH_NODE* vectorName,TAC* vectorIndexCode,TAC* assignCode){
+  TAC* writeTAC = tacCreate(TAC_ARRWRITE,vectorName,vectorIndexCode?vectorIndexCode->res:0,assignCode?assignCode->res:0,0);
+  return tacJoin(vectorIndexCode,tacJoin(assignCode,writeTAC));
+}
+
 void generateASM(TAC* tac, FILE* fout){
   if(!tac){
     return;

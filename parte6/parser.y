@@ -84,7 +84,7 @@
 %%
 
 begin:
-  programa {astreeWrite($1,yyout);astreePrint($1,0);printf("\n");checkAndSetTypes($1);checkOperands($1,NULL);fprintf(stderr,"%d semantic errors\n",getSemanticError());if(getSemanticError() > 0)exit(4);tacPrintBackwards(generateCode($1,0));tac = generateCode($1,0);asmbly = fopen("etapa6.asm","w");;generateASM(tac,asmbly);}
+  programa {astreeWrite($1,yyout);astreePrint($1,0);printf("\n");checkAndSetTypes($1);checkOperands($1,NULL);fprintf(stderr,"%d semantic errors\n",getSemanticError());if(getSemanticError() > 0)exit(4);tacPrintBackwards(generateCode($1,0));tac = generateCode($1,0);asmbly = fopen("etapa6.asm","w");generateASM(tac,asmbly);}
 ;
 
 programa:
@@ -110,7 +110,7 @@ singleVarDec:
     vartype TK_IDENTIFIER '=' init ';' {$$=astreeCreate(AST_VARDEC,$2,$1,$4,0,0,getLineNumber());}
 ;
 arrayDec:
-    vartype TK_IDENTIFIER '[' LIT_INTEGER ']' ':' listInit ';'  {$$=astreeCreate(AST_ARRDEC,$2,$1,astreeCreate(AST_SYMBOL,$4,0,0,0,0,getLineNumber()),$7,0,getLineNumber());}
+    vartype TK_IDENTIFIER '[' LIT_INTEGER ']' ':' listInit ';'  {$$=astreeCreate(AST_ARRDECINIT,$2,$1,astreeCreate(AST_SYMBOL,$4,0,0,0,0,getLineNumber()),$7,0,getLineNumber());}
   | vartype TK_IDENTIFIER '[' LIT_INTEGER ']' ';' {$$=astreeCreate(AST_ARRDEC,$2,$1,astreeCreate(AST_SYMBOL,$4,0,0,0,0,getLineNumber()),0,0,getLineNumber());}
 ;
 listInit:
@@ -142,7 +142,7 @@ cmd:
 ;
 assignmentCommand:
     TK_IDENTIFIER '=' expression {$$=astreeCreate(AST_ASSIGNCMD,0, astreeCreate(AST_SYMBOL,$1,0,0,0,0,getLineNumber()), $3,0,0,getLineNumber());}
-  | TK_IDENTIFIER '[' expression ']' '=' expression  {$$=astreeCreate(AST_ASSIGNCMD,0, astreeCreate(AST_ARRELEMENT,$1,$3,0,0,0,getLineNumber()), $6,0,0,getLineNumber());}
+  | TK_IDENTIFIER '[' expression ']' '=' expression  {$$=astreeCreate(AST_ARRWRITE,$1, $3, $6,0,0,getLineNumber());}
 ;
 printString:
     LIT_STRING  {$$=astreeCreate(AST_PRINTSTR,0,astreeCreate(AST_SYMBOL,$1,0,0,0,0,getLineNumber()),0,0,0,getLineNumber());}

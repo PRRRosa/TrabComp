@@ -30,6 +30,8 @@
 #define TAC_READ 25
 #define TAC_VAR 26
 #define TAC_VEC 27
+#define TAC_VECINIT 28
+#define TAC_ARRWRITE 29
 
 typedef struct tac_node{
   int type;
@@ -38,8 +40,9 @@ typedef struct tac_node{
   HASH_NODE *op2;
   struct tac_node *prev;
   struct tac_node *next;
+  int argNumber;
 }TAC;
-TAC* tacCreate(int type, HASH_NODE *res,HASH_NODE *op1,HASH_NODE *op2);
+TAC* tacCreate(int type, HASH_NODE *res,HASH_NODE *op1,HASH_NODE *op2, int argNumber);
 void tacPrintSingle(TAC *tac);
 void tacPrintBackwards(TAC *tac);
 TAC* tacJoin(TAC* l1, TAC* l2);
