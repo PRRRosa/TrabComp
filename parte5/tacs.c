@@ -234,7 +234,7 @@ TAC* generateCode(AST* ast,HASH_NODE* labelLoopEnd){
       return makeBinOp(TAC_OR,code[0],code[1]);
       break;
     case AST_ARRELEMENT:
-      return tacJoin(code[0], tacCreate(TAC_ARREF,ast->symbol,code[0]?code[0]->res:0,0,0));
+      return tacJoin(code[0], tacCreate(TAC_ARREF,makeTemp(),ast->symbol,code[0]?code[0]->res:0,0));
       break;
     case AST_ARRWRITE:
       return makeArrayWrite(ast->symbol,code[0],code[1]);
