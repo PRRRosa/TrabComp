@@ -78,6 +78,9 @@ void astreePrint(AST *node, int level){
     case AST_PRINTSTR:
       fprintf(stderr,"AST_PRINTSTR,");
       break;
+    case AST_PRINTEXP:
+      fprintf(stderr,"AST_PRINTEXP,");
+      break;
     case AST_IFCMD:
       fprintf(stderr,"AST_IFCMD,");
       break;
@@ -259,6 +262,7 @@ void astreeWrite(AST *node,FILE *fileToWrite){
       astreeWrite(node->son[0],fileToWrite);
       break;
     case AST_PRINTSTR:
+    case AST_PRINTEXP:
       astreeWrite(node->son[0],fileToWrite);
       fprintf(fileToWrite," ");
       astreeWrite(node->son[1],fileToWrite);

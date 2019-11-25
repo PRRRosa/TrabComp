@@ -146,9 +146,9 @@ assignmentCommand:
 ;
 printString:
     LIT_STRING  {$$=astreeCreate(AST_PRINTSTR,0,astreeCreate(AST_SYMBOL,$1,0,0,0,0,getLineNumber()),0,0,0,getLineNumber());}
-  | expression  {$$=astreeCreate(AST_PRINTSTR,0,$1,0,0,0,getLineNumber());}
+  | expression  {$$=astreeCreate(AST_PRINTEXP,0,$1,0,0,0,getLineNumber());}
   | LIT_STRING printString  {$$=astreeCreate(AST_PRINTSTR,0,astreeCreate(AST_SYMBOL,$1,0,0,0,0,getLineNumber()),$2,0,0,getLineNumber());}
-  | expression printString  {$$=astreeCreate(AST_PRINTSTR,0,$1,$2,0,0,getLineNumber());}
+  | expression printString  {$$=astreeCreate(AST_PRINTEXP,0,$1,$2,0,0,getLineNumber());}
 ;
 expression:
     '(' expression ')'  {$$=$2;}

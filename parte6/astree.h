@@ -45,6 +45,7 @@
 #define BOOL_EXP 39
 #define AST_ARRDECINIT 40
 #define AST_ARRWRITE 41
+#define AST_PRINTEXP 42
 
 
 typedef struct astree_node{

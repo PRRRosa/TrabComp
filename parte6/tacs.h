@@ -12,7 +12,6 @@
 #define TAC_MOVE 6
 #define TAC_IFZ 7
 #define TAC_LABEL 8
-#define TAC_PRINT 10
 #define TAC_JUMP 11
 #define TAC_CALL 12
 #define TAC_ARG 13
@@ -32,6 +31,8 @@
 #define TAC_VEC 27
 #define TAC_VECINIT 28
 #define TAC_ARRWRITE 29
+#define TAC_PRINTSTR 30
+#define TAC_PRINTEXP 31
 
 typedef struct tac_node{
   int type;

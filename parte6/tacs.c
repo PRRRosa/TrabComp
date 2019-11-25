@@ -56,8 +56,11 @@ void tacPrintSingle(TAC *tac){
     case TAC_LABEL:
       fprintf(stderr,"TAC_LABEL");
       break;
-    case TAC_PRINT:
-      fprintf(stderr,"TAC_PRINT");
+    case TAC_PRINTSTR:
+      fprintf(stderr,"TAC_PRINTSTR");
+      break;
+    case TAC_PRINTEXP:
+      fprintf(stderr,"TAC_PRINTEXP");
       break;
     case TAC_JUMP:
       fprintf(stderr,"TAC_JUMP");
@@ -406,13 +409,26 @@ TAC* makePrint(AST* node,HASH_NODE* labelLoopEnd){
 	while(buff){
 		if(buff->symbol){
 			tacBuff = tacCreate(TAC_SYMBOL,buff->symbol, 0, 0,0);
+      if(buff->type == AST_PRINTSTR){
+        tacPrint = tacCreate(TAC_PRINTSTR,tacBuff ? tacBuff->res: 0,0,0,0);
+        result = tacJoin(tacJoin(result,tacBuff),tacPrint);
+      }else if(buff->type == AST_PRINTEXP){
+        tacPrint = tacCreate(TAC_PRINTEXP,tacBuff ? tacBuff->res: 0,0,0,0);
+        result = tacJoin(tacJoin(result,tacBuff),tacPrint);
+      }
 			buff = buff->son[0];
 		}else{
 			tacBuff = generateCode(buff->son[0],labelLoopEnd);
+      if(buff->type == AST_PRINTSTR){
+        tacPrint = tacCreate(TAC_PRINTSTR,tacBuff ? tacBuff->res: 0,0,0,0);
+        result = tacJoin(tacJoin(result,tacBuff),tacPrint);
+      }else if(buff->type == AST_PRINTEXP){
+        tacPrint = tacCreate(TAC_PRINTEXP,tacBuff ? tacBuff->res: 0,0,0,0);
+        result = tacJoin(tacJoin(result,tacBuff),tacPrint);
+      }
 			buff = buff->son[1];
 		}
-		tacPrint = tacCreate(TAC_PRINT,tacBuff ? tacBuff->res: 0,0,0,0);
-		result = tacJoin(tacJoin(result,tacBuff),tacPrint);
+
 	}
 	return result;
 }
