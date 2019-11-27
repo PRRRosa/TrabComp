@@ -1,14 +1,24 @@
-	.section	__DATA,__data
-	_a: .long	1
-	_b: .long	2
+	.file	"t1.c"
+	.text
 
-	.section	__TEXT,__text,regular,pure_instructions
+	.globl	_a
+	.data
+	.align 4
+	.type	_a, @object
+	.size	_a, 4
+_a:
+	.long	2
+
+
 ## TAC_BEGINFUN
 	.globl	_main
 _main:                                  ## @main
 	pushq	%rbp
 	movq	%rsp, %rbp
 
+## TAC_ENDFUN
+	ret
+	
 ## TAC_PRINTSTRING
 	leaq	printmessage(%rip), %rdi
 	movb	$0, %al
@@ -69,6 +79,10 @@ _main:                                  ## @main
 
 ## TAC_LABEL
 	.label
+
+## TAC_RETURN
+	movl	a(%rip), %eax
+	ret
 
 .section	__TEXT,__cstring,cstring_literals
 printmessage:                                 ## @.str

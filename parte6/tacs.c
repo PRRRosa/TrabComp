@@ -10,6 +10,7 @@ TAC* makePrint(AST* node, HASH_NODE* labelLoopEnd);
 TAC* makeBreak(HASH_NODE* labelLoopEnd);
 TAC* makeCall(AST* funcCall);
 TAC* makeArrayWrite(HASH_NODE* vectorName,TAC* vectorIndexCode,TAC* assignCode);
+void writeVar(TAC* tac, FILE* fout);
 
 TAC* tacCreate(int type, HASH_NODE *res,HASH_NODE *op1,HASH_NODE *op2, int argNumber){
   TAC* newtac;
@@ -451,14 +452,72 @@ void generateASM(TAC* tac, FILE* fout){
   if(tac->prev){
     generateASM(tac->prev,fout);
   }else{
-    fprintf(fout, "	.section\t__TEXT,__text,regular,pure_instructions\n\n");
+    //fprintf(fout, "	.section\t__TEXT,__text,regular,pure_instructions\n\n");
   }
   switch(tac->type){
+    case TAC_BEGINFUN:
+      fprintf(fout,"## TAC_BEGINFUN\n"
+        "\t.globl\t%s\n"
+      "%s:\n"
+        "\tpushq\t%%rbp\n"
+        "\tmovq\t%%rsp, %%rbp\n",tac->res->text,tac->res->text);
+      break;
+    case TAC_ENDFUN:
+      fprintf(fout,"## TAC_ENDFUN\n"
+        "\tret\n");
+      break;
     case TAC_ADD:
-      fprintf(fout, "## TAC_ADD\n"
-      	"movl\t_%s(%%rip), %%eax\n"
-      	"addl\t_%s(%%rip), %%eax\n"
-      	"movl\t%%eax, _%s(%%rip)\n", tac->op1->text,tac->op2->text,tac->res->text);
+      if(tac->op1->datatype==DATATYPE_INT && tac->op2->datatype==DATATYPE_INT){
+        fprintf(fout, "## TAC_ADD\n"
+        	"\tmovl\t_%s(%%rip), %%eax\n"
+        	"\taddl\t_%s(%%rip), %%eax\n"
+        	"\tmovl\t%%eax, _%s(%%rip)\n", tac->op1->text,tac->op2->text,tac->res->text);
+      }else if((tac->op1->datatype==DATATYPE_FLOAT && tac->op2->datatype==DATATYPE_INT)||
+        (tac->op1->datatype==DATATYPE_INT && tac->op2->datatype==DATATYPE_FLOAT))
+        fprintf(fout, "## TAC_ADD float com int\n"
+          "\tmovl  _%s(%%rip), %%eax\n"
+          "\tcvtsi2ss  %%eax, %%xmm0\n"
+          "\tmovss _%s(%%rip), %%xmm1\n"
+          "\taddss %%xmm1, %%xmm0\n"
+          "\tcvttss2siq  %%xmm0, %%rax\n"
+          "\tmovq  %%rax, _%s(%%rip)\n", tac->op1->datatype==DATATYPE_FLOAT?tac->op1->text:tac->op2->text,
+          tac->op1->datatype==DATATYPE_FLOAT?tac->op2->text:tac->op1->text, tac->res->text);
+      break;
+    case TAC_VAR:
+      writeVar(tac, fout);
+
       break;
   }
+}
+
+void writeVar(TAC* tac, FILE* fout){
+  char varSize[2];
+  char *varValue;
+  switch(tac->res->datatype){
+    case DATATYPE_INT:
+      varSize[0] = '4';
+      varSize[1] = ' ';
+      varValue = tac->op1->text;
+      fprintf(fout, "## TAC_VAR\n"
+        "\t.globl  _%s\n"
+        "\t.data\n"
+        "\t.align %s\n"
+        "\t.type _%s, @object\n"
+        "\t.size _%s, %s\n"
+      "%s:\n"
+        "\t.long %s\n", tac->res->text, varSize, tac->res->text, tac->res->text, varSize, tac->res->text,varValue);  
+
+    break;
+    case DATATYPE_FLOAT:
+      fprintf(fout, "## TAC_VAR float\n"
+        ".globl\t%s\n"
+        "\t.data\n"
+        "\t.align 4\n"
+        "\t.type %s, @object\n"
+        "\t.size %s, 4\n"
+      "\tb:\n"
+        "\t.long 1092616192\n", tac->res->text, tac->res->text, tac->res->text);
+      break;
+  }
+
 }

@@ -39,3 +39,7 @@ yaccAnalysis: lexScan
 
 clean:
 	rm lex.yy.c lex.yy.h etapa6 y.tab.c y.tab.h *.o etapa6.asm
+
+geraAsm:
+	gcc -S t1.c -fomit-frame-pointer
+

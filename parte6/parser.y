@@ -84,7 +84,7 @@
 %%
 
 begin:
-  programa {astreeWrite($1,yyout);astreePrint($1,0);printf("\n");checkAndSetTypes($1);checkOperands($1,NULL);fprintf(stderr,"%d semantic errors\n",getSemanticError());if(getSemanticError() > 0)exit(4);tacPrintBackwards(generateCode($1,0));tac = generateCode($1,0);asmbly = fopen("etapa6.asm","w");generateASM(tac,asmbly);}
+  programa {astreeWrite($1,yyout);astreePrint($1,0);printf("\n");checkAndSetTypes($1);checkOperands($1,NULL);fprintf(stderr,"%d semantic errors\n",getSemanticError());if(getSemanticError() > 0)exit(4);tacPrintBackwards(generateCode($1,0));tac = generateCode($1,0);asmbly = fopen("etapa6.s","w");generateASM(tac,asmbly);}
 ;
 
 programa:
