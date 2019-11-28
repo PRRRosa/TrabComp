@@ -493,6 +493,8 @@ void generateASM(TAC* tac, FILE* fout){
 void writeVar(TAC* tac, FILE* fout){
   char varSize[2];
   char *varValue;
+  volatile float tempFloat;
+  int tempInt;
   switch(tac->res->datatype){
     case DATATYPE_INT:
       varSize[0] = '4';
@@ -509,6 +511,8 @@ void writeVar(TAC* tac, FILE* fout){
 
     break;
     case DATATYPE_FLOAT:
+      tempFloat = atoi(tac->op1->text);
+      tempInt = *(int*)&tempFloat;
       fprintf(fout, "## TAC_VAR float\n"
         ".globl\t%s\n"
         "\t.data\n"
@@ -516,7 +520,8 @@ void writeVar(TAC* tac, FILE* fout){
         "\t.type %s, @object\n"
         "\t.size %s, 4\n"
       "\tb:\n"
-        "\t.long 1092616192\n", tac->res->text, tac->res->text, tac->res->text);
+        "\t.long %d\n"
+        "valor real:%f\n", tac->res->text, tac->res->text, tac->res->text, tempInt,tempFloat);
       break;
   }
 
