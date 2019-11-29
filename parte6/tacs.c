@@ -12,6 +12,8 @@ TAC* makeCall(AST* funcCall);
 TAC* makeArrayWrite(HASH_NODE* vectorName,TAC* vectorIndexCode,TAC* assignCode);
 void writeVar(TAC* tac, FILE* fout);
 
+int printLabelCount = 1;
+
 TAC* tacCreate(int type, HASH_NODE *res,HASH_NODE *op1,HASH_NODE *op2, int argNumber){
   TAC* newtac;
   newtac = (TAC*) calloc(1,sizeof(TAC));
@@ -454,6 +456,7 @@ void generateASM(TAC* tac, FILE* fout){
   }else{
     //fprintf(fout, "	.section\t__TEXT,__text,regular,pure_instructions\n\n");
   }
+
   switch(tac->type){
     case TAC_BEGINFUN:
       fprintf(fout,"## TAC_BEGINFUN\n"
@@ -487,6 +490,17 @@ void generateASM(TAC* tac, FILE* fout){
       writeVar(tac, fout);
 
       break;
+    case TAC_PRINTSTR:
+      printLabelCount--;
+      fprintf(fout,"##TAC_PRINTSTR\n"
+      "\tleaq  .LC%d(%%rip), %%rdi\n"
+      "\tmovl  $0, %%eax\n"
+      "\tcall  printf@PLT\n"
+      "\tmovl  $0, %%eax\n",printLabelCount);
+
+    break;
+    default:
+    break;
   }
 }
 
@@ -525,4 +539,21 @@ void writeVar(TAC* tac, FILE* fout){
       break;
   }
 
+}
+
+void writeFixed(TAC* first, FILE* output){
+  TAC* tac;
+  //int printLabelCount = 1;
+  fprintf(output, ".LC0:\n"
+          "\t.string \"%%d\"\n");   
+  for(tac=first; tac; tac = tac->prev){
+    printf("AAA%d\n",tac->type); 
+    if(tac->type == TAC_PRINTSTR){
+      fprintf(output, ".LC%d:\n"
+                  "\t.string %s\n",
+              printLabelCount, tac->res->text); 
+      printLabelCount++;
+    }
+
+  }
 }

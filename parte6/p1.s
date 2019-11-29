@@ -41,6 +41,11 @@ _main:                                  ## @main
 	call	printf@PLT
 	movl	$0, %eax
 
+## TAC_PRINTSTR
+	leaq	.LC0(%rip), %rdi
+	movl	$0, %eax
+	call	printf@PLT
+	movl	$0, %eax
 ## TAC_READ
 	leaq	a(%rip), %rsi
 	leaq	.LC0(%rip), %rdi

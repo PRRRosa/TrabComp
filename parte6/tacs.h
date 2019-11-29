@@ -49,4 +49,6 @@ void tacPrintBackwards(TAC *tac);
 TAC* tacJoin(TAC* l1, TAC* l2);
 TAC* generateCode(AST* ast,HASH_NODE* labelLoopEnd);
 void generateASM(TAC* tac, FILE* fout);
+void writeFixed(TAC* first, FILE* output);
+
 #endif
