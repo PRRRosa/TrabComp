@@ -73,9 +73,11 @@ int hashCheckUndeclared(){
 HASH_NODE* makeTemp(){
   static int serialNumber = 0;
   static char name[100];
-
+  printf("Inserindo temp %d\n",serialNumber);
   sprintf(name,"TEMPORARYNODE%d", serialNumber++);
-  return hashInsert(name,TEMP_VAR);
+  HASH_NODE* tempNode = hashInsert(name,TEMP_VAR);
+  tempNode->datatype = DATATYPE_INT;
+  return tempNode;
 }
 HASH_NODE* makeLabel(){
   static int serialNumber = 0;
