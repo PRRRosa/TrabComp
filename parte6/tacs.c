@@ -324,12 +324,16 @@ TAC* makeCall(AST* funcCall){
 	TAC* tacBuff = 0;
 	TAC* tacArg = 0;
 	int i = 1;
-	HASH_NODE* func_name = funcCall->symbol;
+	HASH_NODE* funcName = funcCall->symbol;
+  AST* functionAst = funcName->funDeclNode;// Nodo da AST que possui a declaração da função sendo chamada
+  AST* currentFuncArg = functionAst->son[1];// Nodo da lista de argumentos, será usado para colocar nome da var. da função no TAC_ARG
 	for(buff = funcCall->son[0]; buff; buff = buff->son[1]){
+    printf("Var de nome com funcall%s\n", currentFuncArg->son[0]->symbol->text);
 		tacBuff = generateCode(buff->son[0],0); //expr or a symbol... tacGenerate can process
-		tacArg = tacCreate(TAC_ARG, 0, tacBuff->res,func_name,i);
+		tacArg = tacCreate(TAC_ARG, currentFuncArg->son[0]->symbol, tacBuff->res,funcName,i);
 		params = tacJoin(tacJoin(params,tacBuff),tacArg);
 		i++;
+    currentFuncArg = currentFuncArg->son[1];// Pula para próximo elemento da lista de argumentos da definição da função
 	}
 
 	HASH_NODE* tempCall = makeTemp();
@@ -512,6 +516,14 @@ void generateASM(TAC* tac, FILE* fout){
         "\tmovl  $0, %%eax\n"
         "\tcall  printf@PLT\n"
         "\tmovl  $0, %%eax\n", tac->res->text);
+      break;
+
+    case TAC_MOVE:
+      fprintf(fout, "##TAC_MOVE INTs\n"
+        "\tmovl  _%s(%%rip), %%eax\n"
+        "\tmovl  %%eax, _%s(%%rip)\n"
+        "\tmovl  $0, %%eax\n",tac->op1->text, tac->res->text);
+      break;
     default:
     break;
   }
