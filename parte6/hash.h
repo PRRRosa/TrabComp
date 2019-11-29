@@ -17,6 +17,8 @@
 
 #define SYMBOL_LABEL 10
 
+#define TEMP_VAR 11
+
 
 #define DATATYPE_BYTE 1
 #define DATATYPE_INT 2
@@ -40,5 +42,6 @@ void hashPrint();
 int hashCheckUndeclared();
 HASH_NODE* makeTemp();
 HASH_NODE* makeLabel();
+void writeVars(FILE *fout);
 #endif
 //END

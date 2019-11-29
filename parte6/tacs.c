@@ -454,6 +454,7 @@ void generateASM(TAC* tac, FILE* fout){
   if(tac->prev){
     generateASM(tac->prev,fout);
   }else{
+    writeVars(fout);
     //fprintf(fout, "	.section\t__TEXT,__text,regular,pure_instructions\n\n");
   }
 
@@ -565,3 +566,4 @@ void writeFixed(TAC* first, FILE* output){
 
   }
 }
+

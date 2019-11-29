@@ -75,7 +75,7 @@ HASH_NODE* makeTemp(){
   static char name[100];
 
   sprintf(name,"TEMPORARYNODE%d", serialNumber++);
-  return hashInsert(name,0);
+  return hashInsert(name,TEMP_VAR);
 }
 HASH_NODE* makeLabel(){
   static int serialNumber = 0;
@@ -84,3 +84,23 @@ HASH_NODE* makeLabel(){
   sprintf(name,"TEMPORARYLABEL%d", serialNumber++);
   return hashInsert(name,0);
 }
+
+void writeVars(FILE *fout){
+  int i;
+  HASH_NODE *node;
+  for(i=0;i<HASH_SIZE;i++){
+    for(node=Table[i];node;node=node->next){
+      if(node->type == TEMP_VAR){
+        fprintf(fout, "## TEMP_VAR\n"
+        "\t.globl  _%s\n"
+        "\t.data 4\n"
+        "\t.align 4\n"
+        "\t.type _%s, @object\n"
+        "\t.size _%s, 4\n"
+      "_%s:\n"
+        "\t.long 0\n", node->text, node->text, node->text, node->text);
+      }
+    }
+  }
+}
+
