@@ -499,6 +499,15 @@ void generateASM(TAC* tac, FILE* fout){
       "\tmovl  $0, %%eax\n",printLabelCount);
 
     break;
+
+    case TAC_PRINTEXP:
+      fprintf(fout, "##TAC_PRINTEXP\n"
+        "\tmovl  _%s(%%rip), %%eax\n"
+        "\tmovl  %%eax, %%esi\n"
+        "\tleaq  .LC0(%%rip), %%rdi\n"
+        "\tmovl  $0, %%eax\n"
+        "\tcall  printf@PLT\n"
+        "\tmovl  $0, %%eax\n", tac->res->text);
     default:
     break;
   }
@@ -520,7 +529,7 @@ void writeVar(TAC* tac, FILE* fout){
         "\t.align %s\n"
         "\t.type _%s, @object\n"
         "\t.size _%s, %s\n"
-      "%s:\n"
+      "_%s:\n"
         "\t.long %s\n", tac->res->text, varSize, tac->res->text, tac->res->text, varSize, tac->res->text,varValue);  
 
     break;
@@ -533,9 +542,9 @@ void writeVar(TAC* tac, FILE* fout){
         "\t.align 4\n"
         "\t.type %s, @object\n"
         "\t.size %s, 4\n"
-      "\tb:\n"
+      "_%s:\n"
         "\t.long %d\n"
-        "valor real:%f\n", tac->res->text, tac->res->text, tac->res->text, tempInt,tempFloat);
+        "##valor real:%f\n", tac->res->text, tac->res->text, tac->res->text,tac->res->text, tempInt,tempFloat);
       break;
   }
 
@@ -547,7 +556,6 @@ void writeFixed(TAC* first, FILE* output){
   fprintf(output, ".LC0:\n"
           "\t.string \"%%d\"\n");   
   for(tac=first; tac; tac = tac->prev){
-    printf("AAA%d\n",tac->type); 
     if(tac->type == TAC_PRINTSTR){
       fprintf(output, ".LC%d:\n"
                   "\t.string %s\n",
