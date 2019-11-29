@@ -11,6 +11,7 @@ TAC* makeBreak(HASH_NODE* labelLoopEnd);
 TAC* makeCall(AST* funcCall);
 TAC* makeArrayWrite(HASH_NODE* vectorName,TAC* vectorIndexCode,TAC* assignCode);
 void writeVar(TAC* tac, FILE* fout);
+void writeMove(char* source, char* target, int sourceDatatype, int targetDatatype, FILE* fout);
 
 int printLabelCount = 1;
 
@@ -519,11 +520,24 @@ void generateASM(TAC* tac, FILE* fout){
       break;
 
     case TAC_MOVE:
-      fprintf(fout, "##TAC_MOVE INTs\n"
-        "\tmovl  _%s(%%rip), %%eax\n"
-        "\tmovl  %%eax, _%s(%%rip)\n"
-        "\tmovl  $0, %%eax\n",tac->op1->text, tac->res->text);
+      writeMove(tac->op1->text, tac->res->text, tac->op1->datatype, tac->res->datatype,fout);
+      
       break;
+
+    case TAC_ARG:
+      fprintf(fout, "##TAC_ARG\n");
+      writeMove(tac->res->text, tac->op1->text, tac->res->datatype, tac->op1->datatype,fout);
+    break;
+
+    case TAC_CALL:
+      fprintf(fout, "##TAC_CALL\n"
+        "\tmovl  $0, %%eax\n"
+        "\tcall  %s\n"
+        "\tmovl  %%eax, _%s(%%rip)\n"
+        "\tmovl  $0, %%eax\n"
+        "\taddq  $8, %%rsp\n",tac->op1->text, tac->res->text);
+      break;
+
     default:
     break;
   }
@@ -582,3 +596,9 @@ void writeFixed(TAC* first, FILE* output){
   }
 }
 
+void writeMove(char* source, char* target, int sourceDatatype, int targetDatatype, FILE* fout){
+  fprintf(fout, "##TAC_MOVE INTs\n"
+        "\tmovl  _%s(%%rip), %%eax\n"
+        "\tmovl  %%eax, _%s(%%rip)\n"
+        "\tmovl  $0, %%eax\n",source, target);
+}
