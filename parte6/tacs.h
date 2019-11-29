@@ -33,6 +33,7 @@
 #define TAC_ARRWRITE 29
 #define TAC_PRINTSTR 30
 #define TAC_PRINTEXP 31
+#define TAC_ARGDEC 32
 
 typedef struct tac_node{
   int type;

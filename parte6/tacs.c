@@ -3,7 +3,7 @@ TAC* makeBinOp(int type,TAC* code0, TAC* code1);
 TAC* makeIfThen(TAC* code0, TAC* code1);
 TAC* makeIfThenElse(TAC* code0, TAC* code1, TAC* code2);
 TAC* makeWhile(TAC* code0, TAC* code1, HASH_NODE* labelLoopEnd);
-TAC* makeFunction(AST* funcAST,TAC* functionCode);
+TAC* makeFunction(AST* funcAST,TAC* functionParams,TAC* functionCode);
 TAC* makeFor(HASH_NODE* loopVar,TAC* tacInitOp, TAC* tacIfOp, TAC* tacLoopOp, TAC* codigoFor, HASH_NODE* labelLoopEnd);
 TAC* makeAssign(HASH_NODE* assignVar, TAC* code1);
 TAC* makePrint(AST* node, HASH_NODE* labelLoopEnd);
@@ -123,6 +123,9 @@ void tacPrintSingle(TAC *tac){
     case TAC_ARRWRITE:
       fprintf(stderr, "TAC_ARRWRITE");
       break;
+    case TAC_ARGDEC:
+      fprintf(stderr, "TAC_ARGDEC");
+      break;
     default:
       fprintf(stderr,"UNKNOWN");
       break;
@@ -218,7 +221,7 @@ TAC* generateCode(AST* ast,HASH_NODE* labelLoopEnd){
       break;
 
     case AST_FUNDEC:
-      return makeFunction(ast,code[2]);
+      return makeFunction(ast,code[1],code[2]);
       break;
 
     case AST_LE:
@@ -269,6 +272,8 @@ TAC* generateCode(AST* ast,HASH_NODE* labelLoopEnd){
     case AST_BREAK:
       return makeBreak(labelLoopEnd);
       break;
+    case AST_VARDECLST:
+      return tacJoin(tacCreate(TAC_ARGDEC,ast->son[0]->symbol,0,0,0),code[1]);
     default:
       return (tacJoin(tacJoin(tacJoin(code[0],code[1]),code[2]),code[3]));
       break;
@@ -360,12 +365,12 @@ TAC* makeWhile(TAC* code0, TAC* code1, HASH_NODE* labelLoopEnd){
   return tacJoin(tacJoin(tacJoin(tacJoin(tacJoin(taclabelStart,code0),tacif),code1),tacJumpStart),taclabelEnd);
 }
 
-TAC* makeFunction(AST* funcAST,TAC* functionCode){
+TAC* makeFunction(AST* funcAST,TAC* functionParams, TAC* functionCode){
   TAC* tacFuncStart = 0;
   TAC* tacFuncEnd = 0;
   tacFuncStart = tacCreate(TAC_BEGINFUN,funcAST->symbol,0,0,0);
   tacFuncEnd = tacCreate(TAC_ENDFUN,funcAST->symbol,0,0,0);
-  return tacJoin(tacJoin(tacFuncStart,functionCode),tacFuncEnd);
+  return tacJoin(tacJoin(tacJoin(functionParams,tacFuncStart),functionCode),tacFuncEnd);
 }
 
 /*tacInitOp: Operação para inicializar variável para o for
@@ -470,9 +475,7 @@ void generateASM(TAC* tac, FILE* fout){
     case TAC_BEGINFUN:
       fprintf(fout,"## TAC_BEGINFUN\n"
         "\t.globl\t%s\n"
-      "%s:\n"
-        "\tpushq\t%%rbp\n"
-        "\tmovq\t%%rsp, %%rbp\n",tac->res->text,tac->res->text);
+      "%s:\n",tac->res->text,tac->res->text);
       break;
     case TAC_ENDFUN:
       fprintf(fout,"## TAC_ENDFUN\n"
@@ -526,7 +529,7 @@ void generateASM(TAC* tac, FILE* fout){
 
     case TAC_ARG:
       fprintf(fout, "##TAC_ARG\n");
-      writeMove(tac->res->text, tac->op1->text, tac->res->datatype, tac->op1->datatype,fout);
+      writeMove(tac->op1->text, tac->res->text, tac->op1->datatype, tac->res->datatype,fout);
     break;
 
     case TAC_CALL:
@@ -534,38 +537,45 @@ void generateASM(TAC* tac, FILE* fout){
         "\tmovl  $0, %%eax\n"
         "\tcall  %s\n"
         "\tmovl  %%eax, _%s(%%rip)\n"
-        "\tmovl  $0, %%eax\n"
-        "\taddq  $8, %%rsp\n",tac->op1->text, tac->res->text);
+        "\tmovl  $0, %%eax\n",tac->op1->text, tac->res->text);
       break;
-
+    case TAC_RET:
+      fprintf(fout, "##TAC_RET\n"
+        "\tmovl  _%s(%%rip), %%eax\n"
+        "\tret\n",tac->res->text);
+      break;
     default:
     break;
   }
 }
 
 void writeVar(TAC* tac, FILE* fout){
-  char varSize[2];
+
   char *varValue;
+  char strZero[2] = "0";
   volatile float tempFloat;
   int tempInt;
   switch(tac->res->datatype){
     case DATATYPE_INT:
-      varSize[0] = '4';
-      varSize[1] = ' ';
-      varValue = tac->op1->text;
+      if(tac->op1){
+        varValue = tac->op1->text;
+      }
+      else varValue=strZero;
       fprintf(fout, "## TAC_VAR\n"
         "\t.globl  _%s\n"
         "\t.data\n"
-        "\t.align %s\n"
+        "\t.align 4\n"
         "\t.type _%s, @object\n"
-        "\t.size _%s, %s\n"
+        "\t.size _%s, 4\n"
       "_%s:\n"
-        "\t.long %s\n", tac->res->text, varSize, tac->res->text, tac->res->text, varSize, tac->res->text,varValue);  
+        "\t.long %s\n", tac->res->text, tac->res->text, tac->res->text, tac->res->text,varValue);  
 
     break;
     case DATATYPE_FLOAT:
-      tempFloat = atoi(tac->op1->text);
-      tempInt = *(int*)&tempFloat;
+      if(tac->op1){
+        tempFloat = atoi(tac->op1->text);
+        tempInt = *(int*)&tempFloat;
+      } else tempInt = 0;
       fprintf(fout, "## TAC_VAR float\n"
         ".globl\t%s\n"
         "\t.data\n"
@@ -591,6 +601,8 @@ void writeFixed(TAC* first, FILE* output){
                   "\t.string %s\n",
               printLabelCount, tac->res->text); 
       printLabelCount++;
+    }else if(tac->type ==TAC_ARGDEC){
+      writeVar(tac, output);
     }
 
   }
