@@ -171,8 +171,10 @@ TAC* generateCode(AST* ast,HASH_NODE* labelLoopEnd){
   if((ast->type == AST_FOR)||(ast->type == AST_WHILE)){
     labelLoopEnd = makeLabel();
   }
-  for(i = 0;i<MAX_SONS;++i){
-    code[i] = generateCode(ast->son[i],labelLoopEnd);
+  if((ast->type != AST_PRINT)&&(ast->type != AST_FUNCALL)){
+    for(i = 0;i<MAX_SONS;++i){
+      code[i] = generateCode(ast->son[i],labelLoopEnd);
+    }
   }
   switch(ast->type){
     case AST_SYMBOL:
@@ -421,6 +423,7 @@ TAC* makePrint(AST* node,HASH_NODE* labelLoopEnd){
       }
 			buff = buff->son[0];
 		}else{
+      printf("gerando cod printf\n");
 			tacBuff = generateCode(buff->son[0],labelLoopEnd);
       if(buff->type == AST_PRINTSTR){
         tacPrint = tacCreate(TAC_PRINTSTR,tacBuff ? tacBuff->res: 0,0,0,0);

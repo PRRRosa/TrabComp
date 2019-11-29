@@ -243,6 +243,21 @@ int getSemanticError(){
 
 int checkFuncParameters(AST* funcCallNode){
   AST* funDecNode = funcCallNode->symbol->funDeclNode;
+  AST* funDefParameter = funDecNode->son[1];
+  AST* funCallParameter = funcCallNode->son[0];
+
+  if(!funDefParameter){
+    if(!funCallParameter){
+      //printf("parâmetros de mesmo tipo\n");
+      return 1;
+    }else {
+      //printf("um param nulo\n");
+      return 0;
+    }
+  }else if(!funCallParameter){
+    //printf("um param nulo\n");
+    return 0;
+  }
   if(!funcCallNode || !funDecNode){
     //printf("Ponteiro de função nula\n");
     return 0;
