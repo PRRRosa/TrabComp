@@ -40,7 +40,7 @@ void hashPrint(){
   HASH_NODE *node;
   for(i=0;i<HASH_SIZE;i++){
     for(node=Table[i];node;node=node->next){
-      printf("table[%d] has %s, type is %d\n", i,node->text,node->type);
+      printf("table[%d] has %s, type is %d, datatype is %d\n", i,node->text,node->type, node->datatype);
     }
   }
 }
@@ -101,6 +101,30 @@ void writeVars(FILE *fout){
         "\t.size _%s, 4\n"
       "_%s:\n"
         "\t.long 0\n", node->text, node->text, node->text, node->text);
+      }else if(node->type == SYMBOL_LITINT){
+        int valor = atoi(node->text);
+        fprintf(fout, "## SYMBOL_LITINT\n"
+        "\t.globl  _%s\n"
+        "\t.data 4\n"
+        "\t.align 4\n"
+        "\t.type _%s, @object\n"
+        "\t.size _%s, 4\n"
+      "_%s:\n"
+        "\t.long %d\n", node->text, node->text, node->text, node->text,valor);
+      }else if (node->type == SYMBOL_LITREAL){
+
+          volatile float tempFloat = atof(node->text);
+          int tempInt = *(int*)&tempFloat;
+
+          fprintf(fout, "## TAC_VAR float\n"
+            ".globl\t%s\n"
+            "\t.data\n"
+             "\t.align 4\n"
+             "\t.type %s, @object\n"
+            "\t.size %s, 4\n"
+          "_%s:\n"
+           "\t.long %d\n"
+           "##valor real:%f\n", node->text, node->text, node->text,node->text, tempInt,tempFloat);
       }
     }
   }

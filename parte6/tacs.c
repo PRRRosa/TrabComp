@@ -573,7 +573,7 @@ void writeVar(TAC* tac, FILE* fout){
     break;
     case DATATYPE_FLOAT:
       if(tac->op1){
-        tempFloat = atoi(tac->op1->text);
+        tempFloat = atof(tac->op1->text);
         tempInt = *(int*)&tempFloat;
       } else tempInt = 0;
       fprintf(fout, "## TAC_VAR float\n"
