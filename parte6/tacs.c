@@ -544,6 +544,16 @@ void generateASM(TAC* tac, FILE* fout){
         "\tmovl  _%s(%%rip), %%eax\n"
         "\tret\n",tac->res->text);
       break;
+
+    case TAC_LABEL:
+      fprintf(fout, "##TAC_LABEL\n"
+        ".%s\n",tac->res->text);
+    break;
+
+    case TAC_JUMP:
+      fprintf(fout, "##TAC_JUMP\n"
+        "jmp .%s\n",tac->res->text);
+    break;
     default:
     break;
   }
