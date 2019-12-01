@@ -630,11 +630,11 @@ void writeVar(TAC* tac, FILE* fout){
         tempInt = *(int*)&tempFloat;
       } else tempInt = 0;
       fprintf(fout, "## TAC_VAR float\n"
-        ".globl\t%s\n"
+        ".globl\t_%s\n"
         "\t.data\n"
         "\t.align 4\n"
-        "\t.type %s, @object\n"
-        "\t.size %s, 4\n"
+        "\t.type _%s, @object\n"
+        "\t.size _%s, 4\n"
       "_%s:\n"
         "\t.long %d\n"
         "##valor real:%f\n", tac->res->text, tac->res->text, tac->res->text,tac->res->text, tempInt,tempFloat);
@@ -697,7 +697,7 @@ void writeBinOp(TAC* operation, FILE* fout){
     case DATATYPE_BOOL:
       fprintf(fout,"\tmovl  _%s(%%rip), %%edx\n",operation->op1->text);
       if(operation->op2->datatype == DATATYPE_FLOAT){// Se a outra variável for float, fazer cast para float
-        fprintf(fout,"\tcvtsi2ss  %%edx, %%xmm0\n");
+        fprintf(fout,"\tcvtsi2ss  %%edx, %%xmm1\n");
         // No compilador, se a operação for int x float, ele muda o
         //registrador para eax. O reg é edx aqui por consistência.
       }

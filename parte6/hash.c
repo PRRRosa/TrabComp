@@ -117,11 +117,11 @@ void writeVars(FILE *fout){
           int tempInt = *(int*)&tempFloat;
 
           fprintf(fout, "## TAC_VAR float\n"
-            ".globl\t%s\n"
+            ".globl\t_%s\n"
             "\t.data\n"
              "\t.align 4\n"
-             "\t.type %s, @object\n"
-            "\t.size %s, 4\n"
+             "\t.type _%s, @object\n"
+            "\t.size _%s, 4\n"
           "_%s:\n"
            "\t.long %d\n"
            "##valor real:%f\n", node->text, node->text, node->text,node->text, tempInt,tempFloat);
