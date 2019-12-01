@@ -51,6 +51,27 @@ void checkAndSetTypes(AST*node){
         }
       }
     }
+    if(node->symbol){
+      switch(node->symbol->type){
+        case SYMBOL_LITINT:
+          node->symbol->datatype = DATATYPE_INT;
+          break;
+        case SYMBOL_LITCHAR:
+          node->symbol->datatype = DATATYPE_BYTE;
+          break;
+        case SYMBOL_LITTRUE:
+          node->symbol->datatype = DATATYPE_BOOL;
+          break;
+        case SYMBOL_LITFALSE:
+          node->symbol->datatype = DATATYPE_BOOL;
+          break;
+        case SYMBOL_LITREAL:
+          node->symbol->datatype = DATATYPE_FLOAT;
+          break;
+        default:
+          break;
+      }
+    }
 
     for(i=0;i<MAX_SONS;++i){
       checkAndSetTypes(node->son[i]);
