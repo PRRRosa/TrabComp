@@ -12,6 +12,7 @@ TAC* makeCall(AST* funcCall);
 TAC* makeArrayWrite(HASH_NODE* vectorName,TAC* vectorIndexCode,TAC* assignCode);
 void writeVar(TAC* tac, FILE* fout);
 void writeMove(char* source, char* target, int sourceDatatype, int targetDatatype, FILE* fout);
+void writeBinOp(TAC* operation, FILE* fout);
 
 int printLabelCount = 1;
 
@@ -482,6 +483,7 @@ void generateASM(TAC* tac, FILE* fout){
         "\tret\n");
       break;
     case TAC_ADD:
+    /*
       if(tac->op1->datatype==DATATYPE_INT && tac->op2->datatype==DATATYPE_INT){
         fprintf(fout, "## TAC_ADD\n"
         	"\tmovl\t_%s(%%rip), %%eax\n"
@@ -496,8 +498,19 @@ void generateASM(TAC* tac, FILE* fout){
           "\taddss %%xmm1, %%xmm0\n"
           "\tcvttss2siq  %%xmm0, %%rax\n"
           "\tmovq  %%rax, _%s(%%rip)\n", tac->op1->datatype==DATATYPE_FLOAT?tac->op1->text:tac->op2->text,
-          tac->op1->datatype==DATATYPE_FLOAT?tac->op2->text:tac->op1->text, tac->res->text);
+          tac->op1->datatype==DATATYPE_FLOAT?tac->op2->text:tac->op1->text, tac->res->text);*/
+    writeBinOp(tac,fout);
       break;
+
+    case TAC_SUB:
+    //if(tac->op1->datatype==DATATYPE_INT && tac->op2->datatype==DATATYPE_INT){
+        fprintf(fout, "## TAC_SUB\n"
+          "\tmovl\t_%s(%%rip), %%eax\n"
+          "\tsubl\t_%s(%%rip), %%eax\n"
+          "\tmovl\t%%eax, _%s(%%rip)\n", tac->op1->text,tac->op2->text,tac->res->text);
+      //}
+        break;
+
     case TAC_VAR:
       writeVar(tac, fout);
 
@@ -672,4 +685,76 @@ void writeMove(char* source, char* target, int sourceDatatype, int targetDatatyp
         "\tmovl  _%s(%%rip), %%eax\n"
         "\tmovl  %%eax, _%s(%%rip)\n"
         "\tmovl  $0, %%eax\n",source, target);
+}
+
+
+void writeBinOp(TAC* operation, FILE* fout){
+  fprintf(fout, "##Binop\n");
+  /*Switch para escrever o mov do espaço de memória do dado para
+    O registrador*/
+  switch(operation->op1->datatype){
+    case DATATYPE_INT:
+    case DATATYPE_BOOL:
+      fprintf(fout,"\tmovl  _%s(%%rip), %%edx\n",operation->op1->text);
+      break;
+    case DATATYPE_BYTE:
+      fprintf(fout,"\tmovzbl  _%s(%%rip), %%eax\n"
+        "\tmovsbl  %%al, %%edx\n",operation->op1->text);
+      break;
+    case DATATYPE_LONG:
+      fprintf(fout,"\tmovq  _%s(%%rip), %%rax\n"
+        ,operation->op1->text);
+      if(operation->op2->datatype == DATATYPE_FLOAT){// Se a outra variável for float, fazer cast para float
+        fprintf(fout,"\tcvtsi2ssq %%rax, %%xmm0\n");
+      }else{
+        fprintf(fout,"\tmovl  %%eax, %%edx\n")// Se não for, fazer esse mov
+      }
+      break;
+    case DATATYPE_FLOAT:
+      fprintf(fout,"\tmovss _%s(%%rip), %%xmm1\n",operation->op1->text);
+      break;
+  }
+  //TO DO: Fazer cast para float caso haja um valor não float.
+
+  switch(operation->op2->datatype){
+    case DATATYPE_INT:
+    case DATATYPE_BOOL:
+      fprintf(fout,"\tmovl  _%s(%%rip), %%eax\n",operation->op2->text);
+      break;
+    case DATATYPE_BYTE:
+      fprintf(fout,"\tmovzbl  _%s(%%rip), %%eax\n"
+        "\tmovsbl  %%al, %%eax\n",operation->op2->text);
+      break;
+    case DATATYPE_LONG:
+      fprintf(fout,"\tmovq  _%s(%%rip), %%rdx\n",operation->op2->text);
+      if(operation->op1->datatype == DATATYPE_FLOAT){// Se a primeira variável for float, fazer cast para float
+        fprintf(fout,"\tcvtsi2ssq %%rax, %xmm0\n");
+      }
+      break;
+    case DATATYPE_FLOAT:
+      fprintf(fout,"\tmovss _%s(%%rip), %%xmm0\n",operation->op2->text);
+      break;
+  }
+  //TO DO: Fazer cast para float caso haja um valor não float.
+
+
+  switch(operation->type){
+    case TAC_ADD:
+      if((operation->op1->datatype != DATATYPE_FLOAT) && (operation->op2->datatype != DATATYPE_FLOAT)){
+        fprintf(fout,
+          "\taddl  %%edx, %%eax\n"
+          "\tmovl  %%eax, _%s(%%rip)\n",operation->res->text);
+      }else{
+        fprintf(fout,
+          "\taddss %%xmm1, %%xmm0\n"
+          "\tcvttss2si %%xmm0, %%eax\n"
+          "\tmovl %%eax, _%s(%%rip)\n",operation->res->text);
+      }
+      break;
+    default:
+      fprintf(fout,"##Operação não implementada\n");
+      break;
+  }
+  
+
 }
