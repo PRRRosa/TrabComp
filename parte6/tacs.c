@@ -587,14 +587,8 @@ void generateASM(TAC* tac, FILE* fout){
     break;
 
     case TAC_GRE:
-      fprintf(fout, "##TAC_GRE\n"
-        "\tmovl  _%s(%%rip), %%edx\n"
-        "\tmovl  _%s(%%rip), %%eax\n"
-        "\tcmpl  %%eax, %%edx\n"
-        "\tsetg  %%al\n"
-        "\tmovzbl  %%al, %%eax\n"
-        "\tmovl  %%eax, _%s(%%rip)\n"
-        "\tmovl  $0, %%eax\n", tac->op1->text, tac->op2->text, tac->res->text);
+      writeBinOp(tac,fout);
+
       break;
 
     default:
@@ -798,6 +792,23 @@ void writeBinOp(TAC* operation, FILE* fout){
           "\tmovl %%eax, _%s(%%rip)\n",operation->res->text);
       }
       break;
+
+    case TAC_GRE:
+      if((operation->op1->datatype != DATATYPE_FLOAT) && (operation->op2->datatype != DATATYPE_FLOAT)){
+        fprintf(fout, 
+          "\tcmpl  %%eax, %%edx\n"
+          "\tsetg  %%al\n"
+          "\tmovzbl  %%al, %%eax\n"
+          "\tmovl  %%eax, _%s(%%rip)\n"
+          "\tmovl  $0, %%eax\n", operation->res->text);
+      }else{
+        fprintf(fout,
+          "\tucomiss %%xmm0, %%xmm1\n"
+          "\tseta  %%al\n"
+          "\tmovzbl  %%al, %%eax\n"
+          "\tmovl  %%eax, _%s(%%rip)\n", operation->res->text);
+      }
+    break;
     default:
       fprintf(fout,"##Operação não implementada\n");
       break;
