@@ -43,3 +43,7 @@ clean:
 geraAsm:
 	gcc -S t1.c -fomit-frame-pointer
 
+compila:
+	gcc -o exeEtapa etapa6.s
+
+
