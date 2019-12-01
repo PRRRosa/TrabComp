@@ -559,7 +559,7 @@ void generateASM(TAC* tac, FILE* fout){
       fprintf(fout, "##TAC_IFZ\n"
         "\tmovl  _%s(%%rip), %%eax\n"
         "\ttestl %%eax, %%eax\n"
-        "\tjne .%s\n",tac->op1->text,tac->res->text);
+        "\tje .%s\n",tac->op1->text,tac->res->text);
     break;
 
     case TAC_EQ:
@@ -572,6 +572,17 @@ void generateASM(TAC* tac, FILE* fout){
         "\tmovl  %%eax, _%s(%%rip)\n"
         "\tmovl  $0, %%eax\n",tac->op1->text, tac->op2->text, tac->res->text);
     break;
+
+    case TAC_GRE:
+      fprintf(fout, "##TAC_GRE\n"
+        "\tmovl  _%s(%%rip), %%edx\n"
+        "\tmovl  _%s(%%rip), %%eax\n"
+        "\tcmpl  %%eax, %%edx\n"
+        "\tsetg  %%al\n"
+        "\tmovzbl  %%al, %%eax\n"
+        "\tmovl  %%eax, _%s(%%rip)\n"
+        "\tmovl  $0, %%eax\n", tac->op1->text, tac->op2->text, tac->res->text);
+      break;
 
     default:
     break;
