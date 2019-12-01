@@ -14,7 +14,7 @@ void writeVar(TAC* tac, FILE* fout);
 void writeMove(char* source, char* target, int sourceDatatype, int targetDatatype, FILE* fout);
 void writeBinOp(TAC* operation, FILE* fout);
 
-int printLabelCount = 1;
+int printLabelCount = 2;
 
 TAC* tacCreate(int type, HASH_NODE *res,HASH_NODE *op1,HASH_NODE *op2, int argNumber){
   TAC* newtac;
@@ -508,13 +508,25 @@ void generateASM(TAC* tac, FILE* fout){
     break;
 
     case TAC_PRINTEXP:
-      fprintf(fout, "##TAC_PRINTEXP\n"
-        "\tmovl  _%s(%%rip), %%eax\n"
-        "\tmovl  %%eax, %%esi\n"
-        "\tleaq  .LC0(%%rip), %%rdi\n"
-        "\tmovl  $0, %%eax\n"
-        "\tcall  printf@PLT\n"
-        "\tmovl  $0, %%eax\n", tac->res->text);
+      if(tac->res->datatype != DATATYPE_FLOAT){
+        fprintf(fout, "##TAC_PRINTEXP\n"
+          "\tmovl  _%s(%%rip), %%eax\n"
+          "\tmovl  %%eax, %%esi\n"
+          "\tleaq  .LC0(%%rip), %%rdi\n"
+          "\tmovl  $0, %%eax\n"
+          "\tcall  printf@PLT\n"
+          "\tmovl  $0, %%eax\n", tac->res->text);
+      }else{
+        fprintf(fout, "##TAC_PRINTEXP\n"
+          "\tsubq  $8, %%rsp\n"
+          "\tmovss _%s(%%rip), %%xmm0\n"
+          "\tcvtss2sd  %%xmm0, %%xmm0\n"
+          "\tleaq  .LC1(%%rip), %%rdi\n"
+          "\tmovl  $1, %%eax\n"
+          "\tcall  printf@PLT\n"
+          "\tmovl  $0, %%eax\n"
+          "\taddq  $8, %%rsp\n", tac->res->text);
+      }
       break;
 
     case TAC_MOVE:
@@ -674,7 +686,9 @@ void writeFixed(TAC* first, FILE* output){
   TAC* tac;
   //int printLabelCount = 1;
   fprintf(output, ".LC0:\n"
-          "\t.string \"%%d\"\n");   
+          "\t.string \"%%d\"\n");
+  fprintf(output, ".LC1:\n"
+          "\t.string \"%%f\"\n");   
   for(tac=first; tac; tac = tac->prev){
     if(tac->type == TAC_PRINTSTR){
       fprintf(output, ".LC%d:\n"
