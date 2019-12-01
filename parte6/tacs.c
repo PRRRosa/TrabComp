@@ -658,6 +658,37 @@ void writeVar(TAC* tac, FILE* fout){
       "_%s:\n"
         "\t.long %d\n", tac->res->text, tac->res->text, tac->res->text, tac->res->text,tempInt);
      break;
+
+    case DATATYPE_BYTE:
+      if(tac->op1){
+        varValue = tac->op1->text;
+      }
+      else varValue=strZero;
+      fprintf(fout, "## TAC_VAR\n"
+        "\t.globl  _%s\n"
+        "\t.data\n"
+        "\t.align 4\n"
+        "\t.type _%s, @object\n"
+        "\t.size _%s, 1\n"
+      "_%s:\n"
+        "\t.byte %s\n", tac->res->text, tac->res->text, tac->res->text, tac->res->text,varValue);  
+      break;
+
+      case DATATYPE_LONG:
+      if(tac->op1){
+        varValue = tac->op1->text;
+      }
+      else varValue=strZero;
+      fprintf(fout, "## TAC_VAR\n"
+        "\t.globl  _%s\n"
+        "\t.data\n"
+        "\t.align 4\n"
+        "\t.type _%s, @object\n"
+        "\t.size _%s, 8\n"
+      "_%s:\n"
+        "\t.quad %s\n", tac->res->text, tac->res->text, tac->res->text, tac->res->text,varValue);  
+      break;
+
   }
 
 }
@@ -708,7 +739,7 @@ void writeBinOp(TAC* operation, FILE* fout){
         "\tmovsbl  %%al, %%edx\n",operation->op1->text);
 
       if(operation->op2->datatype == DATATYPE_FLOAT){// Se a outra variável for float, fazer cast para float
-        fprintf(fout,"\tcvtsi2ss  %%edx, %%xmm1");
+        fprintf(fout,"\tcvtsi2ss  %%edx, %%xmm1\n");
         // No compilador, se a operação for char x float, ele muda o
         //registrador para eax. O reg é edx aqui por consistência.
       }
@@ -739,7 +770,7 @@ void writeBinOp(TAC* operation, FILE* fout){
       fprintf(fout,"\tmovzbl  _%s(%%rip), %%eax\n"
         "\tmovsbl  %%al, %%eax\n",operation->op2->text);
       if(operation->op1->datatype == DATATYPE_FLOAT){// Se a primeira variável for float, fazer cast para float
-        fprintf(fout,"\tcvtsi2ss  %%eax, %%xmm0");
+        fprintf(fout,"\tcvtsi2ss  %%eax, %%xmm0\n");
       }
       break;
     case DATATYPE_LONG:
