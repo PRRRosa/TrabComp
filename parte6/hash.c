@@ -125,6 +125,15 @@ void writeVars(FILE *fout){
           "_%s:\n"
            "\t.long %d\n"
            "##valor real:%f\n", node->text, node->text, node->text,node->text, tempInt,tempFloat);
+      }else if ((node->type == SYMBOL_LITTRUE)||(node->type == SYMBOL_LITFALSE)){
+        fprintf(fout, "## SYMBOL_LIT%s \n"
+        "\t.globl  _%s\n"
+        "\t.data 4\n"
+        "\t.align 4\n"
+        "\t.type _%s, @object\n"
+        "\t.size _%s, 4\n"
+      "_%s:\n"
+        "\t.long %d\n", node->text, node->text, node->text, node->text, node->text,node->type == SYMBOL_LITTRUE?1:0);
       }
     }
   }

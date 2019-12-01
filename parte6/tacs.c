@@ -615,6 +615,25 @@ void writeVar(TAC* tac, FILE* fout){
         "\t.long %d\n"
         "##valor real:%f\n", tac->res->text, tac->res->text, tac->res->text,tac->res->text, tempInt,tempFloat);
       break;
+
+    case DATATYPE_BOOL:
+     if(tac->op1){//Se for uma variável delcarada como global
+      if(tac->op1->text[0]=='T'){//Se o valor for true
+        tempInt = 1;
+      }else{// Se for false
+        tempInt = 0;
+      }
+
+     }else tempInt = 0;
+     fprintf(fout, "## TAC_VAR bool\n"
+        "\t.globl  _%s\n"
+        "\t.data\n"
+        "\t.align 4\n"
+        "\t.type _%s, @object\n"
+        "\t.size _%s, 4\n"
+      "_%s:\n"
+        "\t.long %d\n", tac->res->text, tac->res->text, tac->res->text, tac->res->text,tempInt);
+     break;
   }
 
 }
