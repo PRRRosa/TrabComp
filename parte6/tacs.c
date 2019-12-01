@@ -696,46 +696,62 @@ void writeBinOp(TAC* operation, FILE* fout){
     case DATATYPE_INT:
     case DATATYPE_BOOL:
       fprintf(fout,"\tmovl  _%s(%%rip), %%edx\n",operation->op1->text);
+      if(operation->op2->datatype == DATATYPE_FLOAT){// Se a outra variável for float, fazer cast para float
+        fprintf(fout,"\tcvtsi2ss  %%edx, %%xmm0\n");
+        // No compilador, se a operação for int x float, ele muda o
+        //registrador para eax. O reg é edx aqui por consistência.
+      }
       break;
+
     case DATATYPE_BYTE:
       fprintf(fout,"\tmovzbl  _%s(%%rip), %%eax\n"
         "\tmovsbl  %%al, %%edx\n",operation->op1->text);
+
+      if(operation->op2->datatype == DATATYPE_FLOAT){// Se a outra variável for float, fazer cast para float
+        fprintf(fout,"\tcvtsi2ss  %%edx, %%xmm1");
+        // No compilador, se a operação for char x float, ele muda o
+        //registrador para eax. O reg é edx aqui por consistência.
+      }
       break;
     case DATATYPE_LONG:
       fprintf(fout,"\tmovq  _%s(%%rip), %%rax\n"
         ,operation->op1->text);
       if(operation->op2->datatype == DATATYPE_FLOAT){// Se a outra variável for float, fazer cast para float
-        fprintf(fout,"\tcvtsi2ssq %%rax, %%xmm0\n");
+        fprintf(fout,"\tcvtsi2ssq %%rax, %%xmm1\n");
       }else{
-        fprintf(fout,"\tmovl  %%eax, %%edx\n")// Se não for, fazer esse mov
+        fprintf(fout,"\tmovl  %%eax, %%edx\n");// Se não for, fazer esse mov
       }
       break;
     case DATATYPE_FLOAT:
       fprintf(fout,"\tmovss _%s(%%rip), %%xmm1\n",operation->op1->text);
       break;
   }
-  //TO DO: Fazer cast para float caso haja um valor não float.
 
   switch(operation->op2->datatype){
     case DATATYPE_INT:
     case DATATYPE_BOOL:
       fprintf(fout,"\tmovl  _%s(%%rip), %%eax\n",operation->op2->text);
+      if(operation->op1->datatype == DATATYPE_FLOAT){// Se a primeira variável for float, fazer cast para float
+        fprintf(fout,"\tcvtsi2ss %%eax, %%xmm0\n");
+      }
       break;
     case DATATYPE_BYTE:
       fprintf(fout,"\tmovzbl  _%s(%%rip), %%eax\n"
         "\tmovsbl  %%al, %%eax\n",operation->op2->text);
+      if(operation->op1->datatype == DATATYPE_FLOAT){// Se a primeira variável for float, fazer cast para float
+        fprintf(fout,"\tcvtsi2ss  %%eax, %%xmm0");
+      }
       break;
     case DATATYPE_LONG:
-      fprintf(fout,"\tmovq  _%s(%%rip), %%rdx\n",operation->op2->text);
+      fprintf(fout,"\tmovq  _%s(%%rip), %%rax\n",operation->op2->text);
       if(operation->op1->datatype == DATATYPE_FLOAT){// Se a primeira variável for float, fazer cast para float
-        fprintf(fout,"\tcvtsi2ssq %%rax, %xmm0\n");
+        fprintf(fout,"\tcvtsi2ssq %%rax, %%xmm0\n");
       }
       break;
     case DATATYPE_FLOAT:
       fprintf(fout,"\tmovss _%s(%%rip), %%xmm0\n",operation->op2->text);
       break;
   }
-  //TO DO: Fazer cast para float caso haja um valor não float.
 
 
   switch(operation->type){
