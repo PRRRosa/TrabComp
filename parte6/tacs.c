@@ -262,7 +262,7 @@ TAC* generateCode(AST* ast,HASH_NODE* labelLoopEnd){
       return tacJoin(tacCreate(TAC_SYMBOL,ast->symbol,0,0,0),tacJoin(code[1],tacCreate(TAC_VAR,ast->symbol,code[1]->res,0,0)));
       break;
     case AST_ARRDEC:
-      return tacJoin(tacCreate(TAC_VEC,ast->symbol,ast->son[0]->symbol,0,0),code[0]);
+      return tacJoin(tacCreate(TAC_VEC,ast->symbol,ast->son[0]->symbol,ast->son[1]->symbol,0),code[0]);
       break;
     case AST_ARRDECINIT:
       return tacJoin(tacCreate(TAC_VECINIT,ast->symbol,ast->son[0]->symbol,ast->son[2]->symbol,0),code[0]);
@@ -497,6 +497,23 @@ void generateASM(TAC* tac, FILE* fout){
       writeVar(tac, fout);
 
       break;
+    case TAC_VEC:
+
+      fprintf(fout, "## TAC_VEC\n"
+        "\t.comm _%s,%d\n",tac->res->text, (atoi(tac->op2->text) * 4));
+      break;
+
+    case TAC_ARRWRITE:
+      fprintf(fout, "## TAC_ARRWRITE ints"
+        "\tmovl  _%s(%%rip), %%edx\n"//var da qual vem o dado
+        "\tmovl  _%s(%%rip), %%eax\n"// indice do vetor
+        "\tmovl  %%edx, %%ecx\n"
+        "\tmovslq  %%eax, %%rdx\n"
+        "\tleaq  _%s(%%rip), %%rax\n"//nome vetor
+        "\tmovb  %%cl, (%%rdx,%%rax)\n"
+        "\tmovl  $0, %%eax\n",tac->op2->text, tac->op1->text, tac->res->text);
+        break;
+
     case TAC_PRINTSTR:
       printLabelCount--;
       fprintf(fout,"##TAC_PRINTSTR\n"
@@ -550,6 +567,9 @@ void generateASM(TAC* tac, FILE* fout){
       fprintf(fout, "##TAC_RET\n"
         "\tmovl  _%s(%%rip), %%eax\n"
         "\tret\n",tac->res->text);
+      /*movss op1(%rip), %xmm0
+  ret*/
+      //TAC_RET precisa de uma maneira de saber o tipo da função para poder dar o return correto
       break;
 
     case TAC_LABEL:
