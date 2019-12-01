@@ -482,25 +482,7 @@ void generateASM(TAC* tac, FILE* fout){
       fprintf(fout,"## TAC_ENDFUN\n"
         "\tret\n");
       break;
-    case TAC_ADD:
-    /*
-      if(tac->op1->datatype==DATATYPE_INT && tac->op2->datatype==DATATYPE_INT){
-        fprintf(fout, "## TAC_ADD\n"
-        	"\tmovl\t_%s(%%rip), %%eax\n"
-        	"\taddl\t_%s(%%rip), %%eax\n"
-        	"\tmovl\t%%eax, _%s(%%rip)\n", tac->op1->text,tac->op2->text,tac->res->text);
-      }else if((tac->op1->datatype==DATATYPE_FLOAT && tac->op2->datatype==DATATYPE_INT)||
-        (tac->op1->datatype==DATATYPE_INT && tac->op2->datatype==DATATYPE_FLOAT))
-        fprintf(fout, "## TAC_ADD float com int\n"
-          "\tmovl  _%s(%%rip), %%eax\n"
-          "\tcvtsi2ss  %%eax, %%xmm0\n"
-          "\tmovss _%s(%%rip), %%xmm1\n"
-          "\taddss %%xmm1, %%xmm0\n"
-          "\tcvttss2siq  %%xmm0, %%rax\n"
-          "\tmovq  %%rax, _%s(%%rip)\n", tac->op1->datatype==DATATYPE_FLOAT?tac->op1->text:tac->op2->text,
-          tac->op1->datatype==DATATYPE_FLOAT?tac->op2->text:tac->op1->text, tac->res->text);*/
-    writeBinOp(tac,fout);
-      break;
+
 
     case TAC_SUB:
     //if(tac->op1->datatype==DATATYPE_INT && tac->op2->datatype==DATATYPE_INT){
@@ -586,9 +568,10 @@ void generateASM(TAC* tac, FILE* fout){
         "\tmovl  $0, %%eax\n",tac->op1->text, tac->op2->text, tac->res->text);
     break;
 
+    case TAC_ADD:
+    case TAC_LESS:
     case TAC_GRE:
       writeBinOp(tac,fout);
-
       break;
 
     default:
@@ -804,6 +787,21 @@ void writeBinOp(TAC* operation, FILE* fout){
       }else{
         fprintf(fout,
           "\tucomiss %%xmm0, %%xmm1\n"
+          "\tseta  %%al\n"
+          "\tmovzbl  %%al, %%eax\n"
+          "\tmovl  %%eax, _%s(%%rip)\n", operation->res->text);
+      }
+    case TAC_LESS:
+      if((operation->op1->datatype != DATATYPE_FLOAT) && (operation->op2->datatype != DATATYPE_FLOAT)){
+        fprintf(fout, 
+          "\tcmpl  %%eax, %%edx\n"
+          "\tsetl  %%al\n"
+          "\tmovzbl  %%al, %%eax\n"
+          "\tmovl  %%eax, _%s(%%rip)\n"
+          "\tmovl  $0, %%eax\n", operation->res->text);
+      }else{
+        fprintf(fout,
+          "\tucomiss %%xmm1, %%xmm0\n"
           "\tseta  %%al\n"
           "\tmovzbl  %%al, %%eax\n"
           "\tmovl  %%eax, _%s(%%rip)\n", operation->res->text);
