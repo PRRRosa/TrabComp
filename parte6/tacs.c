@@ -504,15 +504,26 @@ void generateASM(TAC* tac, FILE* fout){
       break;
 
     case TAC_ARRWRITE:
-      fprintf(fout, "## TAC_ARRWRITE ints"
+      fprintf(fout, "## TAC_ARRWRITE tipos int\n"
         "\tmovl  _%s(%%rip), %%edx\n"//var da qual vem o dado
         "\tmovl  _%s(%%rip), %%eax\n"// indice do vetor
         "\tmovl  %%edx, %%ecx\n"
         "\tmovslq  %%eax, %%rdx\n"
-        "\tleaq  _%s(%%rip), %%rax\n"//nome vetor
+        "\tleaq  _%s(%%rip), %%rax\n"//nome do vetor
         "\tmovb  %%cl, (%%rdx,%%rax)\n"
         "\tmovl  $0, %%eax\n",tac->op2->text, tac->op1->text, tac->res->text);
         break;
+
+    case TAC_ARREF:
+      fprintf(fout, "## TAC_ARREF tipos int\n"
+        "\tmovl  _%s(%%rip), %%eax\n"// indice do vetor
+        "\tmovslq  %%eax, %%rdx\n"
+        "\tleaq  _%s(%%rip), %%rax\n"// nome do vetor
+        "\tmovzbl  (%%rdx,%%rax), %%eax\n"
+        "\tmovsbl  %%al, %%eax\n"
+        "\tmovl  %%eax, _%s(%%rip)\n"// var destino do dado
+        "\tmovl  $0, %%eax\n",tac->op2->text, tac->op1->text, tac->res->text);
+      break;
 
     case TAC_PRINTSTR:
       printLabelCount--;
