@@ -637,23 +637,20 @@ void generateASM(TAC* tac, FILE* fout){
         "\tje .%s\n",tac->op1->text,tac->res->text);
     break;
 
-    case TAC_EQ:
-      fprintf(fout, "##TAC_EQ\n"
-        "\tmovl  _%s(%%rip), %%edx\n"
-        "\tmovl  _%s(%%rip), %%eax\n"
-        "\tcmpl  %%eax, %%edx\n"
-        "\tsete  %%al\n"
-        "\tmovzbl  %%al, %%eax\n"
-        "\tmovl  %%eax, _%s(%%rip)\n"
-        "\tmovl  $0, %%eax\n",tac->op1->text, tac->op2->text, tac->res->text);
-    break;
-
     case TAC_SUB:
     case TAC_ADD:
+    case TAC_MUL:
+    case TAC_DIV:
     case TAC_LESS:
     case TAC_GRE:
+    case TAC_EQ:
+    case TAC_DIF:
+    case TAC_GE:
+    case TAC_LE:
+    case TAC_OR:
       writeBinOp(tac,fout);
       break;
+
     case TAC_READ:
       stringPrintIndex = 0;
       switch(tac->res->datatype){
@@ -935,6 +932,112 @@ void writeBinOp(TAC* operation, FILE* fout){
           "\tmovl  %%eax, _%s(%%rip)\n"
           "\tmovl  $0, %%eax\n", operation->res->text);
       }
+      break;
+
+    case TAC_MUL:
+      if((operation->op1->datatype != DATATYPE_FLOAT) && (operation->op2->datatype != DATATYPE_FLOAT)){
+        fprintf(fout, 
+          "\timull %%edx, %%eax\n"
+          "\tmovl  %%eax, _%s(%%rip)\n"
+          "\tmovl  $0, %%eax\n", operation->res->text);
+        }else{
+          fprintf(fout,
+            "\tmulss %%xmm1, %%xmm0\n"
+            "\tcvttss2si %%xmm0, %%eax\n"
+            "\tmovl  %%eax, _%s(%%rip)\n"
+            "\tmovl  $0, %%eax\n", operation->res->text);
+        }
+      break;
+
+    case TAC_EQ:
+      if((operation->op1->datatype != DATATYPE_FLOAT) && (operation->op2->datatype != DATATYPE_FLOAT)){
+        fprintf(fout, 
+          "\tcmpl  %%eax, %%edx\n"
+          "\tsete  %%al\n"
+          "\tmovzbl  %%al, %%eax\n"
+          "\tmovl  %%eax, _%s(%%rip)\n"
+          "\tmovl  $0, %%eax\n", operation->res->text);
+        }else{
+          fprintf(fout,
+            "\tucomiss %%xmm1, %%xmm0\n"
+            "\tsetnp %%al\n"
+            "\tmovl  $0, %%edx\n"
+            "\tucomiss %%xmm1, %%xmm0\n"
+            "\tcmovne  %%edx, %%eax\n"
+            "\tmovzbl  %%al, %%eax\n"
+            "\tmovl  %%eax, _%s(%%rip)\n"
+            "\tmovl  $0, %%eax\n", operation->res->text);
+        }
+    break;
+
+    case TAC_LE:
+      if((operation->op1->datatype != DATATYPE_FLOAT) && (operation->op2->datatype != DATATYPE_FLOAT)){
+        fprintf(fout, 
+          "\tcmpl  %%eax, %%edx\n"
+          "\tsetle %%al\n"
+          "\tmovzbl  %%al, %%eax\n"
+          "\tmovl  %%eax, _%s(%%rip)\n"
+          "\tmovl  $0, %%eax\n"
+          , operation->res->text);
+        }else{
+          fprintf(fout,
+            "\tucomiss %%xmm0, %%xmm1\n"
+            "\tsetnb %%al\n"
+            "\tmovzbl  %%al, %%eax\n"
+            "\tmovl  %%eax, _%s(%%rip)\n"
+            "\tmovl  $0, %%eax\n"
+      , operation->res->text);
+        }
+    break;
+
+    case TAC_GE:
+      if((operation->op1->datatype != DATATYPE_FLOAT) && (operation->op2->datatype != DATATYPE_FLOAT)){
+        fprintf(fout, 
+          "\tcmpl  %%eax, %%edx\n"
+          "\tsetge %%al\n"
+          "\tmovzbl  %%al, %%eax\n"
+          "\tmovl  %%eax, _%s(%%rip)\n"
+          "\tmovl  $0, %%eax\n"
+          , operation->res->text);
+        }else{
+          fprintf(fout,
+            "\tucomiss %%xmm1, %%xmm0\n"
+            "\tsetnb %%al\n"
+            "\tmovzbl  %%al, %%eax\n"
+            "\tmovl  %%eax, _%s(%%rip)\n"
+            "\tmovl  $0, %%eax\n"
+      , operation->res->text);
+        }
+    break;
+
+    case TAC_DIF:
+      if((operation->op1->datatype != DATATYPE_FLOAT) && (operation->op2->datatype != DATATYPE_FLOAT)){
+        fprintf(fout, 
+          "\tcmpl  %%eax, %%edx\n"
+          "\tsetne %%al\n"
+          "\tmovzbl  %%al, %%eax\n"
+          "\tmovl  %%eax, _%s(%%rip)\n"
+          "\tmovl  $0, %%eax\n"
+          , operation->res->text);
+      }else{
+        fprintf(fout,
+          "\tucomiss %%xmm1, %%xmm0\n"
+          "\tsetp  %%al\n"
+          "\tmovl  $1, %%edx\n"
+          "\tucomiss %%xmm1, %%xmm0\n"
+          "\tcmovne  %%edx, %%eax\n"
+          "\tmovzbl  %%al, %%eax\n"
+          "\tmovl  %%eax, _%s(%%rip)\n"
+          "\tmovl  $0, %%eax\n"
+      , operation->res->text);
+        }
+    break;
+
+    case TAC_OR:
+      fprintf(fout, 
+        "\torl %%edx, %%eax\n"
+        "\tmovl  %%eax, _%s(%%rip)\n"
+        "\tmovl  $0, %%eax\n" , operation->res->text);
       break;
 
     default:
