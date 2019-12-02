@@ -637,7 +637,16 @@ void generateASM(TAC* tac, FILE* fout){
     case TAC_GRE:
       writeBinOp(tac,fout);
       break;
-
+    case TAC_READ:
+      fprintf(fout, 
+        "\tsubq  $8, %%rsp\n"
+        "\tleaq  _%s(%%rip), %%rsi\n"//var sendo escrita
+        "\tleaq  .LC0(%%rip), %%rdi\n"//ponteiro para string de leitura
+        "\tmovl  $0, %%eax\n"
+        "\tcall  __isoc99_scanf@PLT\n"
+        "\tmovl  $0, %%eax\n"
+        "\taddq  $8, %%rsp\n", tac->res->text);
+      break;
     default:
     break;
   }
