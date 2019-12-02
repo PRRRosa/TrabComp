@@ -490,16 +490,6 @@ void generateASM(TAC* tac, FILE* fout){
         "\tret\n");
       break;
 
-
-    case TAC_SUB:
-    //if(tac->op1->datatype==DATATYPE_INT && tac->op2->datatype==DATATYPE_INT){
-        fprintf(fout, "## TAC_SUB\n"
-          "\tmovl\t_%s(%%rip), %%eax\n"
-          "\tsubl\t_%s(%%rip), %%eax\n"
-          "\tmovl\t%%eax, _%s(%%rip)\n", tac->op1->text,tac->op2->text,tac->res->text);
-      //}
-        break;
-
     case TAC_VAR:
       writeVar(tac, fout);
 
@@ -658,6 +648,7 @@ void generateASM(TAC* tac, FILE* fout){
         "\tmovl  $0, %%eax\n",tac->op1->text, tac->op2->text, tac->res->text);
     break;
 
+    case TAC_SUB:
     case TAC_ADD:
     case TAC_LESS:
     case TAC_GRE:
@@ -826,7 +817,7 @@ void writeBinOp(TAC* operation, FILE* fout){
     case DATATYPE_BOOL:
       fprintf(fout,"\tmovl  _%s(%%rip), %%edx\n",operation->op1->text);
       if(operation->op2->datatype == DATATYPE_FLOAT){// Se a outra variável for float, fazer cast para float
-        fprintf(fout,"\tcvtsi2ss  %%edx, %%xmm1\n");
+        fprintf(fout,"\tcvtsi2ss  %%edx, %%xmm0\n");
         // No compilador, se a operação for int x float, ele muda o
         //registrador para eax. O reg é edx aqui por consistência.
       }
@@ -837,7 +828,7 @@ void writeBinOp(TAC* operation, FILE* fout){
         "\tmovsbl  %%al, %%edx\n",operation->op1->text);
 
       if(operation->op2->datatype == DATATYPE_FLOAT){// Se a outra variável for float, fazer cast para float
-        fprintf(fout,"\tcvtsi2ss  %%edx, %%xmm1\n");
+        fprintf(fout,"\tcvtsi2ss  %%edx, %%xmm0\n");
         // No compilador, se a operação for char x float, ele muda o
         //registrador para eax. O reg é edx aqui por consistência.
       }
@@ -846,13 +837,13 @@ void writeBinOp(TAC* operation, FILE* fout){
       fprintf(fout,"\tmovq  _%s(%%rip), %%rax\n"
         ,operation->op1->text);
       if(operation->op2->datatype == DATATYPE_FLOAT){// Se a outra variável for float, fazer cast para float
-        fprintf(fout,"\tcvtsi2ssq %%rax, %%xmm1\n");
+        fprintf(fout,"\tcvtsi2ssq %%rax, %%xmm0\n");
       }else{
         fprintf(fout,"\tmovl  %%eax, %%edx\n");// Se não for, fazer esse mov
       }
       break;
     case DATATYPE_FLOAT:
-      fprintf(fout,"\tmovss _%s(%%rip), %%xmm1\n",operation->op1->text);
+      fprintf(fout,"\tmovss _%s(%%rip), %%xmm0\n",operation->op1->text);
       break;
   }
 
@@ -861,24 +852,24 @@ void writeBinOp(TAC* operation, FILE* fout){
     case DATATYPE_BOOL:
       fprintf(fout,"\tmovl  _%s(%%rip), %%eax\n",operation->op2->text);
       if(operation->op1->datatype == DATATYPE_FLOAT){// Se a primeira variável for float, fazer cast para float
-        fprintf(fout,"\tcvtsi2ss %%eax, %%xmm0\n");
+        fprintf(fout,"\tcvtsi2ss %%eax, %%xmm1\n");
       }
       break;
     case DATATYPE_BYTE:
       fprintf(fout,"\tmovzbl  _%s(%%rip), %%eax\n"
         "\tmovsbl  %%al, %%eax\n",operation->op2->text);
       if(operation->op1->datatype == DATATYPE_FLOAT){// Se a primeira variável for float, fazer cast para float
-        fprintf(fout,"\tcvtsi2ss  %%eax, %%xmm0\n");
+        fprintf(fout,"\tcvtsi2ss  %%eax, %%xmm1\n");
       }
       break;
     case DATATYPE_LONG:
       fprintf(fout,"\tmovq  _%s(%%rip), %%rax\n",operation->op2->text);
       if(operation->op1->datatype == DATATYPE_FLOAT){// Se a primeira variável for float, fazer cast para float
-        fprintf(fout,"\tcvtsi2ssq %%rax, %%xmm0\n");
+        fprintf(fout,"\tcvtsi2ssq %%rax, %%xmm1\n");
       }
       break;
     case DATATYPE_FLOAT:
-      fprintf(fout,"\tmovss _%s(%%rip), %%xmm0\n",operation->op2->text);
+      fprintf(fout,"\tmovss _%s(%%rip), %%xmm1\n",operation->op2->text);
       break;
   }
 
@@ -891,8 +882,8 @@ void writeBinOp(TAC* operation, FILE* fout){
           "\tmovl  %%eax, _%s(%%rip)\n",operation->res->text);
       }else{
         fprintf(fout,
-          "\taddss %%xmm1, %%xmm0\n"
-          "\tcvttss2si %%xmm0, %%eax\n"
+          "\taddss %%xmm0, %%xmm1\n"
+          "\tcvttss2si %%xmm1, %%eax\n"
           "\tmovl %%eax, _%s(%%rip)\n",operation->res->text);
       }
       break;
@@ -907,11 +898,12 @@ void writeBinOp(TAC* operation, FILE* fout){
           "\tmovl  $0, %%eax\n", operation->res->text);
       }else{
         fprintf(fout,
-          "\tucomiss %%xmm0, %%xmm1\n"
+          "\tucomiss %%xmm1, %%xmm0\n"
           "\tseta  %%al\n"
           "\tmovzbl  %%al, %%eax\n"
           "\tmovl  %%eax, _%s(%%rip)\n", operation->res->text);
       }
+      break;
     case TAC_LESS:
       if((operation->op1->datatype != DATATYPE_FLOAT) && (operation->op2->datatype != DATATYPE_FLOAT)){
         fprintf(fout, 
@@ -922,14 +914,31 @@ void writeBinOp(TAC* operation, FILE* fout){
           "\tmovl  $0, %%eax\n", operation->res->text);
       }else{
         fprintf(fout,
-          "\tucomiss %%xmm1, %%xmm0\n"
+          "\tucomiss %%xmm0, %%xmm1\n"
           "\tseta  %%al\n"
           "\tmovzbl  %%al, %%eax\n"
           "\tmovl  %%eax, _%s(%%rip)\n", operation->res->text);
       }
     break;
+
+    case TAC_SUB:
+      if((operation->op1->datatype != DATATYPE_FLOAT) && (operation->op2->datatype != DATATYPE_FLOAT)){
+        fprintf(fout, 
+          "\tsubl %%eax, %%edx\n"
+          "\tmovl  %%edx, %%eax\n"
+          "\tmovl  %%eax, _%s(%%rip)\n"
+          "\tmovl  $0, %%eax\n", operation->res->text);
+      }else{
+        fprintf(fout,
+          "\tsubss %%xmm1, %%xmm0\n"
+          "\tcvttss2si %%xmm0, %%eax\n"
+          "\tmovl  %%eax, _%s(%%rip)\n"
+          "\tmovl  $0, %%eax\n", operation->res->text);
+      }
+      break;
+
     default:
-      fprintf(fout,"##Operação não implementada\n");
+      fprintf(fout,"##Operação não implementada%d\n",operation->type);
       break;
   }
   
