@@ -134,6 +134,16 @@ void writeVars(FILE *fout){
         "\t.size _%s, 4\n"
       "_%s:\n"
         "\t.long %d\n", node->text, node->text, node->text, node->text, node->text,node->type == SYMBOL_LITTRUE?1:0);
+      }else if(node->type == SYMBOL_LITCHAR){
+        int valor = node->text[1];
+        fprintf(fout, "## TAC_VAR\n"
+          "\t.globl  _%s\n"
+          "\t.data\n"
+          "\t.align 4\n"
+          "\t.type _%s, @object\n"
+          "\t.size _%s, 1\n"
+        "_%s:\n"
+          "\t.byte %d\n", node->text, node->text, node->text, node->text,valor);  
       }
     }
   }

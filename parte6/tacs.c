@@ -683,17 +683,19 @@ void generateASM(TAC* tac, FILE* fout){
 }
 
 void writeVar(TAC* tac, FILE* fout){
-
-  char *varValue;
-  char strZero[2] = "0";
   volatile float tempFloat;
   int tempInt;
+  long tempLong;
   switch(tac->res->datatype){
     case DATATYPE_INT:
+
       if(tac->op1){
-        varValue = tac->op1->text;
-      }
-      else varValue=strZero;
+        if(tac->op1->type == SYMBOL_LITCHAR){
+          tempInt = tac->op1->text[1];//se valor for char, obter valor dentro das aspas
+        }else{
+          tempInt = atoi(tac->op1->text);//se não for, converter número
+        }
+      }else tempInt=0;// Se numero não for inicializado (var de função), inicializar com zero.
       fprintf(fout, "## TAC_VAR\n"
         "\t.globl  _%s\n"
         "\t.data\n"
@@ -701,13 +703,17 @@ void writeVar(TAC* tac, FILE* fout){
         "\t.type _%s, @object\n"
         "\t.size _%s, 4\n"
       "_%s:\n"
-        "\t.long %s\n", tac->res->text, tac->res->text, tac->res->text, tac->res->text,varValue);  
+        "\t.long %d\n", tac->res->text, tac->res->text, tac->res->text, tac->res->text,tempInt);  
 
     break;
     case DATATYPE_FLOAT:
       if(tac->op1){
-        tempFloat = atof(tac->op1->text);
-        tempInt = *(int*)&tempFloat;
+        if(tac->op1->type == SYMBOL_LITCHAR){
+          tempInt = tac->op1->text[1];//se valor for char, obter valor dentro das aspas
+        }else{//se não for, converter número
+          tempFloat = atof(tac->op1->text);//transforma o valor texto em float, depois força o gcc a interpretar
+          tempInt = *(int*)&tempFloat;    //O número como int, para poder escrevê-lo.
+        }
       } else tempInt = 0;
       fprintf(fout, "## TAC_VAR float\n"
         ".globl\t_%s\n"
@@ -741,9 +747,12 @@ void writeVar(TAC* tac, FILE* fout){
 
     case DATATYPE_BYTE:
       if(tac->op1){
-        varValue = tac->op1->text;
-      }
-      else varValue=strZero;
+        if(tac->op1->type == SYMBOL_LITCHAR){
+          tempInt = tac->op1->text[1];
+        }else{
+          tempInt = atoi(tac->op1->text);
+        }
+      }else tempInt=0;
       fprintf(fout, "## TAC_VAR\n"
         "\t.globl  _%s\n"
         "\t.data\n"
@@ -751,14 +760,17 @@ void writeVar(TAC* tac, FILE* fout){
         "\t.type _%s, @object\n"
         "\t.size _%s, 1\n"
       "_%s:\n"
-        "\t.byte %s\n", tac->res->text, tac->res->text, tac->res->text, tac->res->text,varValue);  
+        "\t.byte %d\n", tac->res->text, tac->res->text, tac->res->text, tac->res->text,tempInt);  
       break;
 
       case DATATYPE_LONG:
       if(tac->op1){
-        varValue = tac->op1->text;
+        if(tac->op1->type == SYMBOL_LITCHAR){
+          tempLong = tac->op1->text[1];//se valor for char, obter valor dentro das aspas
+        }else{
+          tempLong = atol(tac->op1->text);
+        }
       }
-      else varValue=strZero;
       fprintf(fout, "## TAC_VAR\n"
         "\t.globl  _%s\n"
         "\t.data\n"
@@ -766,7 +778,7 @@ void writeVar(TAC* tac, FILE* fout){
         "\t.type _%s, @object\n"
         "\t.size _%s, 8\n"
       "_%s:\n"
-        "\t.quad %s\n", tac->res->text, tac->res->text, tac->res->text, tac->res->text,varValue);  
+        "\t.quad %ld\n", tac->res->text, tac->res->text, tac->res->text, tac->res->text,tempLong);  
       break;
 
   }
