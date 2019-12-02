@@ -14,7 +14,7 @@ void writeVar(TAC* tac, FILE* fout);
 void writeMove(char* source, char* target, int sourceDatatype, int targetDatatype, FILE* fout);
 void writeBinOp(TAC* operation, FILE* fout);
 
-int printLabelCount = 2;
+int printLabelCount = 4;
 
 TAC* tacCreate(int type, HASH_NODE *res,HASH_NODE *op1,HASH_NODE *op2, int argNumber){
   TAC* newtac;
@@ -468,6 +468,7 @@ TAC* makeArrayWrite(HASH_NODE* vectorName,TAC* vectorIndexCode,TAC* assignCode){
 }
 
 void generateASM(TAC* tac, FILE* fout){
+  int stringPrintIndex;
   if(!tac){
     return;
   }
@@ -638,14 +639,30 @@ void generateASM(TAC* tac, FILE* fout){
       writeBinOp(tac,fout);
       break;
     case TAC_READ:
+      stringPrintIndex = 0;
+      switch(tac->res->datatype){
+        case DATATYPE_BOOL:
+        case DATATYPE_INT:
+          stringPrintIndex=0;
+          break;
+        case DATATYPE_FLOAT:
+          stringPrintIndex = 1;
+          break;
+        case DATATYPE_BYTE:
+          stringPrintIndex = 2;
+          break;
+        case DATATYPE_LONG:
+          stringPrintIndex = 3;
+          break;
+      }
       fprintf(fout, 
         "\tsubq  $8, %%rsp\n"
         "\tleaq  _%s(%%rip), %%rsi\n"//var sendo escrita
-        "\tleaq  .LC0(%%rip), %%rdi\n"//ponteiro para string de leitura
+        "\tleaq  .LC%d(%%rip), %%rdi\n"//ponteiro para string de leitura
         "\tmovl  $0, %%eax\n"
         "\tcall  __isoc99_scanf@PLT\n"
         "\tmovl  $0, %%eax\n"
-        "\taddq  $8, %%rsp\n", tac->res->text);
+        "\taddq  $8, %%rsp\n", tac->res->text, stringPrintIndex);
       break;
     default:
     break;
@@ -749,7 +766,11 @@ void writeFixed(TAC* first, FILE* output){
   fprintf(output, ".LC0:\n"
           "\t.string \"%%d\"\n");
   fprintf(output, ".LC1:\n"
-          "\t.string \"%%f\"\n");   
+          "\t.string \"%%f\"\n");
+  fprintf(output, ".LC2:\n"
+          "\t.string \"%%c\"\n");
+  fprintf(output, ".LC3:\n"
+          "\t.string \"%%ld\"\n");   
   for(tac=first; tac; tac = tac->prev){
     if(tac->type == TAC_PRINTSTR){
       fprintf(output, ".LC%d:\n"
