@@ -34,6 +34,7 @@
 #define TAC_PRINTSTR 30
 #define TAC_PRINTEXP 31
 #define TAC_ARGDEC 32
+#define TAC_VECINITLIST 33
 
 typedef struct tac_node{
   int type;

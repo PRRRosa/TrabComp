@@ -121,6 +121,9 @@ void tacPrintSingle(TAC *tac){
     case TAC_VECINIT:
       fprintf(stderr, "TAC_VECINIT");
       break;
+    case TAC_VECINITLIST:
+      fprintf(stderr, "TAC_VECINITLIST");
+      break;
     case TAC_ARRWRITE:
       fprintf(stderr, "TAC_ARRWRITE");
       break;
@@ -265,7 +268,10 @@ TAC* generateCode(AST* ast,HASH_NODE* labelLoopEnd){
       return tacJoin(tacCreate(TAC_VEC,ast->symbol,ast->son[0]->symbol,ast->son[1]->symbol,0),code[0]);
       break;
     case AST_ARRDECINIT:
-      return tacJoin(tacCreate(TAC_VECINIT,ast->symbol,ast->son[0]->symbol,ast->son[2]->symbol,0),code[0]);
+      return tacJoin(tacJoin(tacCreate(TAC_VECINIT,ast->symbol,ast->son[1]->symbol,0,0),code[0]), code[2]);
+      break;
+    case AST_LISTINIT:
+      return tacJoin(tacCreate(TAC_VECINITLIST, ast->son[0]->symbol,0,0,0),code[1]);
       break;
     case AST_FOR:
       return makeFor(ast->symbol,code[0],code[1],code[2],code[3],labelLoopEnd);
@@ -503,6 +509,21 @@ void generateASM(TAC* tac, FILE* fout){
         "\t.comm _%s,%d\n",tac->res->text, (atoi(tac->op2->text) * 4));
       break;
 
+    case TAC_VECINIT:
+      fprintf(fout, "## TAC_ARRDECINIT\n"
+        "\t.globl  _%s\n"
+        "\t.data\n"
+        "\t.type _%s, @object\n"
+        "\t.size _%s, %d\n"
+      "_%s:\n",tac->res->text, tac->res->text, tac->res->text,(atoi(tac->op1->text) * 4),tac->res->text);
+    break;
+
+    case TAC_VECINITLIST:
+      fprintf(fout,
+        "\t.long %s\n",tac->res->text);
+      // Essa tac precisa saber o tipo do vetor sendo declarado, para poder declarar o tipo certo
+      break;
+
     case TAC_ARRWRITE:
       fprintf(fout, "## TAC_ARRWRITE tipos int\n"
         "\tmovl  _%s(%%rip), %%edx\n"//var da qual vem o dado
@@ -516,12 +537,12 @@ void generateASM(TAC* tac, FILE* fout){
 
     case TAC_ARREF:
       fprintf(fout, "## TAC_ARREF tipos int\n"
-        "\tmovl  _%s(%%rip), %%eax\n"// indice do vetor
-        "\tmovslq  %%eax, %%rdx\n"
-        "\tleaq  _%s(%%rip), %%rax\n"// nome do vetor
-        "\tmovzbl  (%%rdx,%%rax), %%eax\n"
-        "\tmovsbl  %%al, %%eax\n"
-        "\tmovl  %%eax, _%s(%%rip)\n"// var destino do dado
+        "\tmovl  _%s(%%rip), %%eax\n"
+        "\tcltq\n"
+        "\tleaq  0(,%%rax,4), %%rdx\n"
+        "\tleaq  _%s(%%rip), %%rax\n"
+        "\tmovl  (%%rdx,%%rax), %%eax\n"
+        "\tmovl  %%eax, _%s(%%rip)\n"
         "\tmovl  $0, %%eax\n",tac->op2->text, tac->op1->text, tac->res->text);
       break;
 
