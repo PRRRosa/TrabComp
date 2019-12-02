@@ -558,7 +558,8 @@ void generateASM(TAC* tac, FILE* fout){
     break;
 
     case TAC_PRINTEXP:
-      if(tac->res->datatype != DATATYPE_FLOAT){
+      switch(tac->res->datatype){
+        case DATATYPE_INT:
         fprintf(fout, "##TAC_PRINTEXP\n"
           "\tmovl  _%s(%%rip), %%eax\n"
           "\tmovl  %%eax, %%esi\n"
@@ -566,13 +567,37 @@ void generateASM(TAC* tac, FILE* fout){
           "\tmovl  $0, %%eax\n"
           "\tcall  printf@PLT\n"
           "\tmovl  $0, %%eax\n", tac->res->text);
-      }else{
+        break;
+        case DATATYPE_FLOAT:
         fprintf(fout, "##TAC_PRINTEXP\n"
           "\tsubq  $8, %%rsp\n"
           "\tmovss _%s(%%rip), %%xmm0\n"
           "\tcvtss2sd  %%xmm0, %%xmm0\n"
           "\tleaq  .LC1(%%rip), %%rdi\n"
           "\tmovl  $1, %%eax\n"
+          "\tcall  printf@PLT\n"
+          "\tmovl  $0, %%eax\n"
+          "\taddq  $8, %%rsp\n", tac->res->text);
+        break;
+        case DATATYPE_BYTE:
+        fprintf(fout, "##TAC_PRINTEXP\n"
+          "\tsubq  $8, %%rsp\n"
+          "\tmovzbl  _%s(%%rip), %%eax\n"
+          "\tmovsbl  %%al, %%eax\n"
+          "\tmovl  %%eax, %%esi\n"
+          "\tleaq  .LC2(%%rip), %%rdi\n"
+          "\tmovl  $0, %%eax\n"
+          "\tcall  printf@PLT\n"
+          "\tmovl  $0, %%eax\n"
+          "\taddq  $8, %%rsp\n", tac->res->text);
+        break;
+        case DATATYPE_LONG:
+        fprintf(fout, "##TAC_PRINTEXP\n"
+          "\tsubq  $8, %%rsp\n"
+          "\tmovq  _%s(%%rip), %%rax\n"
+          "\tmovq  %%rax, %%rsi\n"
+          "\tleaq  .LC3(%%rip), %%rdi\n"
+          "\tmovl  $0, %%eax\n"
           "\tcall  printf@PLT\n"
           "\tmovl  $0, %%eax\n"
           "\taddq  $8, %%rsp\n", tac->res->text);
