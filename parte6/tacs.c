@@ -527,13 +527,13 @@ void generateASM(TAC* tac, FILE* fout){
 
     case TAC_ARRWRITE:
       fprintf(fout, "## TAC_ARRWRITE tipos int\n"
-        "\tmovl  _%s(%%rip), %%edx\n"//var da qual vem o dado
         "\tmovl  _%s(%%rip), %%eax\n"// indice do vetor
-        "\tmovl  %%edx, %%ecx\n"
-        "\tmovslq  %%eax, %%rdx\n"
+        "\tmovl  _%s(%%rip), %%edx\n"//var da qual vem o dado 
+        "\tcltq\n"
+        "\tleaq  0(,%%rax,4), %%rcx\n"
         "\tleaq  _%s(%%rip), %%rax\n"//nome do vetor
-        "\tmovb  %%cl, (%%rdx,%%rax)\n"
-        "\tmovl  $0, %%eax\n",tac->op2->text, tac->op1->text, tac->res->text);
+        "\tmovl  %%edx, (%%rcx,%%rax)\n"
+        "\tmovl  $0, %%eax\n",tac->op1->text, tac->op2->text, tac->res->text);
         break;
 
     case TAC_ARREF:
