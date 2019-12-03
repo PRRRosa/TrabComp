@@ -13,6 +13,7 @@ TAC* makeArrayWrite(HASH_NODE* vectorName,TAC* vectorIndexCode,TAC* assignCode);
 void writeVar(TAC* tac, FILE* fout);
 void writeMove(char* source, char* target, int sourceDatatype, int targetDatatype, FILE* fout);
 void writeBinOp(TAC* operation, FILE* fout);
+void writeVec(TAC* tac, FILE* fout);
 
 int printLabelCount = 4;
 
@@ -527,16 +528,7 @@ void generateASM(TAC* tac, FILE* fout){
     break;
 
     case TAC_VECINITLIST:
-    if(tac->res->datatype == DATATYPE_FLOAT){
-    	//float fv = atof(tac->res->text);
-    	//CONVERTER VALOR
-    	fprintf(fout,
-        "\t.long %s\n",tac->res->text);
-    }else{
-      fprintf(fout,
-        "\t.long %s\n",tac->res->text);
-      // Essa tac precisa saber o tipo do vetor sendo declarado, para poder declarar o tipo certo
-      }
+    	writeVec(tac,fout);
       break;
 
     case TAC_ARRWRITE:
@@ -705,7 +697,27 @@ void generateASM(TAC* tac, FILE* fout){
     break;
   }
 }
-
+void writeVec(TAC* tac, FILE* fout){
+  volatile float tempFloat;
+  int tempInt;
+    if(tac->res->datatype == DATATYPE_FLOAT){
+    	tempFloat = atof(tac->res->text);//transforma o valor texto em float, depois força o gcc a interpretar
+      tempInt = *(int*)&tempFloat;
+    	fprintf(fout,
+        "\t.long %d\n",tempInt);
+    }else if (tac->res->datatype == DATATYPE_BYTE){
+    	tempInt = atoi(tac->res->text);
+    	fprintf(fout,
+        "\t.long %d\n",tempInt);
+    } else if (tac->res->datatype == DATATYPE_LONG){
+    	fprintf(fout,
+        "\t.long %ld\n",atol(tac->res->text));
+    }else{
+      fprintf(fout,
+        "\t.long %s\n",tac->res->text);
+      // Essa tac precisa saber o tipo do vetor sendo declarado, para poder declarar o tipo certo
+      }
+}
 void writeVar(TAC* tac, FILE* fout){
   volatile float tempFloat;
   int tempInt;
