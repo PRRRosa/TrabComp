@@ -1,7 +1,8 @@
 #include <stdio.h>
-int a=1;
+float a=1;
 int b=2;
+int c = 0;
 int main(){
-  a=a+b;
+  c=a+b;
   printf("%d\n",a);
 }

@@ -497,28 +497,52 @@ void generateASM(TAC* tac, FILE* fout){
     case TAC_VEC:
 
       fprintf(fout, "## TAC_VEC\n"
-        "\t.comm _%s,%d\n",tac->res->text, (atoi(tac->op2->text) * 4));
+        "\t.comm _%s,%d\n",tac->res->text, (atoi(tac->op2->text) * tac->res->datatype));
       break;
 
     case TAC_VECINIT:
-      fprintf(fout, "## TAC_ARRDECINIT\n"
+    if(tac->res->datatype == DATATYPE_BYTE){
+    	fprintf(fout, "## TAC_ARRDECINIT\n"
+        "\t.globl  _%s\n"
+        "\t.data\n"
+        "\t.type _%s, @object\n"
+        "\t.size _%s, %d\n"
+      "_%s:\n",tac->res->text, tac->res->text, tac->res->text,(atoi(tac->op1->text) * 1),tac->res->text);
+    }else if(tac->res->datatype == DATATYPE_INT || tac->res->datatype == DATATYPE_FLOAT || tac->res->datatype == DATATYPE_BOOL ){
+    	fprintf(fout, "## TAC_ARRDECINIT\n"
         "\t.globl  _%s\n"
         "\t.data\n"
         "\t.type _%s, @object\n"
         "\t.size _%s, %d\n"
       "_%s:\n",tac->res->text, tac->res->text, tac->res->text,(atoi(tac->op1->text) * 4),tac->res->text);
+    }else{
+    	fprintf(fout, "## TAC_ARRDECINIT\n"
+        "\t.globl  _%s\n"
+        "\t.data\n"
+        "\t.type _%s, @object\n"
+        "\t.size _%s, %d\n"
+      "_%s:\n",tac->res->text, tac->res->text, tac->res->text,(atoi(tac->op1->text) * 8),tac->res->text);
+    }
+
     break;
 
     case TAC_VECINITLIST:
+    if(tac->res->datatype == DATATYPE_FLOAT){
+    	//float fv = atof(tac->res->text);
+    	//CONVERTER VALOR
+    	fprintf(fout,
+        "\t.long %s\n",tac->res->text);
+    }else{
       fprintf(fout,
         "\t.long %s\n",tac->res->text);
       // Essa tac precisa saber o tipo do vetor sendo declarado, para poder declarar o tipo certo
+      }
       break;
 
     case TAC_ARRWRITE:
       fprintf(fout, "## TAC_ARRWRITE tipos int\n"
         "\tmovl  _%s(%%rip), %%eax\n"// indice do vetor
-        "\tmovl  _%s(%%rip), %%edx\n"//var da qual vem o dado 
+        "\tmovl  _%s(%%rip), %%edx\n"//var da qual vem o dado
         "\tcltq\n"
         "\tleaq  0(,%%rax,4), %%rcx\n"
         "\tleaq  _%s(%%rip), %%rax\n"//nome do vetor
@@ -596,7 +620,7 @@ void generateASM(TAC* tac, FILE* fout){
 
     case TAC_MOVE:
       writeMove(tac->op1->text, tac->res->text, tac->op1->datatype, tac->res->datatype,fout);
-      
+
       break;
 
     case TAC_ARG:
@@ -668,7 +692,7 @@ void generateASM(TAC* tac, FILE* fout){
           stringPrintIndex = 3;
           break;
       }
-      fprintf(fout, 
+      fprintf(fout,
         "\tsubq  $8, %%rsp\n"
         "\tleaq  _%s(%%rip), %%rsi\n"//var sendo escrita
         "\tleaq  .LC%d(%%rip), %%rdi\n"//ponteiro para string de leitura
@@ -703,7 +727,7 @@ void writeVar(TAC* tac, FILE* fout){
         "\t.type _%s, @object\n"
         "\t.size _%s, 4\n"
       "_%s:\n"
-        "\t.long %d\n", tac->res->text, tac->res->text, tac->res->text, tac->res->text,tempInt);  
+        "\t.long %d\n", tac->res->text, tac->res->text, tac->res->text, tac->res->text,tempInt);
 
     break;
     case DATATYPE_FLOAT:
@@ -760,7 +784,7 @@ void writeVar(TAC* tac, FILE* fout){
         "\t.type _%s, @object\n"
         "\t.size _%s, 1\n"
       "_%s:\n"
-        "\t.byte %d\n", tac->res->text, tac->res->text, tac->res->text, tac->res->text,tempInt);  
+        "\t.byte %d\n", tac->res->text, tac->res->text, tac->res->text, tac->res->text,tempInt);
       break;
 
       case DATATYPE_LONG:
@@ -778,7 +802,7 @@ void writeVar(TAC* tac, FILE* fout){
         "\t.type _%s, @object\n"
         "\t.size _%s, 8\n"
       "_%s:\n"
-        "\t.quad %ld\n", tac->res->text, tac->res->text, tac->res->text, tac->res->text,tempLong);  
+        "\t.quad %ld\n", tac->res->text, tac->res->text, tac->res->text, tac->res->text,tempLong);
       break;
 
   }
@@ -795,12 +819,12 @@ void writeFixed(TAC* first, FILE* output){
   fprintf(output, ".LC2:\n"
           "\t.string \"%%c\"\n");
   fprintf(output, ".LC3:\n"
-          "\t.string \"%%ld\"\n");   
+          "\t.string \"%%ld\"\n");
   for(tac=first; tac; tac = tac->prev){
     if(tac->type == TAC_PRINTSTR){
       fprintf(output, ".LC%d:\n"
                   "\t.string %s\n",
-              printLabelCount, tac->res->text); 
+              printLabelCount, tac->res->text);
       printLabelCount++;
     }else if(tac->type ==TAC_ARGDEC){
       writeVar(tac, output);
@@ -810,10 +834,27 @@ void writeFixed(TAC* first, FILE* output){
 }
 
 void writeMove(char* source, char* target, int sourceDatatype, int targetDatatype, FILE* fout){
+	if(sourceDatatype == DATATYPE_FLOAT){
+	fprintf(fout,"##TAC_MOVE FLOAT\n"
+		"\tmovss _%s(%%rip), %%xmm0\n"
+		"\tmovss %%xmm0, _%s(%%rip)\n"
+		"\tmovl $0, %%eax\n", source,target);
+	}else if (sourceDatatype == DATATYPE_BYTE){
+	fprintf(fout,"##TAC_MOVE BYTE\n"
+		"\tmovzbl _%s(%%rip), %%eax\n"
+		"\tmovb %%al, _%s(%%rip)\n"
+		"\tmovl $0, %%eax\n", source,target);
+	}else if (sourceDatatype == DATATYPE_LONG){
+		fprintf(fout,"##TAC_MOVE LONG\n"
+		"\tmovq _%s(%%rip), %%rax\n"
+		"\tmovq %%rax, _%s(%%rip)\n"
+		"\tmovl $0, %%eax\n", source,target);
+	}else{
   fprintf(fout, "##TAC_MOVE INTs\n"
         "\tmovl  _%s(%%rip), %%eax\n"
         "\tmovl  %%eax, _%s(%%rip)\n"
         "\tmovl  $0, %%eax\n",source, target);
+        }
 }
 
 
@@ -899,7 +940,7 @@ void writeBinOp(TAC* operation, FILE* fout){
 
     case TAC_GRE:
       if((operation->op1->datatype != DATATYPE_FLOAT) && (operation->op2->datatype != DATATYPE_FLOAT)){
-        fprintf(fout, 
+        fprintf(fout,
           "\tcmpl  %%eax, %%edx\n"
           "\tsetg  %%al\n"
           "\tmovzbl  %%al, %%eax\n"
@@ -915,7 +956,7 @@ void writeBinOp(TAC* operation, FILE* fout){
       break;
     case TAC_LESS:
       if((operation->op1->datatype != DATATYPE_FLOAT) && (operation->op2->datatype != DATATYPE_FLOAT)){
-        fprintf(fout, 
+        fprintf(fout,
           "\tcmpl  %%eax, %%edx\n"
           "\tsetl  %%al\n"
           "\tmovzbl  %%al, %%eax\n"
@@ -932,7 +973,7 @@ void writeBinOp(TAC* operation, FILE* fout){
 
     case TAC_SUB:
       if((operation->op1->datatype != DATATYPE_FLOAT) && (operation->op2->datatype != DATATYPE_FLOAT)){
-        fprintf(fout, 
+        fprintf(fout,
           "\tsubl %%eax, %%edx\n"
           "\tmovl  %%edx, %%eax\n"
           "\tmovl  %%eax, _%s(%%rip)\n"
@@ -948,7 +989,7 @@ void writeBinOp(TAC* operation, FILE* fout){
 
     case TAC_MUL:
       if((operation->op1->datatype != DATATYPE_FLOAT) && (operation->op2->datatype != DATATYPE_FLOAT)){
-        fprintf(fout, 
+        fprintf(fout,
           "\timull %%edx, %%eax\n"
           "\tmovl  %%eax, _%s(%%rip)\n"
           "\tmovl  $0, %%eax\n", operation->res->text);
@@ -963,7 +1004,7 @@ void writeBinOp(TAC* operation, FILE* fout){
 
     case TAC_EQ:
       if((operation->op1->datatype != DATATYPE_FLOAT) && (operation->op2->datatype != DATATYPE_FLOAT)){
-        fprintf(fout, 
+        fprintf(fout,
           "\tcmpl  %%eax, %%edx\n"
           "\tsete  %%al\n"
           "\tmovzbl  %%al, %%eax\n"
@@ -984,7 +1025,7 @@ void writeBinOp(TAC* operation, FILE* fout){
 
     case TAC_LE:
       if((operation->op1->datatype != DATATYPE_FLOAT) && (operation->op2->datatype != DATATYPE_FLOAT)){
-        fprintf(fout, 
+        fprintf(fout,
           "\tcmpl  %%eax, %%edx\n"
           "\tsetle %%al\n"
           "\tmovzbl  %%al, %%eax\n"
@@ -1004,7 +1045,7 @@ void writeBinOp(TAC* operation, FILE* fout){
 
     case TAC_GE:
       if((operation->op1->datatype != DATATYPE_FLOAT) && (operation->op2->datatype != DATATYPE_FLOAT)){
-        fprintf(fout, 
+        fprintf(fout,
           "\tcmpl  %%eax, %%edx\n"
           "\tsetge %%al\n"
           "\tmovzbl  %%al, %%eax\n"
@@ -1024,7 +1065,7 @@ void writeBinOp(TAC* operation, FILE* fout){
 
     case TAC_DIF:
       if((operation->op1->datatype != DATATYPE_FLOAT) && (operation->op2->datatype != DATATYPE_FLOAT)){
-        fprintf(fout, 
+        fprintf(fout,
           "\tcmpl  %%eax, %%edx\n"
           "\tsetne %%al\n"
           "\tmovzbl  %%al, %%eax\n"
@@ -1046,7 +1087,7 @@ void writeBinOp(TAC* operation, FILE* fout){
     break;
 
     case TAC_OR:
-      fprintf(fout, 
+      fprintf(fout,
         "\torl %%edx, %%eax\n"
         "\tmovl  %%eax, _%s(%%rip)\n"
         "\tmovl  $0, %%eax\n" , operation->res->text);
@@ -1056,6 +1097,6 @@ void writeBinOp(TAC* operation, FILE* fout){
       fprintf(fout,"##Operação não implementada%d\n",operation->type);
       break;
   }
-  
+
 
 }
