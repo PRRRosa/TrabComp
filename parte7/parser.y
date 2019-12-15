@@ -86,7 +86,7 @@
 %%
 
 begin:
-  programa {astreeWrite($1,yyout);checkErrors();astreePrint($1,0);printf("\n");checkAndSetTypes($1);checkOperands($1,NULL);fprintf(stderr,"%d semantic errors\n",getSemanticError());if(getSemanticError() > 0)exit(4);tac = generateCode($1,0);tacPrintBackwards(tac);asmbly = fopen("etapa6.s","w");writeFixed(tac,asmbly);generateASM(tac,asmbly);}
+    programa {checkErrors();astreeWrite($1,yyout);astreePrint($1,0);printf("\n");checkAndSetTypes($1);checkOperands($1,NULL);fprintf(stderr,"%d semantic errors\n",getSemanticError());if(getSemanticError() > 0)exit(4);tac = generateCode($1,0);tacPrintBackwards(tac);asmbly = fopen("etapa7.s","w");writeFixed(tac,asmbly);generateASM(tac,asmbly);}
 ;
 
 programa:
@@ -113,14 +113,17 @@ vartype:
 singleVarDec:
     vartype TK_IDENTIFIER '=' init ';' {$$=astreeCreate(AST_VARDEC,$2,$1,$4,0,0,getLineNumber());}
     | vartype TK_IDENTIFIER '=' init error {printf("\';\' nao encontrado na linha %d\n",getLineNumber());errorCount++;}
+    | error {printf("Erro de declaração de variável na linha %d\n",getLineNumber());errorCount++;}
 ;
 arrayDec:
     vartype TK_IDENTIFIER '[' LIT_INTEGER ']' ':' listInit ';'  {$$=astreeCreate(AST_ARRDECINIT,$2,$1,astreeCreate(AST_SYMBOL,$4,0,0,0,0,getLineNumber()),$7,0,getLineNumber());}
   | vartype TK_IDENTIFIER '[' LIT_INTEGER ']' ';' {$$=astreeCreate(AST_ARRDEC,$2,$1,astreeCreate(AST_SYMBOL,$4,0,0,0,0,getLineNumber()),0,0,getLineNumber());}
+  | vartype TK_IDENTIFIER '[' LIT_INTEGER ']' error {printf("\';\' nao encontrado na linha %d\n",getLineNumber());errorCount++;}
 ;
 listInit:
     init  {$$=astreeCreate(AST_LISTINIT,0,$1,0,0,0,getLineNumber());}
   | init listInit   {$$=astreeCreate(AST_LISTINIT,0,$1,$2,0,0,getLineNumber());}
+  | error {printf("Erro de iniciacao de vetor na linha %d\n",getLineNumber());errorCount++;}
 ;
 init:
     LIT_INTEGER {$$=astreeCreate(AST_SYMBOL,$1,0,0,0,0,getLineNumber());}
@@ -172,7 +175,7 @@ expression:
   | funCall
   | TK_IDENTIFIER {$$=astreeCreate(AST_SYMBOL,$1,0,0,0,0,getLineNumber());}
   | TK_IDENTIFIER '[' expression ']'  {$$=astreeCreate(AST_ARRELEMENT,$1,$3,0,0,0,getLineNumber());}
-  | expression error {printf("erro na expressao linha %d\n",getLineNumber());errorCount++;}
+  | error {printf("erro na expressao linha %d\n",getLineNumber());errorCount++;}
 ;
 whileCommand:
     KW_WHILE '(' expression ')' cmd {$$=astreeCreate(AST_WHILE,0,$3,$5,0,0,getLineNumber());}
@@ -206,7 +209,7 @@ declParam:
 ;
 block:
     '{' lcmd '}'  {$$=astreeCreate(AST_BLOCK,0,$2,0,0,0,getLineNumber());}
-    | '{' lcmd error {printf("\'}\' nao encontrado na linha %d\n",getLineNumber());errorCount++;}
+  | '{' lcmd error {printf("\'}\' nao encontrado na linha %d\n",getLineNumber());errorCount++;}
 ;
 lcmd:
     cmd {$$=astreeCreate(AST_LCMD,0,$1,0,0,0,getLineNumber());}
@@ -223,6 +226,7 @@ void yyerror(char *msg){
   //fprintf(stderr, "Deu erro de sintaxe na linha %d\n",getLineNumber());
   errorCount++;
   //exit(3);
+  //checkErrors();
 }
 
 void checkErrors(){
