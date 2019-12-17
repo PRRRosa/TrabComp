@@ -4,14 +4,7 @@ int k = 6667;
 
 int funct (int a,int b)
 {
-  y = +5
-  k=1;
+  y = x+y;
   //y = 1+x*7-2;
-
-}
-
-
-int ccc()
-{
 
 }

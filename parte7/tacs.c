@@ -275,6 +275,9 @@ TAC* generateCode(AST* ast,HASH_NODE* labelLoopEnd){
       return tacJoin(tacCreate(TAC_VECINITLIST, ast->son[0]->symbol,0,0,0),code[1]);
       break;
     case AST_FOR:
+      printf("AQUI TA O VALOR DO FOR:  %d\n",atoi(code[1]->res->text));
+      int a = atoi(code[1]->res->text)/2;
+      printf("%d\n",a);
       return makeFor(ast->symbol,code[0],code[1],code[2],code[3],labelLoopEnd);
       break;
     case AST_BREAK:
