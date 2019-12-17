@@ -6,22 +6,8 @@
 	.string "%c"
 .LC3:
 	.string "%ld"
-## TAC_VAR
-	.globl  _b
-	.data
-	.align 4
-	.type _b, @object
-	.size _b, 4
-_b:
-	.long 0
-## TAC_VAR
-	.globl  _a
-	.data
-	.align 4
-	.type _a, @object
-	.size _a, 4
-_a:
-	.long 0
+.LC4:
+	.string "."
 ## TEMP_VAR
 	.globl  _TEMPORARYNODE0
 	.data 4
@@ -31,29 +17,37 @@ _a:
 _TEMPORARYNODE0:
 	.long 0
 ## SYMBOL_LITINT
-	.globl  _10
+	.globl  _0
 	.data 4
 	.align 4
-	.type _10, @object
-	.size _10, 4
-_10:
-	.long 10
+	.type _0, @object
+	.size _0, 4
+_0:
+	.long 0
 ## SYMBOL_LITINT
-	.globl  _20
+	.globl  _1
 	.data 4
 	.align 4
-	.type _20, @object
-	.size _20, 4
-_20:
-	.long 20
+	.type _1, @object
+	.size _1, 4
+_1:
+	.long 1
+## TEMP_VAR
+	.globl  _TEMPORARYNODE1
+	.data 4
+	.align 4
+	.type _TEMPORARYNODE1, @object
+	.size _TEMPORARYNODE1, 4
+_TEMPORARYNODE1:
+	.long 0
 ## SYMBOL_LITINT
-	.globl  _6667
+	.globl  _50
 	.data 4
 	.align 4
-	.type _6667, @object
-	.size _6667, 4
-_6667:
-	.long 6667
+	.type _50, @object
+	.size _50, 4
+_50:
+	.long 50
 ## TAC_VAR
 	.globl  _x
 	.data
@@ -61,34 +55,45 @@ _6667:
 	.type _x, @object
 	.size _x, 4
 _x:
-	.long 10
-## TAC_VAR
-	.globl  _y
-	.data
-	.align 4
-	.type _y, @object
-	.size _y, 4
-_y:
-	.long 20
-## TAC_VAR
-	.globl  _k
-	.data
-	.align 4
-	.type _k, @object
-	.size _k, 4
-_k:
-	.long 6667
+	.long 0
 ## TAC_BEGINFUN
-	.globl	funct
-funct:
+	.globl	main
+main:
+##TAC_MOVE INTs
+	movl  _1(%rip), %eax
+	movl  %eax, _x(%rip)
+	movl  $0, %eax
+##TAC_LABEL
+.TEMPORARYLABEL1:
 ##Binop
 	movl  _x(%rip), %edx
-	movl  _y(%rip), %eax
-	addl  %edx, %eax
+	movl  _50(%rip), %eax
+	cmpl  %eax, %edx
+	setl  %al
+	movzbl  %al, %eax
 	movl  %eax, _TEMPORARYNODE0(%rip)
-##TAC_MOVE INTs
-	movl  _TEMPORARYNODE0(%rip), %eax
-	movl  %eax, _y(%rip)
 	movl  $0, %eax
+##TAC_IFZ
+	movl  _TEMPORARYNODE0(%rip), %eax
+	testl %eax, %eax
+	je .TEMPORARYLABEL0
+##TAC_PRINTSTR
+	leaq  .LC4(%rip), %rdi
+	movl  $0, %eax
+	call  printf@PLT
+	movl  $0, %eax
+##Binop
+	movl  _x(%rip), %edx
+	movl  _1(%rip), %eax
+	addl  %edx, %eax
+	movl  %eax, _TEMPORARYNODE1(%rip)
+##TAC_MOVE INTs
+	movl  _TEMPORARYNODE1(%rip), %eax
+	movl  %eax, _x(%rip)
+	movl  $0, %eax
+##TAC_JUMP
+jmp .TEMPORARYLABEL1
+##TAC_LABEL
+.TEMPORARYLABEL0:
 ## TAC_ENDFUN
 	ret
