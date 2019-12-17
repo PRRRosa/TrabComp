@@ -14,7 +14,7 @@ void writeVar(TAC* tac, FILE* fout);
 void writeMove(char* source, char* target, int sourceDatatype, int targetDatatype, FILE* fout);
 void writeBinOp(TAC* operation, FILE* fout);
 void writeVec(TAC* tac, FILE* fout);
-TAC* makeFissionFor(AST* ast,TAC* code0,TAC* code1,TAC* code2,TAC* code3,HASH_NODE* labelLoopEnd);
+TAC* makeFissionFor(AST* ast,TAC* code0,TAC* code1,TAC* code2,TAC* code3, TAC* codeCopy0,TAC* codeCopy1,TAC* codeCopy2,TAC* codeCopy3,HASH_NODE* labelLoopEnd);
 
 int printLabelCount = 4;
 
@@ -276,7 +276,9 @@ TAC* generateCode(AST* ast,HASH_NODE* labelLoopEnd){
       return tacJoin(tacCreate(TAC_VECINITLIST, ast->son[0]->symbol,0,0,0),code[1]);
       break;
     case AST_FOR:
-      return makeFissionFor(ast,code[0],code[1],code[2],code[3],labelLoopEnd);
+      return makeFissionFor(ast,code[0],code[1],code[2],code[3],
+       generateCode(ast->son[0],labelLoopEnd), generateCode(ast->son[1],labelLoopEnd), 
+       generateCode(ast->son[2],labelLoopEnd), generateCode(ast->son[3],labelLoopEnd),labelLoopEnd);
       break;
     case AST_BREAK:
       return makeBreak(labelLoopEnd);
@@ -288,16 +290,22 @@ TAC* generateCode(AST* ast,HASH_NODE* labelLoopEnd){
       break;
   }
 }
-TAC* makeFissionFor(AST* ast,TAC* code0,TAC* code1,TAC* code2,TAC* code3,HASH_NODE* labelLoopEnd){
+
+//makeFor(HASH_NODE* loopVar,TAC* tacInitOp, TAC* tacIfOp, TAC* tacLoopOp, TAC* codigoFor, HASH_NODE* labelLoopEnd);
+TAC* makeFissionFor(AST* ast,TAC* code0,TAC* code1,TAC* code2,TAC* code3, TAC* codeCopy0,TAC* codeCopy1,TAC* codeCopy2,TAC* codeCopy3,HASH_NODE* labelLoopEnd){
   TAC* temp0 = code0;
   TAC* temp1 = code1;
   //printf("AQUI TA O VALOR DO FOR:  %d\n",atoi(code0->res->text));
   int a = atoi(code1->res->text)/2;
-  sprintf(temp1->res->text,"%d",a);
-  sprintf(temp0->res->text,"%d",a);
+  sprintf(code1->res->text,"%d",a);
+  sprintf(codeCopy0->res->text,"%d",a);
   //printf("AQUI TA O VALOR DO inicio FOR2:  %d\n",atoi(temp0->res->text));
   //printf("AQUI TA O VALOR DO FOR:  %d\n",atoi(temp1->res->text));
-  return tacJoin(makeFor(ast->symbol,code0,temp1,code2,code3,labelLoopEnd),makeFor(ast->symbol,temp0,code1,code2,code3,labelLoopEnd));
+  TAC* first = makeFor(ast->symbol,code0,code1,code2,code3,labelLoopEnd);
+  printf("foi1\n");
+  TAC* second = makeFor(ast->symbol,codeCopy0,codeCopy1,codeCopy2,codeCopy3,labelLoopEnd);
+  printf("foi2\n");
+  return tacJoin(first,second);
 }
 TAC* makeBinOp(int type,TAC* code0, TAC* code1){
   //return tacJoin(tacJoin(code0,code1),tacCreate(type,makeTemp(),code0?code0->res:0,code1?code1->res:0));
