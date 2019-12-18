@@ -4,6 +4,7 @@
 #include "hash.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #define TAC_SYMBOL 1
 #define TAC_ADD 2
 #define TAC_SUB 3
